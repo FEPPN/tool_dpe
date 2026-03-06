@@ -292,20 +292,32 @@
 
         async function interrogerAdeme(adresse) {
             const query = encodeURIComponent(adresse);
-            const urlNouvelle = `https://data.ademe.fr/data-fair/api/v1/datasets/dpe03existant/lines?q=${query}&size=1`;
-            const urlAncienne = `https://data.ademe.fr/data-fair/api/v1/datasets/dpe-france/lines?q=${query}&size=1`;
+
+            // OPTIMISATION 1 : On liste uniquement les colonnes dont on a besoin (Allège drastiquement le poids du téléchargement)
+            const colonnesNouvelle = "etiquette_dpe,etiquette_ges,date_etablissement_dpe,periode_construction,type_batiment,conso_5_usages_par_m2_ep,surface_habitable_logement,_geopoint";
+            const colonnesAncienne = "classe_consommation_energie,classe_estimation_ges,date_etablissement_dpe,annee_construction,tr002_type_batiment_description,consommation_energie,surface_thermique_lot,_geopoint";
+
+            // Ajout du paramètre &select= à la fin des URL
+            const urlNouvelle = `https://data.ademe.fr/data-fair/api/v1/datasets/dpe03existant/lines?q=${query}&size=1&select=${colonnesNouvelle}`;
+            const urlAncienne = `https://data.ademe.fr/data-fair/api/v1/datasets/dpe-france/lines?q=${query}&size=1&select=${colonnesAncienne}`;
 
             try {
-                // Requête base Post-2021
-                let resNouvelle = await fetch(urlNouvelle);
-                let jsonNouvelle = await resNouvelle.json();
+                // OPTIMISATION 2 : Exécution Parallèle. On lance les deux requêtes en même temps !
+                const [resNouvelle, resAncienne] = await Promise.all([
+                    fetch(urlNouvelle),
+                    fetch(urlAncienne)
+                ]);
+
+                // On transforme les deux réponses en JSON en même temps
+                const jsonNouvelle = await resNouvelle.json();
+                const jsonAncienne = await resAncienne.json();
+
+                // Logique de priorité : on regarde d'abord si la nouvelle base a trouvé quelque chose
                 if (jsonNouvelle.results && jsonNouvelle.results.length > 0) {
                     return nettoyerDonnees(jsonNouvelle.results[0], "post-2021", adresse);
                 }
 
-                // Requête base Pré-2021 (Fallback)
-                let resAncienne = await fetch(urlAncienne);
-                let jsonAncienne = await resAncienne.json();
+                // Sinon (Fallback automatique), on regarde si l'ancienne base a la réponse
                 if (jsonAncienne.results && jsonAncienne.results.length > 0) {
                     return nettoyerDonnees(jsonAncienne.results[0], "pre-2021", adresse);
                 }
