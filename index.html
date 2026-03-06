@@ -3,54 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Widget DPE - Papernest Standalone Edition</title>
+    <title>Widget DPE - Dashboard Rapide & Sécurisé</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
         /* --- LE BODY --- */
-        body {
-            background-color: #F4F6F8;
-            padding: 40px 15px;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-        }
+        body { background-color: #F4F6F8; padding: 40px 15px; margin: 0; display: flex; justify-content: center; }
 
         /* --- CONTENEUR GLOBAL --- */
-        .widget-wrapper {
-            width: 100%;
-            max-width: 950px; 
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            box-sizing: border-box;
-        }
+        .widget-wrapper { width: 100%; max-width: 950px; font-family: 'Inter', system-ui, -apple-system, sans-serif; box-sizing: border-box; }
         .widget-wrapper * { box-sizing: border-box; }
 
-        /* Charte Couleurs Papernest */
+        /* Charte Couleurs */
         :root {
-            --papernest-blue: #0047FF;
-            --papernest-blue-hover: #003BE0;
-            --papernest-purple: #5A52FF; 
-            --papernest-light-blue: #E5EDFF;
-            --pastel-peach: #FFF2E5;
-            --text-dark: #111111; 
-            --text-light: #737373;
+            --papernest-blue: #0047FF; --papernest-blue-hover: #003BE0;
+            --papernest-purple: #5A52FF; --papernest-light-blue: #E5EDFF;
+            --pastel-peach: #FFF2E5; --text-dark: #111111; --text-light: #737373;
             --radius-box: 20px;
         }
 
         /* --- HERO SECTION & RECHERCHE --- */
         .hero-section {
-            background: white;
-            border-radius: var(--radius-box);
-            padding: 32px; 
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-            border: 1px solid #EAECEF;
-            border-top: 6px solid var(--papernest-blue); 
-            margin-bottom: 24px; 
+            background: white; border-radius: var(--radius-box); padding: 32px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #EAECEF;
+            border-top: 6px solid var(--papernest-blue); margin-bottom: 24px; 
         }
-
         .hero-section h1 { font-size: 28px; font-weight: 800; color: var(--text-dark); margin: 0 0 8px 0; letter-spacing: -0.5px; }
         .hero-section p { color: var(--text-light); font-size: 15px; margin: 0 0 24px 0; }
 
@@ -75,42 +54,24 @@
 
         /* --- GRILLE BENTO --- */
         .bento-grid {
-            display: none; 
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: 200px 140px; 
-            background-color: rgba(0, 0, 0, 0.08); 
-            gap: 1px; 
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            border-radius: var(--radius-box); 
-            overflow: hidden; 
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04); 
+            display: none; grid-template-columns: repeat(4, 1fr); grid-template-rows: 200px 140px; 
+            background-color: rgba(0, 0, 0, 0.08); gap: 1px; border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: var(--radius-box); overflow: hidden; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04); 
             opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease;
         }
         .bento-grid.visible { display: grid; opacity: 1; transform: translateY(0); }
 
         .bento-box {
-            background: white;
-            padding: 20px 24px; 
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            border-radius: 0; 
-            color: var(--text-dark);
+            background: white; padding: 20px 24px; display: flex; flex-direction: column;
+            justify-content: space-between; position: relative; border-radius: 0; color: var(--text-dark);
         }
+        .separator { height: 1px; background-color: rgba(0, 0, 0, 0.1); width: 100%; margin: auto 0 8px 0; }
 
-        .separator {
-            height: 1px; background-color: rgba(0, 0, 0, 0.1); width: 100%; margin: auto 0 8px 0;
-        }
-
-        /* Fonds et Bandeaux ciblés */
+        /* Fonds et Bandeaux */
         .box-dpe { grid-column: span 1; border-top: 5px solid rgba(0, 0, 0, 0.05); } 
         .box-ges { grid-column: span 1; border-top: 5px solid rgba(0, 0, 0, 0.05); } 
         .box-map { grid-column: span 2; padding: 0; } 
-        .box-address { 
-            grid-column: span 2; background-color: var(--papernest-purple); color: white; 
-            border-top: 5px solid rgba(0, 0, 0, 0.15); 
-        }
+        .box-address { grid-column: span 2; background-color: var(--papernest-purple); color: white; border-top: 5px solid rgba(0, 0, 0, 0.15); }
         .box-details { grid-column: span 1; background-color: var(--pastel-peach); } 
         .box-year { grid-column: span 1; background-color: var(--papernest-light-blue); } 
 
@@ -122,7 +83,6 @@
         .bento-text-value { font-size: 22px; font-weight: 800; line-height: 1.1; margin-top: auto; color: var(--text-dark); } 
         .bento-subtitle { font-size: 13px; opacity: 0.8; font-weight: 600; color: var(--text-dark); } 
         
-        /* Exceptions de contraste pour la case violette */
         .box-address .bento-title { color: rgba(255,255,255,0.7); }
         .box-address .bento-medium-value { color: white; }
         .box-address .bento-subtitle { color: rgba(255,255,255,0.8); }
@@ -145,13 +105,12 @@
 <body>
 
     <div class="widget-wrapper">
-        
         <div class="hero-section" id="hero-block">
             <h1>Trouvez votre DPE !</h1>
             <p>Découvrez l'étiquette énergie et les caractéristiques d'un logement.</p>
             
             <div class="search-container">
-                <input type="text" id="adresse-input" placeholder="Ex: 16 rue Masséna, Lille..." oninput="chercherSuggestions()" onkeypress="gererToucheEntree(event)" autocomplete="off">
+                <input type="text" id="adresse-input" placeholder="Ex: 5 rue Blanche, Paris..." oninput="chercherSuggestions()" onkeypress="gererToucheEntree(event)" autocomplete="off">
                 <button onclick="lancerRecherche()">Analyser le bien</button>
                 <ul id="suggestions-list" class="suggestions-list"></ul>
             </div>
@@ -159,63 +118,21 @@
         </div>
 
         <div id="bento-grid" class="bento-grid">
-            
-            <div id="box-dpe" class="bento-box box-dpe">
-                <span class="bento-title">Note DPE</span>
-                <span id="val-dpe" class="bento-huge-value">-</span>
-                <div class="separator"></div>
-                <span class="bento-subtitle">Énergie Primaire</span>
-            </div>
-
-            <div id="box-ges" class="bento-box box-ges">
-                <span class="bento-title">Climat (GES)</span>
-                <span id="val-ges" class="bento-huge-value">-</span>
-                <div class="separator"></div>
-                <span class="bento-subtitle">Émissions CO₂</span>
-            </div>
-
-            <div class="bento-box box-map">
-                <div id="map"></div>
-            </div>
-
-            <div class="bento-box box-address">
-                <span class="bento-title">Adresse certifiée</span>
-                <div id="val-adresse" class="bento-medium-value" style="margin-top: 8px;">Chargement...</div>
-                <div class="separator"></div>
-                <div id="val-date" class="bento-subtitle">Validé le --/--/----</div>
-            </div>
-
-            <div class="bento-box box-details">
-                <span class="bento-title">Superficie</span>
-                <div id="val-surface" class="bento-small-value">-- m²</div>
-                <div class="separator"></div>
-                <div id="val-type" class="bento-subtitle">Type inconnu</div>
-            </div>
-
-            <div class="bento-box box-year">
-                <span class="bento-title">Bâti en</span>
-                <div id="val-annee" class="bento-text-value" style="margin-top: 10px;">--</div>
-                <div class="separator"></div>
-                <div class="bento-subtitle">
-                    Conso : <strong id="val-conso">--</strong>
-                </div>
-            </div>
-
+            <div id="box-dpe" class="bento-box box-dpe"><span class="bento-title">Note DPE</span><span id="val-dpe" class="bento-huge-value">-</span><div class="separator"></div><span class="bento-subtitle">Énergie Primaire</span></div>
+            <div id="box-ges" class="bento-box box-ges"><span class="bento-title">Climat (GES)</span><span id="val-ges" class="bento-huge-value">-</span><div class="separator"></div><span class="bento-subtitle">Émissions CO₂</span></div>
+            <div class="bento-box box-map"><div id="map"></div></div>
+            <div class="bento-box box-address"><span class="bento-title">Adresse certifiée</span><div id="val-adresse" class="bento-medium-value" style="margin-top: 8px;">Chargement...</div><div class="separator"></div><div id="val-date" class="bento-subtitle">Validé le --/--/----</div></div>
+            <div class="bento-box box-details"><span class="bento-title">Superficie</span><div id="val-surface" class="bento-small-value">-- m²</div><div class="separator"></div><div id="val-type" class="bento-subtitle">Type inconnu</div></div>
+            <div class="bento-box box-year"><span class="bento-title">Bâti en</span><div id="val-annee" class="bento-text-value" style="margin-top: 10px;">--</div><div class="separator"></div><div class="bento-subtitle">Conso : <strong id="val-conso">--</strong></div></div>
         </div>
-
     </div>
 
     <script>
-        // Initialisation Carte Leaflet
         let maCarte = L.map('map', {zoomControl: false}).setView([46.603354, 2.201476], 5);
         L.control.zoom({ position: 'bottomright' }).addTo(maCarte);
         let monMarqueur = null;
-        
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OSM', subdomains: 'abcd', maxZoom: 20
-        }).addTo(maCarte);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(maCarte);
 
-        // --- AUTOCOMPLETION IGN ---
         let minuteurDebounce; 
         async function chercherSuggestions() {
             const input = document.getElementById('adresse-input').value;
@@ -249,32 +166,56 @@
             if (!event.target.closest('.search-container')) { document.getElementById('suggestions-list').style.display = 'none'; }
         });
 
-        // --- NOUVEAU MOTEUR DPE INTÉGRÉ AU JAVASCRIPT ---
+        // NOUVEAU : Fonction de contrôle strict de l'adresse (Sécurité)
+        function trouverBonLogement(results, adresseSaisie, versionBase) {
+            if (!results || results.length === 0) return null;
+
+            // On cherche à extraire le numéro de rue tapé par l'utilisateur (ex: "5" dans "5 Rue Blanche")
+            const matchNumero = adresseSaisie.trim().match(/^(\d+)/);
+            
+            // Si l'utilisateur n'a pas tapé de numéro (juste le nom d'une rue), on lui donne le 1er résultat par défaut
+            if (!matchNumero) return results[0];
+            
+            const numeroSaisi = matchNumero[1];
+
+            // On passe en revue les résultats de l'Ademe pour s'assurer que le numéro de rue est bien dedans
+            for (let res of results) {
+                let adresseBase = "";
+                if (versionBase === "post-2021") {
+                    adresseBase = res.adresse_ban || res.adresse_complete_brut || res.adresse_brut || "";
+                } else {
+                    adresseBase = res.geo_adresse || "";
+                }
+
+                // Expression régulière : on vérifie que le numéro existe de manière isolée dans l'adresse
+                // Ex: "^5 " ou " 5 " ou " 5B"
+                let regex = new RegExp("(^|\\s)" + numeroSaisi + "(\\s|,|B|T|A|C|D|E|F|\\-)", "i");
+                if (regex.test(adresseBase)) {
+                    return res; // Correspondance exacte trouvée !
+                }
+            }
+            return null; // Aucun résultat ne correspond exactement au numéro
+        }
+
         function nettoyerDonnees(logementBrut, versionBase, adresseSaisie) {
             let propre = {
                 adresse: logementBrut.adresse_complete_brut || logementBrut.adresse_brut || logementBrut.geo_adresse || adresseSaisie,
-                dpe: "Non renseigné",
-                ges: "Non renseigné",
-                date_dpe: logementBrut.date_etablissement_dpe || "Inconnue",
-                base_source: versionBase === "post-2021" ? "Nouvelle méthode (Post-Juillet 2021)" : "Ancienne méthode (Pré-Juillet 2021)",
-                annee_construction: "Non renseignée",
-                type_logement: "Non renseigné",
-                consommation_kwh: "Non renseignée",
-                surface_m2: "Non renseignée",
-                latitude: null,
-                longitude: null
+                dpe: "N/A", ges: "N/A", date_dpe: logementBrut.date_etablissement_dpe || "Inconnue",
+                base_source: versionBase === "post-2021" ? "Nouvelle méthode (Post-2021)" : "Ancienne méthode (Pré-2021)",
+                annee_construction: "Non renseignée", type_logement: "Non renseigné",
+                consommation_kwh: "Non renseignée", surface_m2: "Non renseignée", latitude: null, longitude: null
             };
 
             if (versionBase === "post-2021") {
-                propre.dpe = logementBrut.etiquette_dpe || "Non renseigné";
-                propre.ges = logementBrut.etiquette_ges || "Non renseigné";
+                propre.dpe = logementBrut.etiquette_dpe || "N/A";
+                propre.ges = logementBrut.etiquette_ges || "N/A";
                 propre.annee_construction = logementBrut.periode_construction || "Non renseignée";
                 propre.type_logement = logementBrut.type_batiment || "Non renseigné";
                 propre.consommation_kwh = logementBrut.conso_5_usages_par_m2_ep !== undefined ? Math.round(logementBrut.conso_5_usages_par_m2_ep) : "Non renseignée";
                 propre.surface_m2 = logementBrut.surface_habitable_logement !== undefined ? Math.round(logementBrut.surface_habitable_logement) : "Non renseignée";
             } else {
-                propre.dpe = logementBrut.classe_consommation_energie || "Non renseigné";
-                propre.ges = logementBrut.classe_estimation_ges || "Non renseigné";
+                propre.dpe = logementBrut.classe_consommation_energie || "N/A";
+                propre.ges = logementBrut.classe_estimation_ges || "N/A";
                 propre.annee_construction = logementBrut.annee_construction || "Non renseignée";
                 propre.type_logement = logementBrut.tr002_type_batiment_description || "Non renseigné";
                 propre.consommation_kwh = logementBrut.consommation_energie !== undefined ? Math.round(logementBrut.consommation_energie) : "Non renseignée";
@@ -283,53 +224,50 @@
 
             if (logementBrut._geopoint) {
                 let coords = logementBrut._geopoint.split(",");
-                propre.latitude = parseFloat(coords[0]);
-                propre.longitude = parseFloat(coords[1]);
+                propre.latitude = parseFloat(coords[0]); propre.longitude = parseFloat(coords[1]);
             }
-
             return propre;
         }
 
         async function interrogerAdeme(adresse) {
             const query = encodeURIComponent(adresse);
+            
+            // OPTIMISATION 1 : On ne télécharge que les 9 colonnes utiles (au lieu de 150)
+            const colsNew = "etiquette_dpe,etiquette_ges,date_etablissement_dpe,periode_construction,type_batiment,conso_5_usages_par_m2_ep,surface_habitable_logement,_geopoint,adresse_ban,adresse_complete_brut,adresse_brut";
+            const colsOld = "classe_consommation_energie,classe_estimation_ges,date_etablissement_dpe,annee_construction,tr002_type_batiment_description,consommation_energie,surface_thermique_lot,_geopoint,geo_adresse";
 
-            // OPTIMISATION 1 : On liste uniquement les colonnes dont on a besoin (Allège drastiquement le poids du téléchargement)
-            const colonnesNouvelle = "etiquette_dpe,etiquette_ges,date_etablissement_dpe,periode_construction,type_batiment,conso_5_usages_par_m2_ep,surface_habitable_logement,_geopoint";
-            const colonnesAncienne = "classe_consommation_energie,classe_estimation_ges,date_etablissement_dpe,annee_construction,tr002_type_batiment_description,consommation_energie,surface_thermique_lot,_geopoint";
-
-            // Ajout du paramètre &select= à la fin des URL
-            const urlNouvelle = `https://data.ademe.fr/data-fair/api/v1/datasets/dpe03existant/lines?q=${query}&size=1&select=${colonnesNouvelle}`;
-            const urlAncienne = `https://data.ademe.fr/data-fair/api/v1/datasets/dpe-france/lines?q=${query}&size=1&select=${colonnesAncienne}`;
+            // On demande 15 résultats pour laisser notre filtre de sécurité trouver le bon numéro de rue
+            const urlNouvelle = `https://data.ademe.fr/data-fair/api/v1/datasets/dpe03existant/lines?q=${query}&size=15&select=${colsNew}`;
+            const urlAncienne = `https://data.ademe.fr/data-fair/api/v1/datasets/dpe-france/lines?q=${query}&size=15&select=${colsOld}`;
 
             try {
-                // OPTIMISATION 2 : Exécution Parallèle. On lance les deux requêtes en même temps !
-                const [resNouvelle, resAncienne] = await Promise.all([
-                    fetch(urlNouvelle),
-                    fetch(urlAncienne)
-                ]);
+                // OPTIMISATION 2 : Exécution Parallèle. On lance les 2 serveurs en même temps !
+                const promiseNouvelle = fetch(urlNouvelle).then(r => r.json());
+                const promiseAncienne = fetch(urlAncienne).then(r => r.json());
 
-                // On transforme les deux réponses en JSON en même temps
-                const jsonNouvelle = await resNouvelle.json();
-                const jsonAncienne = await resAncienne.json();
-
-                // Logique de priorité : on regarde d'abord si la nouvelle base a trouvé quelque chose
-                if (jsonNouvelle.results && jsonNouvelle.results.length > 0) {
-                    return nettoyerDonnees(jsonNouvelle.results[0], "post-2021", adresse);
+                // On regarde le résultat de la nouvelle base en premier
+                const jsonNouvelle = await promiseNouvelle;
+                let logementValide = trouverBonLogement(jsonNouvelle.results, adresse, "post-2021");
+                
+                if (logementValide) {
+                    return nettoyerDonnees(logementValide, "post-2021", adresse);
                 }
 
-                // Sinon (Fallback automatique), on regarde si l'ancienne base a la réponse
-                if (jsonAncienne.results && jsonAncienne.results.length > 0) {
-                    return nettoyerDonnees(jsonAncienne.results[0], "pre-2021", adresse);
+                // Seulement si on n'a rien trouvé dans la nouvelle, on regarde dans l'ancienne
+                const jsonAncienne = await promiseAncienne;
+                logementValide = trouverBonLogement(jsonAncienne.results, adresse, "pre-2021");
+                
+                if (logementValide) {
+                    return nettoyerDonnees(logementValide, "pre-2021", adresse);
                 }
 
-                return { error: "Aucun DPE public trouvé pour cette adresse." };
+                return { error: "Aucun DPE public trouvé pour l'adresse exacte." };
             } catch (err) {
                 console.error(err);
                 return { error: "Impossible de contacter les serveurs de l'État." };
             }
         }
 
-        // --- AFFICHAGE ---
         async function lancerRecherche() {
             let adresseSaisie = document.getElementById('adresse-input').value;
             let errorMsg = document.getElementById('error-msg');
@@ -340,10 +278,9 @@
             if (!adresseSaisie) return;
 
             errorMsg.style.display = 'block'; errorMsg.style.color = 'var(--text-light)';
-            errorMsg.innerHTML = "Interrogation directe des bases de l'État en cours... ⏳";
+            errorMsg.innerHTML = "Interrogation instantanée de l'État en cours... ⚡";
             bentoGrid.classList.remove('visible');
 
-            // Appel de notre fonction locale JavaScript (au lieu du serveur Python)
             let donnees = await interrogerAdeme(adresseSaisie);
 
             if (donnees.error) {
@@ -369,7 +306,8 @@
             document.getElementById('val-date').innerText = `Date DPE : ${donnees.date_dpe} (${donnees.base_source.split(" ")[0]})`;
 
             document.getElementById('val-surface').innerText = donnees.surface_m2 !== "Non renseignée" ? `${donnees.surface_m2} m²` : "Inconnue";
-            let typeBatiment = donnees.type_logement !== "Non renseigné" ? String(donnees.type_logement).charAt(0).toUpperCase() + String(donnees.type_logement).slice(1) : "Inconnu";
+            let typeBrut = donnees.type_logement || "Inconnu";
+            let typeBatiment = (typeBrut !== "Non renseigné" && typeBrut !== "Inconnu") ? String(typeBrut).charAt(0).toUpperCase() + String(typeBrut).slice(1) : "Inconnu";
             document.getElementById('val-type').innerText = typeBatiment;
 
             document.getElementById('val-annee').innerText = donnees.annee_construction;
