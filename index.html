@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Widget DPE - Papernest Conversion Edition</title>
+    <title>Widget DPE - Papernest (Version Finale)</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -16,7 +16,7 @@
         .widget-wrapper { width: 100%; max-width: 950px; font-family: 'Inter', system-ui, -apple-system, sans-serif; box-sizing: border-box; }
         .widget-wrapper * { box-sizing: border-box; }
 
-        /* Charte Couleurs */
+        /* Charte Couleurs Papernest */
         :root {
             --papernest-blue: #0047FF; --papernest-blue-hover: #003BE0;
             --papernest-purple: #5A52FF; --papernest-light-blue: #E5EDFF;
@@ -53,11 +53,11 @@
         .suggestions-list li { padding: 12px 20px; font-size: 14px; cursor: pointer; border-bottom: 1px solid #F3F4F6; color: var(--text-dark);}
         .suggestions-list li:hover { background-color: var(--papernest-light-blue); color: var(--papernest-blue); font-weight: 600;}
 
-        /* Messages dynamiques */
+        /* Messages dynamiques UX */
         #narrative-msg { color: var(--papernest-blue); font-size: 14px; margin-top: 15px; font-weight: 600; display: none; }
         #error-msg { color: #DC2626; font-size: 14px; margin-top: 15px; font-weight: 600; display: none; }
 
-        /* --- SKELETON ANIMATION --- */
+        /* --- SKELETON ANIMATION (Attente visuelle) --- */
         @keyframes shimmer { 0% { background-position: -800px 0; } 100% { background-position: 800px 0; } }
         .skeleton {
             background: #EAECEF; background-image: linear-gradient(to right, #EAECEF 0%, #F4F6F8 20%, #EAECEF 40%, #EAECEF 100%);
@@ -66,14 +66,14 @@
         }
         .bento-grid.mode-skeleton .bento-box { background-color: white !important; border-top: 5px solid rgba(0, 0, 0, 0.03) !important; }
         .bento-grid.mode-skeleton .box-address { background-color: white !important; }
-        .bento-grid.mode-skeleton .box-cta { display: none !important; } /* On cache le CTA pendant le chargement */
+        .bento-grid.mode-skeleton .box-cta { display: none !important; }
         .bento-grid.mode-skeleton .bento-title, .bento-grid.mode-skeleton .bento-subtitle { color: var(--text-light) !important; }
         .bento-grid.mode-skeleton .separator { background-color: rgba(0,0,0,0.05) !important; }
 
         /* --- GRILLE BENTO --- */
         .bento-grid {
             display: none; grid-template-columns: repeat(4, 1fr); 
-            grid-template-rows: 200px 140px auto; /* Ajout d'une ligne pour le CTA */
+            grid-template-rows: 200px 140px auto; 
             background-color: rgba(0, 0, 0, 0.08); gap: 1px; border: 1px solid rgba(0, 0, 0, 0.08);
             border-radius: var(--radius-box); overflow: hidden; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04); 
             opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease;
@@ -87,7 +87,7 @@
         }
         .separator { height: 1px; background-color: rgba(0, 0, 0, 0.1); width: 100%; margin: auto 0 8px 0; }
 
-        /* Positions */
+        /* Positions et Bandeaux */
         .box-dpe { grid-column: span 1; border-top: 5px solid rgba(0, 0, 0, 0.05); } 
         .box-ges { grid-column: span 1; border-top: 5px solid rgba(0, 0, 0, 0.05); } 
         .box-map { grid-column: span 2; padding: 0; } 
@@ -95,10 +95,9 @@
         .box-details { grid-column: span 1; background-color: var(--pastel-peach); } 
         .box-year { grid-column: span 1; background-color: var(--papernest-light-blue); } 
 
-        /* NOUVEAU : Le CTA Papernest */
+        /* Le CTA Papernest */
         .box-cta {
-            grid-column: span 4; /* Prend toute la largeur en bas */
-            background-color: white; border-top: 1px solid rgba(0,0,0,0.05);
+            grid-column: span 4; background-color: white; border-top: 1px solid rgba(0,0,0,0.05);
             flex-direction: row; align-items: center; padding: 24px 32px;
         }
         .cta-content h3 { margin: 0 0 4px 0; font-size: 18px; color: var(--text-dark); font-weight: 800;}
@@ -118,6 +117,7 @@
         .bento-text-value { font-size: 22px; font-weight: 800; line-height: 1.1; margin-top: auto; color: var(--text-dark); } 
         .bento-subtitle { font-size: 13px; opacity: 0.8; font-weight: 600; color: var(--text-dark); transition: color 0.4s ease;} 
         
+        /* Exceptions de contraste pour la case adresse (Violet) */
         .box-address .bento-title { color: rgba(255,255,255,0.7); }
         .box-address .bento-medium-value { color: white; }
         .box-address .bento-subtitle { color: rgba(255,255,255,0.8); }
@@ -132,6 +132,9 @@
             .box-address { grid-column: span 2; }
             .box-details, .box-year { grid-column: span 1; height: 140px; }
             .box-cta { grid-column: span 2; flex-direction: column; text-align: center; gap: 15px; }
+            .search-container { flex-direction: column; border-radius: 20px; padding: 4px; background: transparent; border: none;}
+            .search-container input { background: white; border-radius: 16px; padding: 14px; margin-bottom: 8px; border: 1px solid #EAECEF;}
+            .search-container button { border-radius: 16px; padding: 14px;}
         }
     </style>
 </head>
@@ -143,7 +146,7 @@
             <p>Découvrez l'étiquette énergie et les caractéristiques d'un logement.</p>
             
             <div class="search-container">
-                <input type="text" id="adresse-input" placeholder="Ex: 18 rue Masséna, Lille..." oninput="chercherSuggestions()" onkeypress="gererToucheEntree(event)" autocomplete="off">
+                <input type="text" id="adresse-input" placeholder="Ex: 5 rue Blanche, Paris..." oninput="chercherSuggestions()" onkeypress="gererToucheEntree(event)" autocomplete="off">
                 <button onclick="lancerRecherche()">Analyser le bien</button>
                 <ul id="suggestions-list" class="suggestions-list"></ul>
             </div>
@@ -171,11 +174,13 @@
     </div>
 
     <script>
+        // --- 1. INITIALISATION DE LA CARTE ---
         let maCarte = L.map('map', {zoomControl: false}).setView([46.603354, 2.201476], 5);
         L.control.zoom({ position: 'bottomright' }).addTo(maCarte);
         let monMarqueur = null;
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(maCarte);
 
+        // --- 2. AUTOCOMPLÉTION ADRESSE (IGN) ---
         let minuteurDebounce; 
         async function chercherSuggestions() {
             const input = document.getElementById('adresse-input').value;
@@ -208,7 +213,7 @@
             if (!event.target.closest('.search-container')) { document.getElementById('suggestions-list').style.display = 'none'; }
         });
 
-        // --- GESTION DU CHARGEMENT NARRATIF ---
+        // --- 3. GESTION DU CHARGEMENT (UX) ---
         let narratifInterval;
         function demarrerNarratif() {
             const messages = [
@@ -225,7 +230,7 @@
             narratifInterval = setInterval(() => {
                 index++;
                 if(index < messages.length) { msgBox.innerText = messages[index]; }
-            }, 1500); // Change le texte toutes les 1.5 secondes
+            }, 1500); 
         }
 
         function stopperNarratif() {
@@ -233,34 +238,72 @@
             document.getElementById('narrative-msg').style.display = 'none';
         }
 
-        // --- SÉCURITÉ TOLÉRANCE ZÉRO (Le 5 n'est pas le 42) ---
+        function activerSkeleton() {
+            let bentoGrid = document.getElementById('bento-grid');
+            bentoGrid.classList.add('mode-skeleton');
+            bentoGrid.classList.add('visible'); 
+            
+            document.getElementById('val-dpe').innerHTML = '<div class="skeleton" style="width: 50px; height: 50px; margin-top: 20px;"></div>';
+            document.getElementById('val-ges').innerHTML = '<div class="skeleton" style="width: 50px; height: 50px; margin-top: 20px;"></div>';
+            document.getElementById('val-adresse').innerHTML = '<div class="skeleton" style="width: 100%; height: 24px; margin-top: 8px;"></div><div class="skeleton" style="width: 60%; height: 24px; margin-top: 6px;"></div>';
+            document.getElementById('val-date').innerHTML = '<div class="skeleton" style="width: 120px; height: 14px;"></div>';
+            document.getElementById('val-surface').innerHTML = '<div class="skeleton" style="width: 70px; height: 22px;"></div>';
+            document.getElementById('val-type').innerHTML = '<div class="skeleton" style="width: 90px; height: 14px;"></div>';
+            document.getElementById('val-annee').innerHTML = '<div class="skeleton" style="width: 80px; height: 22px; margin-top: 10px;"></div>';
+            document.getElementById('val-conso').innerHTML = '<span class="skeleton" style="width: 40px; height: 14px; display: inline-block; vertical-align: middle;"></span>';
+
+            document.getElementById('map').style.display = 'none';
+            let skelMapDiv = document.getElementById('skeleton-map');
+            if(!skelMapDiv) {
+                skelMapDiv = document.createElement('div');
+                skelMapDiv.id = 'skeleton-map'; skelMapDiv.className = 'skeleton';
+                skelMapDiv.style.width = '100%'; skelMapDiv.style.height = '100%';
+                document.querySelector('.box-map').appendChild(skelMapDiv);
+            }
+            skelMapDiv.style.display = 'block';
+        }
+
+        function desactiverSkeleton() {
+            let bentoGrid = document.getElementById('bento-grid');
+            bentoGrid.classList.remove('mode-skeleton');
+            document.getElementById('map').style.display = 'block';
+            let skelMapDiv = document.getElementById('skeleton-map');
+            if(skelMapDiv) skelMapDiv.style.display = 'none';
+        }
+
+        // --- 4. LOGIQUE MÉTIER & SÉCURITÉ (Adieu Python) ---
         function normaliserTexte(texte) {
-            return texte.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+            return texte.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, " ").trim();
         }
 
         function trouverLogementStrict(results, adresseSaisie) {
             if (!results || results.length === 0) return null;
             
             const cible = normaliserTexte(adresseSaisie);
-            const matchNumero = cible.match(/^(\d+)/); // Récupère le chiffre au début
+            const matchNumero = cible.match(/^(\d+)/); 
+            
+            const motsAIgnorer = ['rue', 'avenue', 'boulevard', 'allee', 'chemin', 'place', 'impasse', 'bis', 'ter', 'de', 'la', 'des', 'du', 'le', 'les'];
+            const motsCible = cible.replace(/^\d+\s*/, '').split(/\s+/).filter(mot => mot.length > 2 && !motsAIgnorer.includes(mot));
 
             for (let res of results) {
                 let adresseBase = normaliserTexte(res.adresse_ban || res.adresse_complete_brut || res.geo_adresse || "");
                 
-                // Si l'utilisateur a tapé un numéro, l'adresse de la base DOIT contenir ce numéro
+                // Vérif Numéro
                 if (matchNumero) {
                     const num = matchNumero[1];
-                    // Regex stricte : le numéro doit être isolé (ex: " 5 " et non " 54 ")
-                    let regex = new RegExp("(^|\\s)" + num + "(\\s|,|b|t|a|c|d|e|f|\\-)", "i");
-                    if (regex.test(adresseBase)) {
-                        return res; // On a trouvé le numéro exact dans cette rue !
-                    }
-                } else {
-                    // S'il n'y a pas de numéro (juste le nom de la rue), on renvoie le 1er résultat
-                    return res;
+                    let regexNum = new RegExp("(^|\\s)" + num + "(\\s|[a-z]|$)", "i");
+                    if (!regexNum.test(adresseBase)) continue; 
                 }
+
+                // Vérif Nom de Rue
+                if (motsCible.length > 0) {
+                    const motPrincipal = motsCible[0];
+                    if (!adresseBase.includes(motPrincipal)) continue; 
+                }
+
+                return res; // Tout correspond parfaitement !
             }
-            return null; // Sécurité : On rejette plutôt que de donner une fausse adresse
+            return null; 
         }
 
         function nettoyerDonnees(logementBrut, versionBase, adresseSaisie) {
@@ -300,71 +343,31 @@
             const colsNew = "etiquette_dpe,etiquette_ges,date_etablissement_dpe,periode_construction,type_batiment,conso_5_usages_par_m2_ep,surface_habitable_logement,_geopoint,adresse_ban,adresse_complete_brut";
             const colsOld = "classe_consommation_energie,classe_estimation_ges,date_etablissement_dpe,annee_construction,tr002_type_batiment_description,consommation_energie,surface_thermique_lot,_geopoint,geo_adresse";
             
-            // On limite à 5 résultats pour soulager l'Ademe (gain de vitesse)
+            // Requêtes séquentielles, taille de réponse minime pour soulager l'Ademe
             const urlNouvelle = `https://data.ademe.fr/data-fair/api/v1/datasets/dpe03existant/lines?q=${query}&size=5&select=${colsNew}`;
             const urlAncienne = `https://data.ademe.fr/data-fair/api/v1/datasets/dpe-france/lines?q=${query}&size=5&select=${colsOld}`;
 
             try {
-                // REQUÊTE SÉQUENTIELLE (Pour éviter le blocage 25 secondes)
-                // 1. On interroge la nouvelle base
                 let resNouvelle = await fetch(urlNouvelle);
                 let jsonNouvelle = await resNouvelle.json();
                 let logementValide = trouverLogementStrict(jsonNouvelle.results, adresse);
                 
-                if (logementValide) {
-                    return nettoyerDonnees(logementValide, "post-2021", adresse);
-                }
+                if (logementValide) return nettoyerDonnees(logementValide, "post-2021", adresse);
 
-                // 2. Uniquement si on ne trouve rien, on interroge l'ancienne base
                 let resAncienne = await fetch(urlAncienne);
                 let jsonAncienne = await resAncienne.json();
                 logementValide = trouverLogementStrict(jsonAncienne.results, adresse);
                 
-                if (logementValide) {
-                    return nettoyerDonnees(logementValide, "pre-2021", adresse);
-                }
+                if (logementValide) return nettoyerDonnees(logementValide, "pre-2021", adresse);
 
-                return { error: "Aucun DPE public trouvé pour ce numéro de rue exact." };
+                return { error: "Aucun DPE public trouvé pour cette rue exacte." };
             } catch (err) {
                 console.error(err);
                 return { error: "Impossible de contacter les serveurs de l'État." };
             }
         }
 
-        // --- GESTION DU SKELETON ---
-        function activerSkeleton() {
-            let bentoGrid = document.getElementById('bento-grid');
-            bentoGrid.classList.add('mode-skeleton');
-            bentoGrid.classList.add('visible'); 
-            
-            document.getElementById('val-dpe').innerHTML = '<div class="skeleton" style="width: 50px; height: 50px; margin-top: 20px;"></div>';
-            document.getElementById('val-ges').innerHTML = '<div class="skeleton" style="width: 50px; height: 50px; margin-top: 20px;"></div>';
-            document.getElementById('val-adresse').innerHTML = '<div class="skeleton" style="width: 100%; height: 24px; margin-top: 8px;"></div><div class="skeleton" style="width: 60%; height: 24px; margin-top: 6px;"></div>';
-            document.getElementById('val-date').innerHTML = '<div class="skeleton" style="width: 120px; height: 14px;"></div>';
-            document.getElementById('val-surface').innerHTML = '<div class="skeleton" style="width: 70px; height: 22px;"></div>';
-            document.getElementById('val-type').innerHTML = '<div class="skeleton" style="width: 90px; height: 14px;"></div>';
-            document.getElementById('val-annee').innerHTML = '<div class="skeleton" style="width: 80px; height: 22px; margin-top: 10px;"></div>';
-            document.getElementById('val-conso').innerHTML = '<span class="skeleton" style="width: 40px; height: 14px; display: inline-block; vertical-align: middle;"></span>';
-
-            document.getElementById('map').style.display = 'none';
-            let skelMapDiv = document.getElementById('skeleton-map');
-            if(!skelMapDiv) {
-                skelMapDiv = document.createElement('div');
-                skelMapDiv.id = 'skeleton-map'; skelMapDiv.className = 'skeleton';
-                skelMapDiv.style.width = '100%'; skelMapDiv.style.height = '100%';
-                document.querySelector('.box-map').appendChild(skelMapDiv);
-            }
-            skelMapDiv.style.display = 'block';
-        }
-
-        function desactiverSkeleton() {
-            let bentoGrid = document.getElementById('bento-grid');
-            bentoGrid.classList.remove('mode-skeleton');
-            document.getElementById('map').style.display = 'block';
-            let skelMapDiv = document.getElementById('skeleton-map');
-            if(skelMapDiv) skelMapDiv.style.display = 'none';
-        }
-
+        // --- 5. L'ORCHESTRATION ---
         async function lancerRecherche() {
             let adresseSaisie = document.getElementById('adresse-input').value;
             let errorMsg = document.getElementById('error-msg');
@@ -378,7 +381,7 @@
             heroBlock.style.padding = "16px 32px"; 
 
             activerSkeleton();
-            demarrerNarratif(); // Lancement des textes patients
+            demarrerNarratif();
 
             let donnees = await interrogerAdeme(adresseSaisie);
 
