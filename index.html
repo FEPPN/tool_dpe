@@ -125,6 +125,7 @@
         
         #map { width: 100%; height: 100%; z-index: 1; }
 
+        /* --- OPTIMISATION MOBILE (ZERO SCROLL) - VERSION CORRIGÉE --- */
         @media (max-width: 800px) {
             /* 1. On compresse l'espace vital */
             body { padding: 10px; }
@@ -139,18 +140,22 @@
             .search-container input { padding: 8px 15px; font-size: 14px; margin-bottom: 0; border: none; border-radius: 0; background: transparent; width: 100%;}
             .search-container button { padding: 8px 16px; font-size: 14px; white-space: nowrap;}
 
-            /* 4. Grille Tetris ultra-compacte */
+            /* 4. Grille Tetris ultra-compacte CORRIGÉE */
             .bento-grid { 
                 grid-template-columns: repeat(2, 1fr); 
-                /* Hauteurs fixes très réduites */
-                grid-template-rows: 100px 75px 85px auto; 
+                /* CORRECTION : On augmente la hauteur de la ligne d'adresse (la 3ème) de 85px à 110px */
+                grid-template-rows: 100px 75px 110px auto; 
             }
             .bento-box { padding: 12px 15px; } /* Moins de vide dans les cases */
 
-            /* 5. Typographie miniaturisée */
+            /* 5. Typographie miniaturisée CORRIGÉE */
             .bento-title { font-size: 10px; }
             .bento-huge-value { font-size: 42px; margin-top: 5px; } 
-            .bento-medium-value, .bento-small-value, .bento-text-value { font-size: 16px; margin-top: 4px; }
+            
+            /* CORRECTION : Légère correction de hauteur de ligne pour l'adresse */
+            .bento-medium-value { font-size: 16px; margin-top: 4px; line-height: 1.3; } 
+            .bento-small-value, .bento-text-value { font-size: 16px; margin-top: 4px; line-height: 1.2; }
+            
             .bento-subtitle { font-size: 11px; }
             .separator { margin: auto 0 6px 0; }
 
