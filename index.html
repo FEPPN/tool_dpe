@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Widget DPE - Dashboard Skeleton Edition</title>
+    <title>Widget DPE - Papernest Conversion Edition</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -29,7 +29,7 @@
             background: white; border-radius: var(--radius-box); padding: 32px; text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #EAECEF;
             border-top: 6px solid var(--papernest-blue); margin-bottom: 24px; 
-            transition: padding 0.5s ease;
+            transition: padding 0.5s ease; position: relative;
         }
         .hero-section h1 { font-size: 28px; font-weight: 800; color: var(--text-dark); margin: 0 0 8px 0; letter-spacing: -0.5px; }
         .hero-section p { color: var(--text-light); font-size: 15px; margin: 0 0 24px 0; }
@@ -53,40 +53,27 @@
         .suggestions-list li { padding: 12px 20px; font-size: 14px; cursor: pointer; border-bottom: 1px solid #F3F4F6; color: var(--text-dark);}
         .suggestions-list li:hover { background-color: var(--papernest-light-blue); color: var(--papernest-blue); font-weight: 600;}
 
-        /* --- NOUVEAU : ANIMATION SKELETON (L'onde de chargement) --- */
-        @keyframes shimmer {
-            0% { background-position: -800px 0; }
-            100% { background-position: 800px 0; }
-        }
-        .skeleton {
-            background: #EAECEF;
-            background-image: linear-gradient(to right, #EAECEF 0%, #F4F6F8 20%, #EAECEF 40%, #EAECEF 100%);
-            background-repeat: no-repeat;
-            background-size: 1000px 100%;
-            animation: shimmer 1.5s linear infinite;
-            border-radius: 6px;
-            display: inline-block;
-        }
+        /* Messages dynamiques */
+        #narrative-msg { color: var(--papernest-blue); font-size: 14px; margin-top: 15px; font-weight: 600; display: none; }
+        #error-msg { color: #DC2626; font-size: 14px; margin-top: 15px; font-weight: 600; display: none; }
 
-        /* --- LE MODE CHARGEMENT (Appliqué à la grille entière) --- */
-        .bento-grid.mode-skeleton .bento-box {
-            background-color: white !important; /* On annule les couleurs pendant le chargement */
-            border-top: 5px solid rgba(0, 0, 0, 0.03) !important;
+        /* --- SKELETON ANIMATION --- */
+        @keyframes shimmer { 0% { background-position: -800px 0; } 100% { background-position: 800px 0; } }
+        .skeleton {
+            background: #EAECEF; background-image: linear-gradient(to right, #EAECEF 0%, #F4F6F8 20%, #EAECEF 40%, #EAECEF 100%);
+            background-repeat: no-repeat; background-size: 1000px 100%; animation: shimmer 1.5s linear infinite;
+            border-radius: 6px; display: inline-block;
         }
-        .bento-grid.mode-skeleton .box-address {
-            background-color: white !important; /* Le violet devient blanc le temps de charger */
-        }
-        .bento-grid.mode-skeleton .bento-title, 
-        .bento-grid.mode-skeleton .bento-subtitle {
-            color: var(--text-light) !important; /* Le texte blanc redevient gris */
-        }
-        .bento-grid.mode-skeleton .separator {
-            background-color: rgba(0,0,0,0.05) !important;
-        }
+        .bento-grid.mode-skeleton .bento-box { background-color: white !important; border-top: 5px solid rgba(0, 0, 0, 0.03) !important; }
+        .bento-grid.mode-skeleton .box-address { background-color: white !important; }
+        .bento-grid.mode-skeleton .box-cta { display: none !important; } /* On cache le CTA pendant le chargement */
+        .bento-grid.mode-skeleton .bento-title, .bento-grid.mode-skeleton .bento-subtitle { color: var(--text-light) !important; }
+        .bento-grid.mode-skeleton .separator { background-color: rgba(0,0,0,0.05) !important; }
 
         /* --- GRILLE BENTO --- */
         .bento-grid {
-            display: none; grid-template-columns: repeat(4, 1fr); grid-template-rows: 200px 140px; 
+            display: none; grid-template-columns: repeat(4, 1fr); 
+            grid-template-rows: 200px 140px auto; /* Ajout d'une ligne pour le CTA */
             background-color: rgba(0, 0, 0, 0.08); gap: 1px; border: 1px solid rgba(0, 0, 0, 0.08);
             border-radius: var(--radius-box); overflow: hidden; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04); 
             opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease;
@@ -96,17 +83,32 @@
         .bento-box {
             background: white; padding: 20px 24px; display: flex; flex-direction: column;
             justify-content: space-between; position: relative; border-radius: 0; color: var(--text-dark);
-            transition: background-color 0.4s ease; /* Transition douce pour le retour de la couleur */
+            transition: background-color 0.4s ease;
         }
         .separator { height: 1px; background-color: rgba(0, 0, 0, 0.1); width: 100%; margin: auto 0 8px 0; }
 
-        /* Fonds et Bandeaux */
+        /* Positions */
         .box-dpe { grid-column: span 1; border-top: 5px solid rgba(0, 0, 0, 0.05); } 
         .box-ges { grid-column: span 1; border-top: 5px solid rgba(0, 0, 0, 0.05); } 
         .box-map { grid-column: span 2; padding: 0; } 
         .box-address { grid-column: span 2; background-color: var(--papernest-purple); color: white; border-top: 5px solid rgba(0, 0, 0, 0.15); }
         .box-details { grid-column: span 1; background-color: var(--pastel-peach); } 
         .box-year { grid-column: span 1; background-color: var(--papernest-light-blue); } 
+
+        /* NOUVEAU : Le CTA Papernest */
+        .box-cta {
+            grid-column: span 4; /* Prend toute la largeur en bas */
+            background-color: white; border-top: 1px solid rgba(0,0,0,0.05);
+            flex-direction: row; align-items: center; padding: 24px 32px;
+        }
+        .cta-content h3 { margin: 0 0 4px 0; font-size: 18px; color: var(--text-dark); font-weight: 800;}
+        .cta-content p { margin: 0; font-size: 14px; color: var(--text-light); }
+        .cta-button {
+            background-color: var(--papernest-blue); color: white; text-decoration: none;
+            padding: 12px 24px; border-radius: 100px; font-weight: 600; font-size: 15px;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .cta-button:hover { background-color: var(--papernest-blue-hover); transform: scale(1.03); }
 
         /* Typographie */
         .bento-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; opacity: 0.7; color: var(--text-dark); transition: color 0.4s ease;}
@@ -129,9 +131,7 @@
             .box-dpe, .box-ges { grid-column: span 1; height: 160px; }
             .box-address { grid-column: span 2; }
             .box-details, .box-year { grid-column: span 1; height: 140px; }
-            .search-container { flex-direction: column; border-radius: 20px; padding: 4px; background: transparent; border: none;}
-            .search-container input { background: white; border-radius: 16px; padding: 14px; margin-bottom: 8px; border: 1px solid #EAECEF;}
-            .search-container button { border-radius: 16px; padding: 14px;}
+            .box-cta { grid-column: span 2; flex-direction: column; text-align: center; gap: 15px; }
         }
     </style>
 </head>
@@ -143,11 +143,13 @@
             <p>Découvrez l'étiquette énergie et les caractéristiques d'un logement.</p>
             
             <div class="search-container">
-                <input type="text" id="adresse-input" placeholder="Ex: 5 rue Blanche, Paris..." oninput="chercherSuggestions()" onkeypress="gererToucheEntree(event)" autocomplete="off">
+                <input type="text" id="adresse-input" placeholder="Ex: 18 rue Masséna, Lille..." oninput="chercherSuggestions()" onkeypress="gererToucheEntree(event)" autocomplete="off">
                 <button onclick="lancerRecherche()">Analyser le bien</button>
                 <ul id="suggestions-list" class="suggestions-list"></ul>
             </div>
-            <div id="error-msg" style="color: #DC2626; font-size: 14px; margin-top: 15px; font-weight: 500; display: none;"></div>
+            
+            <div id="narrative-msg"></div>
+            <div id="error-msg"></div>
         </div>
 
         <div id="bento-grid" class="bento-grid">
@@ -157,6 +159,14 @@
             <div class="bento-box box-address"><span class="bento-title">Adresse certifiée</span><div id="val-adresse" class="bento-medium-value" style="margin-top: 8px;">Chargement...</div><div class="separator"></div><div id="val-date" class="bento-subtitle">Validé le --/--/----</div></div>
             <div class="bento-box box-details"><span class="bento-title">Superficie</span><div id="val-surface" class="bento-small-value">-- m²</div><div class="separator"></div><div id="val-type" class="bento-subtitle">Type inconnu</div></div>
             <div class="bento-box box-year"><span class="bento-title">Bâti en</span><div id="val-annee" class="bento-text-value" style="margin-top: 10px;">--</div><div class="separator"></div><div class="bento-subtitle">Conso : <strong id="val-conso">--</strong></div></div>
+            
+            <div class="bento-box box-cta">
+                <div class="cta-content">
+                    <h3>Ce logement consomme de l'énergie ?</h3>
+                    <p>Optimisez vos contrats d'électricité et de gaz en 2 minutes avec Papernest.</p>
+                </div>
+                <a href="https://www.papernest.com" target="_blank" class="cta-button">Estimer mes économies</a>
+            </div>
         </div>
     </div>
 
@@ -186,7 +196,6 @@
                             li.onclick = () => {
                                 document.getElementById('adresse-input').value = feature.properties.label;
                                 liste.style.display = 'none'; 
-                                lancerRecherche();
                             };
                             liste.appendChild(li);
                         });
@@ -199,76 +208,66 @@
             if (!event.target.closest('.search-container')) { document.getElementById('suggestions-list').style.display = 'none'; }
         });
 
-        // --- GESTION DU SKELETON (L'astuce UX) ---
-        function activerSkeleton() {
-            let bentoGrid = document.getElementById('bento-grid');
-            bentoGrid.classList.add('mode-skeleton');
-            bentoGrid.classList.add('visible'); // On affiche la grille immédiatement !
+        // --- GESTION DU CHARGEMENT NARRATIF ---
+        let narratifInterval;
+        function demarrerNarratif() {
+            const messages = [
+                "Connexion aux bases de l'État... ⚡",
+                "Analyse des données climatiques... 🌍",
+                "Recherche de la correspondance exacte... 🔍",
+                "Génération de votre tableau de bord... 📊"
+            ];
+            let index = 0;
+            let msgBox = document.getElementById('narrative-msg');
+            msgBox.style.display = 'block';
+            msgBox.innerText = messages[0];
             
-            // On injecte les "faux éléments" animés
-            document.getElementById('val-dpe').innerHTML = '<div class="skeleton" style="width: 50px; height: 50px; margin-top: 20px;"></div>';
-            document.getElementById('val-ges').innerHTML = '<div class="skeleton" style="width: 50px; height: 50px; margin-top: 20px;"></div>';
-            
-            document.getElementById('val-adresse').innerHTML = '<div class="skeleton" style="width: 100%; height: 24px; margin-top: 8px;"></div><div class="skeleton" style="width: 60%; height: 24px; margin-top: 6px;"></div>';
-            document.getElementById('val-date').innerHTML = '<div class="skeleton" style="width: 120px; height: 14px;"></div>';
-            
-            document.getElementById('val-surface').innerHTML = '<div class="skeleton" style="width: 70px; height: 22px;"></div>';
-            document.getElementById('val-type').innerHTML = '<div class="skeleton" style="width: 90px; height: 14px;"></div>';
-            
-            document.getElementById('val-annee').innerHTML = '<div class="skeleton" style="width: 80px; height: 22px; margin-top: 10px;"></div>';
-            document.getElementById('val-conso').innerHTML = '<span class="skeleton" style="width: 40px; height: 14px; display: inline-block; vertical-align: middle;"></span>';
-
-            // On cache la carte Leaflet et on met un gros carré gris animé à la place
-            document.getElementById('map').style.display = 'none';
-            let skelMapDiv = document.getElementById('skeleton-map');
-            if(!skelMapDiv) {
-                skelMapDiv = document.createElement('div');
-                skelMapDiv.id = 'skeleton-map';
-                skelMapDiv.className = 'skeleton';
-                skelMapDiv.style.width = '100%';
-                skelMapDiv.style.height = '100%';
-                skelMapDiv.style.borderRadius = '0';
-                document.querySelector('.box-map').appendChild(skelMapDiv);
-            }
-            skelMapDiv.style.display = 'block';
+            narratifInterval = setInterval(() => {
+                index++;
+                if(index < messages.length) { msgBox.innerText = messages[index]; }
+            }, 1500); // Change le texte toutes les 1.5 secondes
         }
 
-        function desactiverSkeleton() {
-            let bentoGrid = document.getElementById('bento-grid');
-            bentoGrid.classList.remove('mode-skeleton');
-            
-            // On restaure l'affichage de la vraie carte
-            document.getElementById('map').style.display = 'block';
-            let skelMapDiv = document.getElementById('skeleton-map');
-            if(skelMapDiv) skelMapDiv.style.display = 'none';
+        function stopperNarratif() {
+            clearInterval(narratifInterval);
+            document.getElementById('narrative-msg').style.display = 'none';
         }
 
-        // --- RECHERCHE LOGIQUE ---
-        function trouverBonLogement(results, adresseSaisie, versionBase) {
+        // --- SÉCURITÉ TOLÉRANCE ZÉRO (Le 5 n'est pas le 42) ---
+        function normaliserTexte(texte) {
+            return texte.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+        }
+
+        function trouverLogementStrict(results, adresseSaisie) {
             if (!results || results.length === 0) return null;
-            const matchNumero = adresseSaisie.trim().match(/^(\d+)/);
-            if (!matchNumero) return results[0];
-            const numeroSaisi = matchNumero[1];
+            
+            const cible = normaliserTexte(adresseSaisie);
+            const matchNumero = cible.match(/^(\d+)/); // Récupère le chiffre au début
+
             for (let res of results) {
-                let adresseBase = "";
-                if (versionBase === "post-2021") {
-                    adresseBase = res.adresse_ban || res.adresse_complete_brut || res.adresse_brut || "";
+                let adresseBase = normaliserTexte(res.adresse_ban || res.adresse_complete_brut || res.geo_adresse || "");
+                
+                // Si l'utilisateur a tapé un numéro, l'adresse de la base DOIT contenir ce numéro
+                if (matchNumero) {
+                    const num = matchNumero[1];
+                    // Regex stricte : le numéro doit être isolé (ex: " 5 " et non " 54 ")
+                    let regex = new RegExp("(^|\\s)" + num + "(\\s|,|b|t|a|c|d|e|f|\\-)", "i");
+                    if (regex.test(adresseBase)) {
+                        return res; // On a trouvé le numéro exact dans cette rue !
+                    }
                 } else {
-                    adresseBase = res.geo_adresse || "";
-                }
-                let regex = new RegExp("(^|\\s)" + numeroSaisi + "(\\s|,|B|T|A|C|D|E|F|\\-)", "i");
-                if (regex.test(adresseBase)) {
-                    return res; 
+                    // S'il n'y a pas de numéro (juste le nom de la rue), on renvoie le 1er résultat
+                    return res;
                 }
             }
-            return null; 
+            return null; // Sécurité : On rejette plutôt que de donner une fausse adresse
         }
 
         function nettoyerDonnees(logementBrut, versionBase, adresseSaisie) {
             let propre = {
-                adresse: logementBrut.adresse_complete_brut || logementBrut.adresse_brut || logementBrut.geo_adresse || adresseSaisie,
+                adresse: logementBrut.adresse_ban || logementBrut.adresse_complete_brut || logementBrut.geo_adresse || adresseSaisie,
                 dpe: "N/A", ges: "N/A", date_dpe: logementBrut.date_etablissement_dpe || "Inconnue",
-                base_source: versionBase === "post-2021" ? "Nouvelle méthode (Post-2021)" : "Ancienne méthode (Pré-2021)",
+                base_source: versionBase === "post-2021" ? "Nouvelle méthode" : "Ancienne méthode",
                 annee_construction: "Non renseignée", type_logement: "Non renseigné",
                 consommation_kwh: "Non renseignée", surface_m2: "Non renseignée", latitude: null, longitude: null
             };
@@ -298,28 +297,72 @@
 
         async function interrogerAdeme(adresse) {
             const query = encodeURIComponent(adresse);
-            const colsNew = "etiquette_dpe,etiquette_ges,date_etablissement_dpe,periode_construction,type_batiment,conso_5_usages_par_m2_ep,surface_habitable_logement,_geopoint,adresse_ban,adresse_complete_brut,adresse_brut";
+            const colsNew = "etiquette_dpe,etiquette_ges,date_etablissement_dpe,periode_construction,type_batiment,conso_5_usages_par_m2_ep,surface_habitable_logement,_geopoint,adresse_ban,adresse_complete_brut";
             const colsOld = "classe_consommation_energie,classe_estimation_ges,date_etablissement_dpe,annee_construction,tr002_type_batiment_description,consommation_energie,surface_thermique_lot,_geopoint,geo_adresse";
-            const urlNouvelle = `https://data.ademe.fr/data-fair/api/v1/datasets/dpe03existant/lines?q=${query}&size=15&select=${colsNew}`;
-            const urlAncienne = `https://data.ademe.fr/data-fair/api/v1/datasets/dpe-france/lines?q=${query}&size=15&select=${colsOld}`;
+            
+            // On limite à 5 résultats pour soulager l'Ademe (gain de vitesse)
+            const urlNouvelle = `https://data.ademe.fr/data-fair/api/v1/datasets/dpe03existant/lines?q=${query}&size=5&select=${colsNew}`;
+            const urlAncienne = `https://data.ademe.fr/data-fair/api/v1/datasets/dpe-france/lines?q=${query}&size=5&select=${colsOld}`;
 
             try {
-                const promiseNouvelle = fetch(urlNouvelle).then(r => r.json());
-                const promiseAncienne = fetch(urlAncienne).then(r => r.json());
+                // REQUÊTE SÉQUENTIELLE (Pour éviter le blocage 25 secondes)
+                // 1. On interroge la nouvelle base
+                let resNouvelle = await fetch(urlNouvelle);
+                let jsonNouvelle = await resNouvelle.json();
+                let logementValide = trouverLogementStrict(jsonNouvelle.results, adresse);
+                
+                if (logementValide) {
+                    return nettoyerDonnees(logementValide, "post-2021", adresse);
+                }
 
-                const jsonNouvelle = await promiseNouvelle;
-                let logementValide = trouverBonLogement(jsonNouvelle.results, adresse, "post-2021");
-                if (logementValide) return nettoyerDonnees(logementValide, "post-2021", adresse);
+                // 2. Uniquement si on ne trouve rien, on interroge l'ancienne base
+                let resAncienne = await fetch(urlAncienne);
+                let jsonAncienne = await resAncienne.json();
+                logementValide = trouverLogementStrict(jsonAncienne.results, adresse);
+                
+                if (logementValide) {
+                    return nettoyerDonnees(logementValide, "pre-2021", adresse);
+                }
 
-                const jsonAncienne = await promiseAncienne;
-                logementValide = trouverBonLogement(jsonAncienne.results, adresse, "pre-2021");
-                if (logementValide) return nettoyerDonnees(logementValide, "pre-2021", adresse);
-
-                return { error: "Aucun DPE public trouvé pour l'adresse exacte." };
+                return { error: "Aucun DPE public trouvé pour ce numéro de rue exact." };
             } catch (err) {
                 console.error(err);
                 return { error: "Impossible de contacter les serveurs de l'État." };
             }
+        }
+
+        // --- GESTION DU SKELETON ---
+        function activerSkeleton() {
+            let bentoGrid = document.getElementById('bento-grid');
+            bentoGrid.classList.add('mode-skeleton');
+            bentoGrid.classList.add('visible'); 
+            
+            document.getElementById('val-dpe').innerHTML = '<div class="skeleton" style="width: 50px; height: 50px; margin-top: 20px;"></div>';
+            document.getElementById('val-ges').innerHTML = '<div class="skeleton" style="width: 50px; height: 50px; margin-top: 20px;"></div>';
+            document.getElementById('val-adresse').innerHTML = '<div class="skeleton" style="width: 100%; height: 24px; margin-top: 8px;"></div><div class="skeleton" style="width: 60%; height: 24px; margin-top: 6px;"></div>';
+            document.getElementById('val-date').innerHTML = '<div class="skeleton" style="width: 120px; height: 14px;"></div>';
+            document.getElementById('val-surface').innerHTML = '<div class="skeleton" style="width: 70px; height: 22px;"></div>';
+            document.getElementById('val-type').innerHTML = '<div class="skeleton" style="width: 90px; height: 14px;"></div>';
+            document.getElementById('val-annee').innerHTML = '<div class="skeleton" style="width: 80px; height: 22px; margin-top: 10px;"></div>';
+            document.getElementById('val-conso').innerHTML = '<span class="skeleton" style="width: 40px; height: 14px; display: inline-block; vertical-align: middle;"></span>';
+
+            document.getElementById('map').style.display = 'none';
+            let skelMapDiv = document.getElementById('skeleton-map');
+            if(!skelMapDiv) {
+                skelMapDiv = document.createElement('div');
+                skelMapDiv.id = 'skeleton-map'; skelMapDiv.className = 'skeleton';
+                skelMapDiv.style.width = '100%'; skelMapDiv.style.height = '100%';
+                document.querySelector('.box-map').appendChild(skelMapDiv);
+            }
+            skelMapDiv.style.display = 'block';
+        }
+
+        function desactiverSkeleton() {
+            let bentoGrid = document.getElementById('bento-grid');
+            bentoGrid.classList.remove('mode-skeleton');
+            document.getElementById('map').style.display = 'block';
+            let skelMapDiv = document.getElementById('skeleton-map');
+            if(skelMapDiv) skelMapDiv.style.display = 'none';
         }
 
         async function lancerRecherche() {
@@ -331,27 +374,24 @@
             document.getElementById('suggestions-list').style.display = 'none';
             if (!adresseSaisie) return;
 
-            errorMsg.style.display = 'none'; // Plus de texte de chargement !
+            errorMsg.style.display = 'none'; 
             heroBlock.style.padding = "16px 32px"; 
 
-            // 1. On lance l'animation instantanément
             activerSkeleton();
+            demarrerNarratif(); // Lancement des textes patients
 
-            // 2. On interroge l'Ademe (en arrière-plan)
             let donnees = await interrogerAdeme(adresseSaisie);
 
-            // 3. Une fois les données reçues, on coupe l'animation
+            stopperNarratif();
             desactiverSkeleton();
 
             if (donnees.error) {
-                bentoGrid.classList.remove('visible'); // On recache la grille en cas d'erreur
+                bentoGrid.classList.remove('visible');
                 errorMsg.style.display = 'block'; 
-                errorMsg.style.color = '#DC2626'; 
                 errorMsg.innerHTML = `⚠️ ${donnees.error}`;
                 return;
             }
 
-            // 4. On remplace les faux blocs par les vraies données
             const couleursPastel = {
                 "A": "#D4EDDA", "B": "#E2F0D9", "C": "#F0F8D1", 
                 "D": "#FFF3CD", "E": "#FDE2B4", "F": "#F8D2C4", "G": "#F8D7DA"
@@ -374,9 +414,10 @@
             document.getElementById('val-annee').innerText = donnees.annee_construction;
             document.getElementById('val-conso').innerText = donnees.consommation_kwh !== "Non renseignée" ? donnees.consommation_kwh : "-";
 
-            // 5. On actualise la carte
+            bentoGrid.classList.add('visible');
+
             setTimeout(() => {
-                maCarte.invalidateSize(); // Force Leaflet à se redimensionner correctement après avoir été masqué
+                maCarte.invalidateSize();
                 if (donnees.latitude && donnees.longitude) {
                     let lat = parseFloat(donnees.latitude);
                     let lon = parseFloat(donnees.longitude);
