@@ -126,16 +126,49 @@
         #map { width: 100%; height: 100%; z-index: 1; }
 
         @media (max-width: 800px) {
-            .bento-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto; }
-            .box-map { grid-column: span 2; height: 200px; grid-row: 1; }
-            .box-dpe, .box-ges { grid-column: span 1; height: 160px; }
-            .box-address { grid-column: span 2; }
-            .box-details, .box-year { grid-column: span 1; height: 140px; }
-            .box-cta { grid-column: span 2; flex-direction: column; text-align: center; gap: 15px; }
-            .search-container { flex-direction: column; border-radius: 20px; padding: 4px; background: transparent; border: none;}
-            .search-container input { background: white; border-radius: 16px; padding: 14px; margin-bottom: 8px; border: 1px solid #EAECEF;}
-            .search-container button { border-radius: 16px; padding: 14px;}
+            /* 1. On compresse l'espace vital */
+            body { padding: 10px; }
+            
+            /* 2. Hero Section minimaliste */
+            .hero-section { padding: 15px; margin-bottom: 12px; }
+            .hero-section h1 { font-size: 22px; margin-bottom: 8px; }
+            .hero-section p { display: none; } /* On cache le sous-titre */
+            
+            /* 3. Barre de recherche affinée */
+            .search-container { flex-direction: row; border-radius: 100px; padding: 4px; background: #F9FAFB; border: 1px solid #EAECEF;}
+            .search-container input { padding: 8px 15px; font-size: 14px; margin-bottom: 0; border: none; border-radius: 0; background: transparent; width: 100%;}
+            .search-container button { padding: 8px 16px; font-size: 14px; white-space: nowrap;}
+
+            /* 4. Grille Tetris ultra-compacte */
+            .bento-grid { 
+                grid-template-columns: repeat(2, 1fr); 
+                /* Hauteurs fixes très réduites */
+                grid-template-rows: 100px 75px 85px auto; 
+            }
+            .bento-box { padding: 12px 15px; } /* Moins de vide dans les cases */
+
+            /* 5. Typographie miniaturisée */
+            .bento-title { font-size: 10px; }
+            .bento-huge-value { font-size: 42px; margin-top: 5px; } 
+            .bento-medium-value, .bento-small-value, .bento-text-value { font-size: 16px; margin-top: 4px; }
+            .bento-subtitle { font-size: 11px; }
+            .separator { margin: auto 0 6px 0; }
+
+            /* 6. Repositionnement stratégique */
+            .box-dpe, .box-ges { grid-column: span 1; height: auto; }
+            .box-address { grid-column: span 2; height: auto; }
+            .box-details, .box-year { grid-column: span 1; height: auto; }
+            
+            /* LE CHOIX FORT : On masque la carte pour gagner 200px de hauteur */
+            .box-map { display: none !important; } 
+            
+            /* 7. Bouton Papernest compact */
+            .box-cta { grid-column: span 2; padding: 15px; flex-direction: column; text-align: center; gap: 10px; }
+            .cta-content h3 { font-size: 15px; }
+            .cta-content p { font-size: 12px; line-height: 1.2; }
+            .cta-button { padding: 10px 20px; font-size: 13px; width: 100%; box-sizing: border-box; }
         }
+        
     </style>
 </head>
 <body>
