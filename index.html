@@ -477,6 +477,20 @@
         function gererToucheEntree(event) {
             if (event.key === "Enter") { document.getElementById('suggestions-list').style.display = 'none'; lancerRecherche(); }
         }
+        const observerTaille = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                // On calcule la taille du widget + 80px de marges (padding du body)
+                const hauteur = entry.target.offsetHeight + 80; 
+                // On envoie un message secret au site parent
+                window.parent.postMessage({ type: 'resize-dpe-widget', height: hauteur }, '*');
+            }
+        });
+        
+        // On surveille les changements de taille de notre conteneur principal
+        const widgetWrapper = document.querySelector('.widget-wrapper');
+        if (widgetWrapper) {
+            observerTaille.observe(widgetWrapper);
+        }
     </script>
 </body>
 </html>
