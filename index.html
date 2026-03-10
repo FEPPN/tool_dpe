@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Widget DPE - Monochrome & Carte Couleur</title>
+    <title>Widget DPE - Design Accents Edition</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -22,6 +22,8 @@
             --text-dark: #111111; --text-light: #737373;
             --gray-light: #F9FAFB; --gray-medium: #EAECEF; --gray-dark: #555555;
             --radius-box: 20px;
+            /* NOUVELLE COULEUR : Beige discret pour le bloc bas */
+            --beige-lin: #FAF6F0;
         }
 
         /* --- HERO SECTION & RECHERCHE (Garde son bleu) --- */
@@ -60,7 +62,7 @@
         /* --- SKELETON ANIMATION --- */
         @keyframes shimmer { 0% { background-position: -800px 0; } 100% { background-position: 800px 0; } }
         .skeleton {
-            background: var(--gray-medium); background-image: linear-gradient(to right, var(--gray-medium) 0%, #F4F6F8 20%, var(--gray-medium) 40%, var(--gray-medium) 100%);
+            background: var(--gray-medium); background-image: linear-gradient(to right, var(--gray-medium) 0%, #F4F6F8) 20%, var(--gray-medium) 40%, var(--gray-medium) 100%);
             background-repeat: no-repeat; background-size: 1000px 100%; animation: shimmer 1.5s linear infinite;
             border-radius: 6px; display: inline-block;
         }
@@ -69,7 +71,7 @@
         .bento-grid.mode-skeleton .bento-title, .bento-grid.mode-skeleton .bento-subtitle { color: var(--text-light) !important; }
         .bento-grid.mode-skeleton .separator { background-color: rgba(0,0,0,0.05) !important; }
 
-        /* --- GRILLE BENTO (MONOCHROME) --- */
+        /* --- GRILLE BENTO (MONOCHROME PAR DÉFAUT) --- */
         .bento-grid {
             display: none; grid-template-columns: repeat(4, 1fr); 
             grid-template-rows: 200px 140px auto; 
@@ -86,7 +88,7 @@
         }
         .separator { height: 1px; background-color: rgba(0, 0, 0, 0.1); width: 100%; margin: auto 0 8px 0; }
 
-        /* Positions et Bandeaux Gris - La carte reste en couleur ! */
+        /* Positions et Bandeaux Gris (Défaut) */
         .box-dpe { grid-column: span 1; border-top: 5px solid rgba(0, 0, 0, 0.05); } 
         .box-ges { grid-column: span 1; border-top: 5px solid rgba(0, 0, 0, 0.05); } 
         .box-map { grid-column: span 2; padding: 0; } 
@@ -94,23 +96,28 @@
         .box-details { grid-column: span 1; background-color: white; } 
         .box-year { grid-column: span 1; background-color: white; } 
 
-        /* Le CTA Papernest (Bouton Gris) */
+        /* MODIFICATION : Le CTA Papernest (Fond Beige) */
         .box-cta {
-            grid-column: span 4; background-color: white; border-top: 1px solid rgba(0,0,0,0.05);
+            grid-column: span 4; background-color: var(--beige-lin); border-top: 1px solid rgba(0,0,0,0.05);
             flex-direction: row; align-items: center; padding: 24px 32px;
         }
         .cta-content h3 { margin: 0 0 4px 0; font-size: 18px; color: var(--text-dark); font-weight: 800;}
         .cta-content p { margin: 0; font-size: 14px; color: var(--text-light); }
+        
+        /* MODIFICATION : Le bouton redevient BLEU Papernest */
         .cta-button {
-            background-color: var(--gray-dark); color: white; text-decoration: none;
+            background-color: var(--papernest-blue); color: white; text-decoration: none;
             padding: 12px 24px; border-radius: 100px; font-weight: 600; font-size: 15px;
             transition: background-color 0.2s, transform 0.2s;
         }
-        .cta-button:hover { background-color: #333333; transform: scale(1.03); }
+        .cta-button:hover { background-color: var(--papernest-blue-hover); transform: scale(1.03); }
 
         /* Typographie */
         .bento-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; opacity: 0.7; color: var(--text-dark); transition: color 0.4s ease;}
-        .bento-huge-value { font-size: 70px; font-weight: 900; line-height: 0.9; margin-top: 15px; letter-spacing: -2px; color: var(--text-dark); } 
+        
+        /* MODIFICATION IMPORTANTE : La couleur de la lettre sera définie en JavaScript */
+        .bento-huge-value { font-size: 70px; font-weight: 900; line-height: 0.9; margin-top: 15px; letter-spacing: -2px; } 
+        
         .bento-medium-value { font-size: 24px; font-weight: 800; line-height: 1.2; margin-top: auto; letter-spacing: -0.5px; color: var(--text-dark); } 
         .bento-small-value { font-size: 22px; font-weight: 800; line-height: 1.2; margin-top: 10px; letter-spacing: -0.5px; color: var(--text-dark); } 
         .bento-text-value { font-size: 22px; font-weight: 800; line-height: 1.1; margin-top: auto; color: var(--text-dark); } 
@@ -192,6 +199,7 @@
     </div>
 
     <script>
+        // ... (Le code JavaScript reste le même, seules les lignes de coloration ont été ajoutées dans lancerRecherche)
         let maCarte = L.map('map', {zoomControl: false}).setView([46.603354, 2.201476], 5);
         L.control.zoom({ position: 'bottomright' }).addTo(maCarte);
         let monMarqueur = null;
@@ -217,6 +225,7 @@
                             li.onclick = () => {
                                 document.getElementById('adresse-input').value = feature.properties.label;
                                 liste.style.display = 'none'; 
+                                lancerRecherche();
                             };
                             liste.appendChild(li);
                         });
@@ -405,13 +414,24 @@
                 return;
             }
 
-            // --- CHANGEMENT ICI : On force les couleurs de fond en monochrome (blanc pur) ---
-            document.getElementById('box-dpe').style.backgroundColor = "white";
-            document.getElementById('val-dpe').innerText = donnees.dpe;
+            // --- NOUVELLE CARTE DE COULEURS RÉGLEMENTAIRES ---
+            const couleursDPE = {
+                "A": "#009900", "B": "#33CC33", "C": "#B3FF00", 
+                "D": "#CCCC00", "E": "#CC8F00", "F": "#CC5200", "G": "#CC0000"
+            };
+            
+            // --- MODIFICATION ICI : On applique la couleur UNIQUEMENT au texte de la lettre ---
+            const valDPE_element = document.getElementById('val-dpe');
+            valDPE_element.innerText = donnees.dpe;
+            valDPE_element.style.color = couleursDPE[donnees.dpe] || "var(--text-dark)"; // La lettre change de couleur
+            document.getElementById('box-dpe').style.backgroundColor = "white"; // Le fond reste blanc/gris
 
-            document.getElementById('box-ges').style.backgroundColor = "white";
-            document.getElementById('val-ges').innerText = donnees.ges;
+            const valGES_element = document.getElementById('val-ges');
+            valGES_element.innerText = donnees.ges;
+            valGES_element.style.color = couleursDPE[donnees.ges] || "var(--text-dark)"; // La lettre change de couleur
+            document.getElementById('box-ges').style.backgroundColor = "white"; // Le fond reste blanc/gris
 
+            // ... (Le reste des données reste monochrome comme avant)
             document.getElementById('val-adresse').innerText = donnees.adresse;
             document.getElementById('val-date').innerText = `Date DPE : ${donnees.date_dpe} (${donnees.base_source.split(" ")[0]})`;
 
@@ -432,12 +452,8 @@
                     let lon = parseFloat(donnees.longitude);
                     if (monMarqueur) maCarte.removeLayer(monMarqueur);
                     
-                    // Le texte du popup garde ses couleurs pour faire un rappel avec la carte !
-                    const couleursEchelle = { "A": "#009900", "B": "#33CC33", "C": "#B3FF00", "D": "#CCCC00", "E": "#CC8F00", "F": "#CC5200", "G": "#CC0000" };
-                    let couleurMarker = couleursEchelle[donnees.dpe] || "#1A1A1A";
-                    
                     monMarqueur = L.marker([lat, lon]).addTo(maCarte)
-                        .bindPopup(`<b style="color:${couleurMarker}; font-size:16px;">DPE ${donnees.dpe}</b>`).openPopup();
+                        .bindPopup(`<b style="color:${couleursDPE[donnees.dpe]}; font-size:16px;">DPE ${donnees.dpe}</b>`).openPopup();
                     maCarte.flyTo([lat, lon], 16, { duration: 1.5 });
                 }
             }, 100);
@@ -447,7 +463,7 @@
             if (event.key === "Enter") { document.getElementById('suggestions-list').style.display = 'none'; lancerRecherche(); }
         }
 
-        // IFRAME DYNAMIQUE (ResizeObserver)
+        // IFRAME DYNAMIQUE
         const observerTaille = new ResizeObserver(entries => {
             for (let entry of entries) {
                 const hauteur = entry.target.offsetHeight + 80; 
@@ -456,9 +472,7 @@
         });
         
         const widgetWrapper = document.querySelector('.widget-wrapper');
-        if (widgetWrapper) {
-            observerTaille.observe(widgetWrapper);
-        }
+        if (widgetWrapper) { observerTaille.observe(widgetWrapper); }
     </script>
 </body>
 </html>
