@@ -10,10 +10,10 @@
 
     <style>
         /* --- LE BODY --- */
-        body { background-color: #F4F6F8; font-family: nunito-sans; padding: 40px 15px; margin: 0; display: flex; justify-content: center; }
+        body { background-color: #F4F6F8; padding: 40px 15px; margin: 0; display: flex; justify-content: center; }
 
         /* --- CONTENEUR GLOBAL --- */
-        .widget-wrapper { width: 100%; max-width: 950px; font-family: 'Inter', system-ui, -apple-system, sans-serif; box-sizing: border-box; }
+        .widget-wrapper { width: 100%; max-width: 950px; font-family: 'Avenir', sans-serif; box-sizing: border-box; }
         .widget-wrapper * { box-sizing: border-box; }
 
         /* Charte Couleurs */
@@ -41,9 +41,9 @@
             transition: border-color 0.3s;
         }
         .search-container:focus-within { border-color: var(--papernest-blue); background: white; }
-        .search-container input { flex-grow: 1; border: none; outline: none; background: transparent; padding: 10px 20px; font-size: 15px; color: var(--text-dark); font-family: inherit; }
+        .search-container input { flex-grow: 1; border: none; outline: none; background: transparent; padding: 10px 20px; font-size: 15px; color: var(--text-dark); font-family: 'Avenir', sans-serif; }
         .search-container input::placeholder { color: #9CA3AF; }
-        .search-container button { background: var(--papernest-blue); color: white; border: none; border-radius: 100px; padding: 10px 28px; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; transition: transform 0.2s; }
+        .search-container button { background: var(--papernest-blue); color: white; border: none; border-radius: 100px; padding: 10px 28px; font-size: 15px; font-weight: 600; font-family: 'Avenir', sans-serif; cursor: pointer; transition: transform 0.2s; }
         .search-container button:hover { background: var(--papernest-blue-hover); transform: scale(1.02); }
 
         .suggestions-list {
@@ -61,7 +61,7 @@
         /* --- SKELETON ANIMATION --- */
         @keyframes shimmer { 0% { background-position: -800px 0; } 100% { background-position: 800px 0; } }
         .skeleton {
-            background: var(--gray-medium); background-image: linear-gradient(to right, var(--gray-medium) 0%, #F4F6F8) 20%, var(--gray-medium) 40%, var(--gray-medium) 100%);
+            background: var(--gray-medium); background-image: linear-gradient(to right, var(--gray-medium) 0%, #F4F6F8 20%, var(--gray-medium) 40%, var(--gray-medium) 100%);
             background-repeat: no-repeat; background-size: 1000px 100%; animation: shimmer 1.5s linear infinite;
             border-radius: 6px; display: inline-block;
         }
@@ -443,6 +443,15 @@
             document.getElementById('val-conso').innerText = donnees.consommation_kwh !== "Non renseignée" ? donnees.consommation_kwh : "-";
 
             bentoGrid.classList.add('visible');
+            
+            // 1. On crée notre propre design de Pin (en SVG violet Papernest)
+            const papernestIcon = L.divIcon({
+                html: `<svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg"><path d="M16 0c-8.837 0-16 7.163-16 16 0 11.5 16 24 16 24s16-12.5 16-24c0-8.837-7.163-16-16-16zm0 24c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8z" fill="#7B4EFC"/></svg>`,
+                className: "",
+                iconSize: [32, 40],
+                iconAnchor: [16, 40],
+                popupAnchor: [0, -40]
+            });
 
             setTimeout(() => {
                 maCarte.invalidateSize();
@@ -451,7 +460,7 @@
                     let lon = parseFloat(donnees.longitude);
                     if (monMarqueur) maCarte.removeLayer(monMarqueur);
                     
-                    monMarqueur = L.marker([lat, lon]).addTo(maCarte)
+                    monMarqueur = L.marker([lat, lon], {icon: papernestIcon}).addTo(maCarte)
                         .bindPopup(`<b style="color:${couleursDPE[donnees.dpe]}; font-size:16px;">DPE ${donnees.dpe}</b>`).openPopup();
                     maCarte.flyTo([lat, lon], 16, { duration: 1.5 });
                 }
