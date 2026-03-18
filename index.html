@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Widget DPE - Design Accents Edition</title>
+    <title>Widget DPE </title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
         /* --- LE BODY --- */
-        body { background-color: #F4F6F8; padding: 40px 15px; margin: 0; display: flex; justify-content: center; }
+        body { background-color: #F4F6F8; font-family: nunito-sans; padding: 40px 15px; margin: 0; display: flex; justify-content: center; }
 
         /* --- CONTENEUR GLOBAL --- */
         .widget-wrapper { width: 100%; max-width: 950px; font-family: 'Inter', system-ui, -apple-system, sans-serif; box-sizing: border-box; }
@@ -18,12 +18,11 @@
 
         /* Charte Couleurs */
         :root {
-            --papernest-blue: #0047FF; --papernest-blue-hover: #003BE0;
+            --papernest-blue: #5A52FF; --papernest-blue-hover: #003BE0;
             --text-dark: #111111; --text-light: #737373;
             --gray-light: #F9FAFB; --gray-medium: #EAECEF; --gray-dark: #555555;
             --radius-box: 20px;
-            /* NOUVELLE COULEUR : Beige discret pour le bloc bas */
-            --beige-lin: #B4EEE7;
+            --violet-ppn: #7B4EFC;
         }
 
         /* --- HERO SECTION & RECHERCHE (Garde son bleu) --- */
@@ -98,15 +97,15 @@
 
         /* MODIFICATION : Le CTA Papernest (Fond Beige) */
         .box-cta {
-            grid-column: span 4; background-color: var(--beige-lin); border-top: 1px solid rgba(0,0,0,0.05);
-            flex-direction: row; align-items: center; padding: 24px 32px;
+            grid-column: span 4; background-color: var(--violet-ppn); border-top: 1px solid rgba(0,0,0,0.05);
+            flex-direction: row; align-items: center; padding: 24px 32px; color: white;
         }
         .cta-content h3 { margin: 0 0 4px 0; font-size: 18px; color: var(--text-dark); font-weight: 800;}
         .cta-content p { margin: 0; font-size: 14px; color: var(--text-light); }
         
         /* MODIFICATION : Le bouton redevient BLEU Papernest */
         .cta-button {
-            background-color: var(--papernest-blue); color: white; text-decoration: none;
+            background-color: white; color: var(--violet-ppn); text-decoration: none;
             padding: 12px 24px; border-radius: 100px; font-weight: 600; font-size: 15px;
             transition: background-color 0.2s, transform 0.2s;
         }
