@@ -25,7 +25,7 @@
             --violet-ppn: #7B4EFC;
         }
 
-        /* --- HERO SECTION & RECHERCHE (Garde son bleu) --- */
+        /* --- HERO SECTION & RECHERCHE --- */
         .hero-section {
             background: white; border-radius: var(--radius-box); padding: 32px; text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid var(--gray-medium);
@@ -70,7 +70,7 @@
         .bento-grid.mode-skeleton .bento-title, .bento-grid.mode-skeleton .bento-subtitle { color: var(--text-light) !important; }
         .bento-grid.mode-skeleton .separator { background-color: rgba(0,0,0,0.05) !important; }
 
-        /* --- GRILLE BENTO (MONOCHROME PAR DÉFAUT) --- */
+        /* --- GRILLE BENTO --- */
         .bento-grid {
             display: none; grid-template-columns: repeat(4, 1fr); 
             grid-template-rows: 200px 140px auto; 
@@ -87,7 +87,7 @@
         }
         .separator { height: 1px; background-color: rgba(0, 0, 0, 0.1); width: 100%; margin: auto 0 8px 0; }
 
-        /* Positions et Bandeaux Gris (Défaut) */
+        /* Positions et Bandeaux Gris */
         .box-dpe { grid-column: span 1; border-top: 5px solid rgba(0, 0, 0, 0.05); } 
         .box-ges { grid-column: span 1; border-top: 5px solid rgba(0, 0, 0, 0.05); } 
         .box-map { grid-column: span 2; padding: 0; } 
@@ -95,7 +95,6 @@
         .box-details { grid-column: span 1; background-color: white; } 
         .box-year { grid-column: span 1; background-color: white; } 
 
-        /* MODIFICATION : Le CTA Papernest (Fond Beige) */
         .box-cta {
             grid-column: span 4; background-color: var(--violet-ppn); border-top: 1px solid rgba(0,0,0,0.05);
             flex-direction: row; align-items: center; padding: 24px 32px;
@@ -103,7 +102,6 @@
         .cta-content h3 { margin: 0 0 4px 0; font-size: 18px; color: white; font-weight: 800;}
         .cta-content p { margin: 0; font-size: 14px; color: #F9FAFB; }
         
-        /* MODIFICATION : Le bouton redevient BLEU Papernest */
         .cta-button {
             background-color: white; color: var(--violet-ppn); text-decoration: none;
             padding: 12px 24px; border-radius: 100px; font-weight: 600; font-size: 15px;
@@ -114,9 +112,7 @@
         /* Typographie */
         .bento-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; opacity: 0.7; color: var(--text-dark); transition: color 0.4s ease;}
         
-        /* MODIFICATION IMPORTANTE : La couleur de la lettre sera définie en JavaScript */
         .bento-huge-value { font-size: 70px; font-weight: 900; line-height: 0.9; margin-top: 15px; letter-spacing: -2px; } 
-        
         .bento-medium-value { font-size: 24px; font-weight: 800; line-height: 1.2; margin-top: auto; letter-spacing: -0.5px; color: var(--text-dark); } 
         .bento-small-value { font-size: 22px; font-weight: 800; line-height: 1.2; margin-top: 10px; letter-spacing: -0.5px; color: var(--text-dark); } 
         .bento-text-value { font-size: 22px; font-weight: 800; line-height: 1.1; margin-top: auto; color: var(--text-dark); } 
@@ -198,7 +194,12 @@
     </div>
 
     <script>
-        // ... (Le code JavaScript reste le même, seules les lignes de coloration ont été ajoutées dans lancerRecherche)
+        // --- TES LIENS GITHUB PAGES ICI ---
+        // Remplace par tes vrais liens, SANS le "/" à la toute fin
+        const LIEN_BASE_1 = "https://feppn.github.io/api-dpe-part1/"; 
+        const LIEN_BASE_2 = "https://feppn.github.io/api-dpe-part2/";
+        const LIEN_BASE_3 = "https://feppn.github.io/api-dpe-part3/";
+
         let maCarte = L.map('map', {zoomControl: false}).setView([46.603354, 2.201476], 5);
         L.control.zoom({ position: 'bottomright' }).addTo(maCarte);
         let monMarqueur = null;
@@ -240,8 +241,8 @@
         let narratifInterval;
         function demarrerNarratif() {
             const messages = [
-                "Connexion aux bases de l'État... ⚡",
-                "Analyse des données climatiques... 🌍",
+                "Connexion à notre base de données... ⚡",
+                "Recherche du code postal... 🌍",
                 "Recherche de la correspondance exacte... 🔍",
                 "Génération de votre tableau de bord... 📊"
             ];
@@ -253,7 +254,7 @@
             narratifInterval = setInterval(() => {
                 index++;
                 if(index < messages.length) { msgBox.innerText = messages[index]; }
-            }, 1500); 
+            }, 1000); // Raccourci un peu car ton API statique va être ultra rapide !
         }
 
         function stopperNarratif() {
@@ -301,7 +302,11 @@
         function trouverLogementStrict(results, adresseSaisie) {
             if (!results || results.length === 0) return null;
             
-            const cible = normaliserTexte(adresseSaisie);
+            // On sépare la rue du code postal/ville pour notre recherche locale
+            const matchCp = adresseSaisie.match(/\b\d{5}\b/);
+            const rueSeule = matchCp ? adresseSaisie.substring(0, matchCp.index) : adresseSaisie;
+
+            const cible = normaliserTexte(rueSeule);
             const matchNumero = cible.match(/^(\d+)/); 
             
             const motsAIgnorer = ['rue', 'avenue', 'boulevard', 'allee', 'chemin', 'place', 'impasse', 'bis', 'ter', 'de', 'la', 'des', 'du', 'le', 'les'];
@@ -320,7 +325,6 @@
                     const motPrincipal = motsCible[0];
                     if (!adresseBase.includes(motPrincipal)) continue; 
                 }
-
                 return res; 
             }
             return null; 
@@ -352,37 +356,74 @@
             }
 
             if (logementBrut._geopoint) {
-                let coords = logementBrut._geopoint.split(",");
+                let coords = typeof logementBrut._geopoint === 'string' ? logementBrut._geopoint.split(",") : logementBrut._geopoint;
                 propre.latitude = parseFloat(coords[0]); propre.longitude = parseFloat(coords[1]);
             }
             return propre;
         }
 
-        async function interrogerAdeme(adresse) {
-            const query = encodeURIComponent(adresse);
-            const colsNew = "etiquette_dpe,etiquette_ges,date_etablissement_dpe,periode_construction,type_batiment,conso_5_usages_par_m2_ep,surface_habitable_logement,_geopoint,adresse_ban,adresse_complete_brut";
-            const colsOld = "classe_consommation_energie,classe_estimation_ges,date_etablissement_dpe,annee_construction,tr002_type_batiment_description,consommation_energie,surface_thermique_lot,_geopoint,geo_adresse";
+        // --- LA NOUVELLE FONCTION QUI REMPLACE L'APPEL À L'ADEME ---
+        async function interrogerBaseStatique(adresse) {
+            // 1. Extraire le code postal
+            const matchCp = adresse.match(/\b\d{5}\b/);
+            if (!matchCp) return { error: "Code postal introuvable dans l'adresse sélectionnée." };
             
-            const urlNouvelle = `https://data.ademe.fr/data-fair/api/v1/datasets/dpe03existant/lines?q=${query}&size=5&select=${colsNew}`;
-            const urlAncienne = `https://data.ademe.fr/data-fair/api/v1/datasets/dpe-france/lines?q=${query}&size=5&select=${colsOld}`;
+            const cp = matchCp[0];
+            const cpNum = parseInt(cp, 10);
+
+            // 2. Déterminer la bonne base de données
+            let baseUrl = "";
+            if (cpNum < 50000) {
+                baseUrl = LIEN_BASE_1;
+            } else if (cpNum < 75000) {
+                baseUrl = LIEN_BASE_2;
+            } else {
+                baseUrl = LIEN_BASE_3;
+            }
+            
+            // Sécurité : s'assurer qu'il n'y a pas de slash à la fin de baseUrl
+            baseUrl = baseUrl.replace(/\/$/, '');
+
+            // 3. Isoler le nom de la rue pour trouver la 1ère lettre
+            let rueBrute = adresse.substring(0, matchCp.index);
+            const cible = normaliserTexte(rueBrute);
+            
+            // Retrait du numéro et des mots inutiles
+            const motsAIgnorer = ['rue', 'avenue', 'boulevard', 'allee', 'chemin', 'place', 'impasse', 'bis', 'ter', 'de', 'la', 'des', 'du', 'le', 'les'];
+            let motsCible = cible.replace(/^\d+\s*/, '').split(/\s+/).filter(mot => mot.length > 2 && !motsAIgnorer.includes(mot));
+
+            if (motsCible.length === 0) return { error: "Impossible de déterminer le nom de la rue." };
+            
+            // On prend la première lettre du premier mot principal (ex: "c" pour "champs")
+            const premiereLettre = motsCible[0].charAt(0).toLowerCase();
+
+            // 4. Construire notre lien statique magique !
+            const urlFichier = `${baseUrl}/${cp}/${premiereLettre}.json`;
 
             try {
-                let resNouvelle = await fetch(urlNouvelle);
-                let jsonNouvelle = await resNouvelle.json();
-                let logementValide = trouverLogementStrict(jsonNouvelle.results, adresse);
+                let reponse = await fetch(urlFichier);
                 
-                if (logementValide) return nettoyerDonnees(logementValide, "post-2021", adresse);
-
-                let resAncienne = await fetch(urlAncienne);
-                let jsonAncienne = await resAncienne.json();
-                logementValide = trouverLogementStrict(jsonAncienne.results, adresse);
+                if (!reponse.ok) {
+                    if(reponse.status === 404) return { error: "Aucun DPE trouvé pour cette rue dans notre base." };
+                    return { error: "Erreur lors de la lecture des données." };
+                }
                 
-                if (logementValide) return nettoyerDonnees(logementValide, "pre-2021", adresse);
+                let dataJSON = await reponse.json();
+                
+                // On passe le fichier JSON complet à notre ancien filtre strict pour trouver le bon numéro
+                let logementValide = trouverLogementStrict(dataJSON, adresse);
+                
+                if (logementValide) {
+                    // On détermine la version selon la présence de l'étiquette DPE nouvelle génération
+                    let version = logementValide.etiquette_dpe ? "post-2021" : "pre-2021";
+                    return nettoyerDonnees(logementValide, version, adresse);
+                } else {
+                    return { error: "Le logement exact n'a pas été trouvé à cette adresse." };
+                }
 
-                return { error: "Aucun DPE public trouvé pour cette rue exacte." };
             } catch (err) {
                 console.error(err);
-                return { error: "Impossible de contacter les serveurs de l'État." };
+                return { error: "Impossible de contacter la base de données de DPE." };
             }
         }
 
@@ -401,7 +442,8 @@
             activerSkeleton();
             demarrerNarratif();
 
-            let donnees = await interrogerAdeme(adresseSaisie);
+            // --- ON APPELLE MAINTENANT NOTRE BASE STATIQUE ---
+            let donnees = await interrogerBaseStatique(adresseSaisie);
 
             stopperNarratif();
             desactiverSkeleton();
@@ -413,24 +455,21 @@
                 return;
             }
 
-            // --- NOUVELLE CARTE DE COULEURS RÉGLEMENTAIRES ---
             const couleursDPE = {
                 "A": "#009966", "B": "#00D492", "C": "#A4F4CF", 
                 "D": "#FEE685", "E": "#FFBA00", "F": "#BB4D00", "G": "#7B3306"
             };
             
-            // --- MODIFICATION ICI : On applique la couleur UNIQUEMENT au texte de la lettre ---
             const valDPE_element = document.getElementById('val-dpe');
             valDPE_element.innerText = donnees.dpe;
-            valDPE_element.style.color = couleursDPE[donnees.dpe] || "var(--text-dark)"; // La lettre change de couleur
-            document.getElementById('box-dpe').style.backgroundColor = "white"; // Le fond reste blanc/gris
+            valDPE_element.style.color = couleursDPE[donnees.dpe] || "var(--text-dark)"; 
+            document.getElementById('box-dpe').style.backgroundColor = "white"; 
 
             const valGES_element = document.getElementById('val-ges');
             valGES_element.innerText = donnees.ges;
-            valGES_element.style.color = couleursDPE[donnees.ges] || "var(--text-dark)"; // La lettre change de couleur
-            document.getElementById('box-ges').style.backgroundColor = "white"; // Le fond reste blanc/gris
+            valGES_element.style.color = couleursDPE[donnees.ges] || "var(--text-dark)"; 
+            document.getElementById('box-ges').style.backgroundColor = "white"; 
 
-            // ... (Le reste des données reste monochrome comme avant)
             document.getElementById('val-adresse').innerText = donnees.adresse;
             document.getElementById('val-date').innerText = `Date DPE : ${donnees.date_dpe} (${donnees.base_source.split(" ")[0]})`;
 
@@ -444,7 +483,6 @@
 
             bentoGrid.classList.add('visible');
             
-            // 1. On crée notre propre design de Pin (en SVG violet Papernest)
             const papernestIcon = L.divIcon({
                 html: `<svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg"><path d="M16 0c-8.837 0-16 7.163-16 16 0 11.5 16 24 16 24s16-12.5 16-24c0-8.837-7.163-16-16-16zm0 24c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8z" fill="#7B4EFC"/></svg>`,
                 className: "",
