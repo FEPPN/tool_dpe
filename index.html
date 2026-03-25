@@ -192,348 +192,304 @@
             </div>
         </div>
     </div>
-
     <script>
-        // --- TES LIENS GITHUB PAGES ICI ---
-        // Remplace par tes vrais liens, SANS le "/" à la toute fin
-        const LIEN_BASE_1 = "https://feppn.github.io/api-dpe-part1/"; 
-        const LIEN_BASE_2 = "https://feppn.github.io/api-dpe-part2/";
-        const LIEN_BASE_3 = "https://feppn.github.io/api-dpe-part3/";
+    // --- TES LIENS GITHUB PAGES ICI ---
+    const LIEN_BASE_1 = "https://feppn.github.io/api-dpe-part1/"; 
+    const LIEN_BASE_2 = "https://feppn.github.io/api-dpe-part2/";
+    const LIEN_BASE_3 = "https://feppn.github.io/api-dpe-part3/";
 
-        let maCarte = L.map('map', {zoomControl: false}).setView([46.603354, 2.201476], 5);
-        L.control.zoom({ position: 'bottomright' }).addTo(maCarte);
-        let monMarqueur = null;
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(maCarte);
+    let maCarte = L.map('map', {zoomControl: false}).setView([46.603354, 2.201476], 5);
+    L.control.zoom({ position: 'bottomright' }).addTo(maCarte);
+    let monMarqueur = null;
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(maCarte);
 
-        let minuteurDebounce; 
-        async function chercherSuggestions() {
-            const input = document.getElementById('adresse-input').value;
-            const liste = document.getElementById('suggestions-list');
-            if (input.length < 3) { liste.style.display = 'none'; return; }
-            clearTimeout(minuteurDebounce);
+    let minuteurDebounce; 
+    async function chercherSuggestions() {
+        const input = document.getElementById('adresse-input').value;
+        const liste = document.getElementById('suggestions-list');
+        if (input.length < 3) { liste.style.display = 'none'; return; }
+        clearTimeout(minuteurDebounce);
 
-            minuteurDebounce = setTimeout(async () => {
-                try {
-                    let reponse = await fetch(`https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(input)}&index=address&limit=5&autocomplete=1`);
-                    let donnees = await reponse.json();
-                    liste.innerHTML = ''; 
-                    if (donnees.features && donnees.features.length > 0) {
-                        liste.style.display = 'block';
-                        donnees.features.forEach(feature => {
-                            let li = document.createElement('li');
-                            li.textContent = feature.properties.label;
-                            li.onclick = () => {
-                                document.getElementById('adresse-input').value = feature.properties.label;
-                                liste.style.display = 'none'; 
-                                lancerRecherche();
-                            };
-                            liste.appendChild(li);
-                        });
-                    } else { liste.style.display = 'none'; }
-                } catch (erreur) { console.error(erreur); }
-            }, 150); 
-        }
-
-        document.addEventListener("click", function(event) {
-            if (!event.target.closest('.search-container')) { document.getElementById('suggestions-list').style.display = 'none'; }
-        });
-
-        let narratifInterval;
-        function demarrerNarratif() {
-            const messages = [
-                "Connexion à notre base de données... ⚡",
-                "Recherche du code postal... 🌍",
-                "Recherche de la correspondance exacte... 🔍",
-                "Génération de votre tableau de bord... 📊"
-            ];
-            let index = 0;
-            let msgBox = document.getElementById('narrative-msg');
-            msgBox.style.display = 'block';
-            msgBox.innerText = messages[0];
-            
-            narratifInterval = setInterval(() => {
-                index++;
-                if(index < messages.length) { msgBox.innerText = messages[index]; }
-            }, 1000); // Raccourci un peu car ton API statique va être ultra rapide !
-        }
-
-        function stopperNarratif() {
-            clearInterval(narratifInterval);
-            document.getElementById('narrative-msg').style.display = 'none';
-        }
-
-        function activerSkeleton() {
-            let bentoGrid = document.getElementById('bento-grid');
-            bentoGrid.classList.add('mode-skeleton');
-            bentoGrid.classList.add('visible'); 
-            
-            document.getElementById('val-dpe').innerHTML = '<div class="skeleton" style="width: 50px; height: 50px; margin-top: 20px;"></div>';
-            document.getElementById('val-ges').innerHTML = '<div class="skeleton" style="width: 50px; height: 50px; margin-top: 20px;"></div>';
-            document.getElementById('val-adresse').innerHTML = '<div class="skeleton" style="width: 100%; height: 24px; margin-top: 8px;"></div><div class="skeleton" style="width: 60%; height: 24px; margin-top: 6px;"></div>';
-            document.getElementById('val-date').innerHTML = '<div class="skeleton" style="width: 120px; height: 14px;"></div>';
-            document.getElementById('val-surface').innerHTML = '<div class="skeleton" style="width: 70px; height: 22px;"></div>';
-            document.getElementById('val-type').innerHTML = '<div class="skeleton" style="width: 90px; height: 14px;"></div>';
-            document.getElementById('val-annee').innerHTML = '<div class="skeleton" style="width: 80px; height: 22px; margin-top: 10px;"></div>';
-            document.getElementById('val-conso').innerHTML = '<span class="skeleton" style="width: 40px; height: 14px; display: inline-block; vertical-align: middle;"></span>';
-
-            document.getElementById('map').style.display = 'none';
-            let skelMapDiv = document.getElementById('skeleton-map');
-            if(!skelMapDiv) {
-                skelMapDiv = document.createElement('div');
-                skelMapDiv.id = 'skeleton-map'; skelMapDiv.className = 'skeleton';
-                skelMapDiv.style.width = '100%'; skelMapDiv.style.height = '100%';
-                document.querySelector('.box-map').appendChild(skelMapDiv);
-            }
-            skelMapDiv.style.display = 'block';
-        }
-
-        function desactiverSkeleton() {
-            let bentoGrid = document.getElementById('bento-grid');
-            bentoGrid.classList.remove('mode-skeleton');
-            document.getElementById('map').style.display = 'block';
-            let skelMapDiv = document.getElementById('skeleton-map');
-            if(skelMapDiv) skelMapDiv.style.display = 'none';
-        }
-
-        function normaliserTexte(texte) {
-            return texte.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, " ").trim();
-        }
-
-        function trouverLogementStrict(results, adresseSaisie) {
-            if (!results || results.length === 0) return null;
-            
-            const matchCp = adresseSaisie.match(/\b\d{5}\b/);
-            const rueSeule = matchCp ? adresseSaisie.substring(0, matchCp.index) : adresseSaisie;
-
-            const cible = normaliserTexte(rueSeule);
-            const matchNumero = cible.match(/^(\d+)/); 
-            
-            // J'ai rajouté 'l' et 'd' pour gérer les apostrophes (l'arc, d'aix)
-            const motsAIgnorer = ['rue', 'avenue', 'boulevard', 'allee', 'chemin', 'place', 'impasse', 'bis', 'ter', 'de', 'la', 'des', 'du', 'le', 'les', 'l', 'd'];
-            
-            // CORRECTION : J'ai enlevé "mot.length > 2" pour ne pas bloquer les petits noms de rue (ex: Ay, If, Eu)
-            const motsCible = cible.replace(/^\d+\s*/, '').split(/\s+/).filter(mot => mot.trim().length > 0 && !motsAIgnorer.includes(mot));
-
-            console.log("🎯 DEBUG - Cible recherchée :", cible, "| Numéro :", matchNumero ? matchNumero[1] : "Aucun", "| Mot clé principal :", motsCible[0]);
-
-            for (let res of results) {
-                // CORRECTION : J'ajoute "res.adresse" au cas où le nom de la clé a changé dans ta base
-                let adresseBase = normaliserTexte(res.adresse_ban || res.adresse_complete_brut || res.geo_adresse || res.adresse || "");
-                
-                if (matchNumero) {
-                    const num = matchNumero[1];
-                    let regexNum = new RegExp("^" + num + "\\b", "i");
-                    if (!regexNum.test(adresseBase)) continue; 
-                }
-
-                if (motsCible.length > 0) {
-                    const motPrincipal = motsCible[0];
-                    if (!adresseBase.includes(motPrincipal)) continue; 
-                }
-                
-                console.log("✅ DEBUG - Logement trouvé dans la base :", adresseBase);
-                return res; 
-            }
-            
-            console.warn("❌ DEBUG - Aucun logement ne correspond à nos filtres dans ce fichier JSON.");
-            return null; 
-        }
-        
-        function nettoyerDonnees(logementBrut, adresseSaisie) {
-            return {
-                adresse: logementBrut.adresse || adresseSaisie,
-                dpe: logementBrut.dpe || "N/A",
-                ges: logementBrut.ges || "N/A",
-                date_dpe: logementBrut.date || "Inconnue",
-                base_source: "Base validée", 
-                annee_construction: logementBrut.annee || "Non renseignée",
-                type_logement: logementBrut.type || "Non renseigné",
-                consommation_kwh: logementBrut.conso ? Math.round(parseFloat(logementBrut.conso)) : "Non renseignée",
-                surface_m2: logementBrut.surface ? Math.round(parseFloat(logementBrut.surface)) : "Non renseignée",
-                
-                // Note : Tes données actuelles ne semblent pas avoir de latitude/longitude
-                latitude: logementBrut.latitude || null,
-                longitude: logementBrut.longitude || null
-            };
-        }
-
-            if (versionBase === "post-2021") {
-                propre.dpe = logementBrut.etiquette_dpe || "N/A";
-                propre.ges = logementBrut.etiquette_ges || "N/A";
-                propre.annee_construction = logementBrut.periode_construction || "Non renseignée";
-                propre.type_logement = logementBrut.type_batiment || "Non renseigné";
-                propre.consommation_kwh = logementBrut.conso_5_usages_par_m2_ep !== undefined ? Math.round(logementBrut.conso_5_usages_par_m2_ep) : "Non renseignée";
-                propre.surface_m2 = logementBrut.surface_habitable_logement !== undefined ? Math.round(logementBrut.surface_habitable_logement) : "Non renseignée";
-            } else {
-                propre.dpe = logementBrut.classe_consommation_energie || "N/A";
-                propre.ges = logementBrut.classe_estimation_ges || "N/A";
-                propre.annee_construction = logementBrut.annee_construction || "Non renseignée";
-                propre.type_logement = logementBrut.tr002_type_batiment_description || "Non renseigné";
-                propre.consommation_kwh = logementBrut.consommation_energie !== undefined ? Math.round(logementBrut.consommation_energie) : "Non renseignée";
-                propre.surface_m2 = logementBrut.surface_thermique_lot !== undefined ? Math.round(logementBrut.surface_thermique_lot) : "Non renseignée";
-            }
-
-            if (logementBrut._geopoint) {
-                let coords = typeof logementBrut._geopoint === 'string' ? logementBrut._geopoint.split(",") : logementBrut._geopoint;
-                propre.latitude = parseFloat(coords[0]); propre.longitude = parseFloat(coords[1]);
-            }
-            return propre;
-        }
-
-        // --- LA NOUVELLE FONCTION QUI REMPLACE L'APPEL À L'ADEME ---
-        async function interrogerBaseStatique(adresse) {
-            const matchCp = adresse.match(/\b\d{5}\b/);
-            if (!matchCp) return { error: "Code postal introuvable dans l'adresse sélectionnée." };
-            
-            const cp = matchCp[0];
-            const cpNum = parseInt(cp, 10);
-
-            let baseUrl = "";
-            if (cpNum < 50000) { baseUrl = LIEN_BASE_1; } 
-            else if (cpNum < 75000) { baseUrl = LIEN_BASE_2; } 
-            else { baseUrl = LIEN_BASE_3; }
-            baseUrl = baseUrl.replace(/\/$/, '');
-
-            let rueBrute = adresse.substring(0, matchCp.index);
-            const cible = normaliserTexte(rueBrute);
-            
-            const motsAIgnorer = ['rue', 'avenue', 'boulevard', 'allee', 'chemin', 'place', 'impasse', 'bis', 'ter', 'de', 'la', 'des', 'du', 'le', 'les', 'l', 'd'];
-            let motsCible = cible.replace(/^\d+\s*/, '').split(/\s+/).filter(mot => mot.trim().length > 0 && !motsAIgnorer.includes(mot));
-
-            if (motsCible.length === 0) return { error: "Impossible de déterminer le nom de la rue à analyser." };
-            
-            // On récupère la première lettre. ATTENTION: J'ai mis en minuscule (.toLowerCase()).
-            // Si tes fichiers sur GitHub s'appellent A.json, B.json en MAJUSCULE, change le .toLowerCase() en .toUpperCase() !
-            const premiereLettre = motsCible[0].charAt(0).toLowerCase();
-
-            const urlFichier = `${baseUrl}/${cp}/${premiereLettre}.json`;
-            console.log("🔍 DEBUG - URL appelée :", urlFichier);
-
+        minuteurDebounce = setTimeout(async () => {
             try {
-                let reponse = await fetch(urlFichier);
-                
-                if (!reponse.ok) {
-                    if(reponse.status === 404) return { error: `Erreur 404 : Le fichier ${premiereLettre}.json n'a pas été trouvé pour le CP ${cp} sur GitHub.` };
-                    return { error: `Erreur ${reponse.status} lors du téléchargement du fichier.` };
-                }
-                
-                let dataJSON = await reponse.json();
-                console.log("📦 DEBUG - Fichier JSON reçu ! Nombre d'éléments bruts :", Object.keys(dataJSON).length);
-                
-                // CORRECTION : S'adapte automatiquement si ton JSON est un Array direct [..] ou un Objet { results: [..] }
-                let tableauLogements = Array.isArray(dataJSON) ? dataJSON : (dataJSON.results || dataJSON.data || Object.values(dataJSON)[0] || []);
+                let reponse = await fetch(`https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(input)}&index=address&limit=5&autocomplete=1`);
+                let donnees = await reponse.json();
+                liste.innerHTML = ''; 
+                if (donnees.features && donnees.features.length > 0) {
+                    liste.style.display = 'block';
+                    donnees.features.forEach(feature => {
+                        let li = document.createElement('li');
+                        li.textContent = feature.properties.label;
+                        li.onclick = () => {
+                            document.getElementById('adresse-input').value = feature.properties.label;
+                            liste.style.display = 'none'; 
+                            lancerRecherche();
+                        };
+                        liste.appendChild(li);
+                    });
+                } else { liste.style.display = 'none'; }
+            } catch (erreur) { console.error(erreur); }
+        }, 150); 
+    }
 
-                if (tableauLogements.length === 0) {
-                    return { error: "Le fichier a été trouvé, mais il semble vide ou mal formaté." };
-                }
+    document.addEventListener("click", function(event) {
+        if (!event.target.closest('.search-container')) { document.getElementById('suggestions-list').style.display = 'none'; }
+    });
 
-                let logementValide = trouverLogementStrict(tableauLogements, adresse);
-                
-                if (logementValide) {
-                    // Plus besoin de vérifier la version (pre/post 2021), ta base est déjà unifiée !
-                    return nettoyerDonnees(logementValide, adresse);
-                } else {
-                    return { error: `Fichier ${premiereLettre}.json lu avec succès, mais aucun logement avec ce numéro précis n'y figure.` };
-                }
-
-            } catch (err) {
-                console.error("Erreur technique :", err);
-                return { error: "Impossible de lire la base de données (Erreur technique, voir console)." };
-            }
-        }
-
-        async function lancerRecherche() {
-            let adresseSaisie = document.getElementById('adresse-input').value;
-            let errorMsg = document.getElementById('error-msg');
-            let bentoGrid = document.getElementById('bento-grid');
-            let heroBlock = document.getElementById('hero-block');
-            
-            document.getElementById('suggestions-list').style.display = 'none';
-            if (!adresseSaisie) return;
-
-            errorMsg.style.display = 'none'; 
-            heroBlock.style.padding = "16px 32px"; 
-
-            activerSkeleton();
-            demarrerNarratif();
-
-            // --- ON APPELLE MAINTENANT NOTRE BASE STATIQUE ---
-            let donnees = await interrogerBaseStatique(adresseSaisie);
-
-            stopperNarratif();
-            desactiverSkeleton();
-
-            if (donnees.error) {
-                bentoGrid.classList.remove('visible');
-                errorMsg.style.display = 'block'; 
-                errorMsg.innerHTML = `⚠️ ${donnees.error}`;
-                return;
-            }
-
-            const couleursDPE = {
-                "A": "#009966", "B": "#00D492", "C": "#A4F4CF", 
-                "D": "#FEE685", "E": "#FFBA00", "F": "#BB4D00", "G": "#7B3306"
-            };
-            
-            const valDPE_element = document.getElementById('val-dpe');
-            valDPE_element.innerText = donnees.dpe;
-            valDPE_element.style.color = couleursDPE[donnees.dpe] || "var(--text-dark)"; 
-            document.getElementById('box-dpe').style.backgroundColor = "white"; 
-
-            const valGES_element = document.getElementById('val-ges');
-            valGES_element.innerText = donnees.ges;
-            valGES_element.style.color = couleursDPE[donnees.ges] || "var(--text-dark)"; 
-            document.getElementById('box-ges').style.backgroundColor = "white"; 
-
-            document.getElementById('val-adresse').innerText = donnees.adresse;
-            document.getElementById('val-date').innerText = `Date DPE : ${donnees.date_dpe} (${donnees.base_source.split(" ")[0]})`;
-
-            document.getElementById('val-surface').innerText = donnees.surface_m2 !== "Non renseignée" ? `${donnees.surface_m2} m²` : "Inconnue";
-            let typeBrut = donnees.type_logement || "Inconnu";
-            let typeBatiment = (typeBrut !== "Non renseigné" && typeBrut !== "Inconnu") ? String(typeBrut).charAt(0).toUpperCase() + String(typeBrut).slice(1) : "Inconnu";
-            document.getElementById('val-type').innerText = typeBatiment;
-
-            document.getElementById('val-annee').innerText = donnees.annee_construction;
-            document.getElementById('val-conso').innerText = donnees.consommation_kwh !== "Non renseignée" ? donnees.consommation_kwh : "-";
-
-            bentoGrid.classList.add('visible');
-            
-            const papernestIcon = L.divIcon({
-                html: `<svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg"><path d="M16 0c-8.837 0-16 7.163-16 16 0 11.5 16 24 16 24s16-12.5 16-24c0-8.837-7.163-16-16-16zm0 24c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8z" fill="#7B4EFC"/></svg>`,
-                className: "",
-                iconSize: [32, 40],
-                iconAnchor: [16, 40],
-                popupAnchor: [0, -40]
-            });
-
-            setTimeout(() => {
-                maCarte.invalidateSize();
-                if (donnees.latitude && donnees.longitude) {
-                    let lat = parseFloat(donnees.latitude);
-                    let lon = parseFloat(donnees.longitude);
-                    if (monMarqueur) maCarte.removeLayer(monMarqueur);
-                    
-                    monMarqueur = L.marker([lat, lon], {icon: papernestIcon}).addTo(maCarte)
-                        .bindPopup(`<b style="color:${couleursDPE[donnees.dpe]}; font-size:16px;">DPE ${donnees.dpe}</b>`).openPopup();
-                    maCarte.flyTo([lat, lon], 16, { duration: 1.5 });
-                }
-            }, 100);
-        }
-
-        function gererToucheEntree(event) {
-            if (event.key === "Enter") { document.getElementById('suggestions-list').style.display = 'none'; lancerRecherche(); }
-        }
-
-        // IFRAME DYNAMIQUE
-        const observerTaille = new ResizeObserver(entries => {
-            for (let entry of entries) {
-                const hauteur = entry.target.offsetHeight + 80; 
-                window.parent.postMessage({ type: 'resize-dpe-widget', height: hauteur }, '*');
-            }
-        });
+    let narratifInterval;
+    function demarrerNarratif() {
+        const messages = [
+            "Connexion à notre base de données... ⚡",
+            "Recherche du code postal... 🌍",
+            "Recherche de la correspondance exacte... 🔍",
+            "Génération de votre tableau de bord... 📊"
+        ];
+        let index = 0;
+        let msgBox = document.getElementById('narrative-msg');
+        msgBox.style.display = 'block';
+        msgBox.innerText = messages[0];
         
-        const widgetWrapper = document.querySelector('.widget-wrapper');
-        if (widgetWrapper) { observerTaille.observe(widgetWrapper); }
-    </script>
+        narratifInterval = setInterval(() => {
+            index++;
+            if(index < messages.length) { msgBox.innerText = messages[index]; }
+        }, 1000); 
+    }
+
+    function stopperNarratif() {
+        clearInterval(narratifInterval);
+        document.getElementById('narrative-msg').style.display = 'none';
+    }
+
+    function activerSkeleton() {
+        let bentoGrid = document.getElementById('bento-grid');
+        bentoGrid.classList.add('mode-skeleton');
+        bentoGrid.classList.add('visible'); 
+        
+        document.getElementById('val-dpe').innerHTML = '<div class="skeleton" style="width: 50px; height: 50px; margin-top: 20px;"></div>';
+        document.getElementById('val-ges').innerHTML = '<div class="skeleton" style="width: 50px; height: 50px; margin-top: 20px;"></div>';
+        document.getElementById('val-adresse').innerHTML = '<div class="skeleton" style="width: 100%; height: 24px; margin-top: 8px;"></div><div class="skeleton" style="width: 60%; height: 24px; margin-top: 6px;"></div>';
+        document.getElementById('val-date').innerHTML = '<div class="skeleton" style="width: 120px; height: 14px;"></div>';
+        document.getElementById('val-surface').innerHTML = '<div class="skeleton" style="width: 70px; height: 22px;"></div>';
+        document.getElementById('val-type').innerHTML = '<div class="skeleton" style="width: 90px; height: 14px;"></div>';
+        document.getElementById('val-annee').innerHTML = '<div class="skeleton" style="width: 80px; height: 22px; margin-top: 10px;"></div>';
+        document.getElementById('val-conso').innerHTML = '<span class="skeleton" style="width: 40px; height: 14px; display: inline-block; vertical-align: middle;"></span>';
+
+        document.getElementById('map').style.display = 'none';
+        let skelMapDiv = document.getElementById('skeleton-map');
+        if(!skelMapDiv) {
+            skelMapDiv = document.createElement('div');
+            skelMapDiv.id = 'skeleton-map'; skelMapDiv.className = 'skeleton';
+            skelMapDiv.style.width = '100%'; skelMapDiv.style.height = '100%';
+            document.querySelector('.box-map').appendChild(skelMapDiv);
+        }
+        skelMapDiv.style.display = 'block';
+    }
+
+    function desactiverSkeleton() {
+        let bentoGrid = document.getElementById('bento-grid');
+        bentoGrid.classList.remove('mode-skeleton');
+        document.getElementById('map').style.display = 'block';
+        let skelMapDiv = document.getElementById('skeleton-map');
+        if(skelMapDiv) skelMapDiv.style.display = 'none';
+    }
+
+    function normaliserTexte(texte) {
+        return texte.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, " ").trim();
+    }
+
+    // --- FONCTION CORRIGÉE POUR ÉVITER LE BUG DE L'ÉTAGE ---
+    function trouverLogementStrict(results, adresseSaisie) {
+        if (!results || results.length === 0) return null;
+        
+        const matchCp = adresseSaisie.match(/\b\d{5}\b/);
+        const rueSeule = matchCp ? adresseSaisie.substring(0, matchCp.index) : adresseSaisie;
+
+        const cible = normaliserTexte(rueSeule);
+        const matchNumero = cible.match(/^(\d+)/); 
+        
+        const motsAIgnorer = ['rue', 'avenue', 'boulevard', 'allee', 'chemin', 'place', 'impasse', 'bis', 'ter', 'de', 'la', 'des', 'du', 'le', 'les', 'l', 'd'];
+        const motsCible = cible.replace(/^\d+\s*/, '').split(/\s+/).filter(mot => mot.trim().length > 0 && !motsAIgnorer.includes(mot));
+
+        for (let res of results) {
+            let adresseBase = normaliserTexte(res.adresse_ban || res.adresse_complete_brut || res.geo_adresse || res.adresse || "");
+            
+            if (matchNumero) {
+                const num = matchNumero[1];
+                // Regex modifiée pour forcer le numéro au début de l'adresse !
+                let regexNum = new RegExp("^" + num + "\\b", "i");
+                if (!regexNum.test(adresseBase)) continue; 
+            }
+
+            if (motsCible.length > 0) {
+                const motPrincipal = motsCible[0];
+                if (!adresseBase.includes(motPrincipal)) continue; 
+            }
+            
+            return res; 
+        }
+        return null; 
+    }
+
+    // --- FONCTION NETTOYAGE ADAPTÉE À TA BASE PROPRE ---
+    function nettoyerDonnees(logementBrut, adresseSaisie) {
+        return {
+            adresse: logementBrut.adresse || adresseSaisie,
+            dpe: logementBrut.dpe || "N/A",
+            ges: logementBrut.ges || "N/A",
+            date_dpe: logementBrut.date || "Inconnue",
+            base_source: "Base certifiée",
+            annee_construction: logementBrut.annee || "Non renseignée",
+            type_logement: logementBrut.type || "Non renseigné",
+            consommation_kwh: logementBrut.conso ? Math.round(parseFloat(logementBrut.conso)) : "Non renseignée",
+            surface_m2: logementBrut.surface ? Math.round(parseFloat(logementBrut.surface)) : "Non renseignée",
+            latitude: logementBrut.latitude || null,
+            longitude: logementBrut.longitude || null
+        };
+    }
+
+    async function interrogerBaseStatique(adresse) {
+        const matchCp = adresse.match(/\b\d{5}\b/);
+        if (!matchCp) return { error: "Code postal introuvable dans l'adresse sélectionnée." };
+        
+        const cp = matchCp[0];
+        const cpNum = parseInt(cp, 10);
+
+        let baseUrl = "";
+        if (cpNum < 50000) { baseUrl = LIEN_BASE_1; } 
+        else if (cpNum < 75000) { baseUrl = LIEN_BASE_2; } 
+        else { baseUrl = LIEN_BASE_3; }
+        baseUrl = baseUrl.replace(/\/$/, '');
+
+        let rueBrute = adresse.substring(0, matchCp.index);
+        const cible = normaliserTexte(rueBrute);
+        
+        const motsAIgnorer = ['rue', 'avenue', 'boulevard', 'allee', 'chemin', 'place', 'impasse', 'bis', 'ter', 'de', 'la', 'des', 'du', 'le', 'les', 'l', 'd'];
+        let motsCible = cible.replace(/^\d+\s*/, '').split(/\s+/).filter(mot => mot.trim().length > 0 && !motsAIgnorer.includes(mot));
+
+        if (motsCible.length === 0) return { error: "Impossible de déterminer le nom de la rue à analyser." };
+        
+        const premiereLettre = motsCible[0].charAt(0).toLowerCase();
+        const urlFichier = `${baseUrl}/${cp}/${premiereLettre}.json`;
+
+        try {
+            let reponse = await fetch(urlFichier);
+            
+            if (!reponse.ok) {
+                if(reponse.status === 404) return { error: "Aucun DPE trouvé pour cette rue dans notre base." };
+                return { error: `Erreur ${reponse.status} lors du téléchargement.` };
+            }
+            
+            let dataJSON = await reponse.json();
+            let tableauLogements = Array.isArray(dataJSON) ? dataJSON : (dataJSON.results || dataJSON.data || Object.values(dataJSON)[0] || []);
+
+            if (tableauLogements.length === 0) {
+                return { error: "Le fichier a été trouvé, mais il est vide." };
+            }
+
+            let logementValide = trouverLogementStrict(tableauLogements, adresse);
+            
+            if (logementValide) {
+                // On utilise la nouvelle fonction simplifiée
+                return nettoyerDonnees(logementValide, adresse);
+            } else {
+                return { error: `Le logement exact n'a pas été trouvé à cette adresse.` };
+            }
+
+        } catch (err) {
+            console.error("Erreur technique :", err);
+            return { error: "Impossible de lire la base de données." };
+        }
+    }
+
+    async function lancerRecherche() {
+        let adresseSaisie = document.getElementById('adresse-input').value;
+        let errorMsg = document.getElementById('error-msg');
+        let bentoGrid = document.getElementById('bento-grid');
+        let heroBlock = document.getElementById('hero-block');
+        
+        document.getElementById('suggestions-list').style.display = 'none';
+        if (!adresseSaisie) return;
+
+        errorMsg.style.display = 'none'; 
+        heroBlock.style.padding = "16px 32px"; 
+
+        activerSkeleton();
+        demarrerNarratif();
+
+        let donnees = await interrogerBaseStatique(adresseSaisie);
+
+        stopperNarratif();
+        desactiverSkeleton();
+
+        if (donnees.error) {
+            bentoGrid.classList.remove('visible');
+            errorMsg.style.display = 'block'; 
+            errorMsg.innerHTML = `⚠️ ${donnees.error}`;
+            return;
+        }
+
+        const couleursDPE = {
+            "A": "#009966", "B": "#00D492", "C": "#A4F4CF", 
+            "D": "#FEE685", "E": "#FFBA00", "F": "#BB4D00", "G": "#7B3306", "N/A": "var(--text-dark)"
+        };
+        
+        const valDPE_element = document.getElementById('val-dpe');
+        valDPE_element.innerText = donnees.dpe;
+        valDPE_element.style.color = couleursDPE[donnees.dpe] || "var(--text-dark)"; 
+
+        const valGES_element = document.getElementById('val-ges');
+        valGES_element.innerText = donnees.ges;
+        valGES_element.style.color = couleursDPE[donnees.ges] || "var(--text-dark)"; 
+
+        document.getElementById('val-adresse').innerText = donnees.adresse;
+        document.getElementById('val-date').innerText = `Date DPE : ${donnees.date_dpe} (${donnees.base_source})`;
+
+        document.getElementById('val-surface').innerText = donnees.surface_m2 !== "Non renseignée" ? `${donnees.surface_m2} m²` : "Inconnue";
+        let typeBrut = donnees.type_logement || "Inconnu";
+        let typeBatiment = (typeBrut !== "Non renseigné" && typeBrut !== "Inconnu") ? String(typeBrut).charAt(0).toUpperCase() + String(typeBrut).slice(1) : "Inconnu";
+        document.getElementById('val-type').innerText = typeBatiment;
+
+        document.getElementById('val-annee').innerText = donnees.annee_construction;
+        document.getElementById('val-conso').innerText = donnees.consommation_kwh !== "Non renseignée" ? donnees.consommation_kwh : "-";
+
+        bentoGrid.classList.add('visible');
+        
+        const papernestIcon = L.divIcon({
+            html: `<svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg"><path d="M16 0c-8.837 0-16 7.163-16 16 0 11.5 16 24 16 24s16-12.5 16-24c0-8.837-7.163-16-16-16zm0 24c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8z" fill="#7B4EFC"/></svg>`,
+            className: "",
+            iconSize: [32, 40],
+            iconAnchor: [16, 40],
+            popupAnchor: [0, -40]
+        });
+
+        setTimeout(() => {
+            maCarte.invalidateSize();
+            if (donnees.latitude && donnees.longitude) {
+                let lat = parseFloat(donnees.latitude);
+                let lon = parseFloat(donnees.longitude);
+                if (monMarqueur) maCarte.removeLayer(monMarqueur);
+                
+                monMarqueur = L.marker([lat, lon], {icon: papernestIcon}).addTo(maCarte)
+                    .bindPopup(`<b style="color:${couleursDPE[donnees.dpe]}; font-size:16px;">DPE ${donnees.dpe}</b>`).openPopup();
+                maCarte.flyTo([lat, lon], 16, { duration: 1.5 });
+            }
+        }, 100);
+    }
+
+    function gererToucheEntree(event) {
+        if (event.key === "Enter") { document.getElementById('suggestions-list').style.display = 'none'; lancerRecherche(); }
+    }
+
+    const observerTaille = new ResizeObserver(entries => {
+        for (let entry of entries) {
+            const hauteur = entry.target.offsetHeight + 80; 
+            window.parent.postMessage({ type: 'resize-dpe-widget', height: hauteur }, '*');
+        }
+    });
+    
+    const widgetWrapper = document.querySelector('.widget-wrapper');
+    if (widgetWrapper) { observerTaille.observe(widgetWrapper); }
+</script>
+    
 </body>
 </html>
