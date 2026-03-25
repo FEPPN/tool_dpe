@@ -204,6 +204,24 @@
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(maCarte);
 
     let minuteurDebounce; 
+
+    async function obtenirCoordonnees(adresseTexte) {
+        try {
+            // On utilise la MÊME API (geopf.fr) que pour ta barre de recherche !
+            let reponse = await fetch(`https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(adresseTexte)}&index=address&limit=1`);
+            let donnees = await reponse.json();
+            
+            if (donnees.features && donnees.features.length > 0) {
+                // L'API renvoie [longitude, latitude], on les remet dans le bon ordre pour Leaflet
+                let coords = donnees.features[0].geometry.coordinates;
+                return { lat: coords[1], lon: coords[0] }; 
+            }
+        } catch (erreur) {
+            console.error("Erreur lors de la recherche des coordonnées :", erreur);
+        }
+        return null; // Si on ne trouve rien
+    }
+    
     async function chercherSuggestions() {
         const input = document.getElementById('adresse-input').value;
         const liste = document.getElementById('suggestions-list');
@@ -462,16 +480,20 @@
             popupAnchor: [0, -40]
         });
 
-        setTimeout(() => {
+        setTimeout(async () => {
             maCarte.invalidateSize();
-            if (donnees.latitude && donnees.longitude) {
-                let lat = parseFloat(donnees.latitude);
-                let lon = parseFloat(donnees.longitude);
+            
+            // On demande les coordonnées GPS à partir de l'adresse exacte trouvée dans ta base
+            let coords = await obtenirCoordonnees(donnees.adresse);
+            
+            if (coords) {
                 if (monMarqueur) maCarte.removeLayer(monMarqueur);
                 
-                monMarqueur = L.marker([lat, lon], {icon: papernestIcon}).addTo(maCarte)
-                    .bindPopup(`<b style="color:${couleursDPE[donnees.dpe]}; font-size:16px;">DPE ${donnees.dpe}</b>`).openPopup();
-                maCarte.flyTo([lat, lon], 16, { duration: 1.5 });
+                monMarqueur = L.marker([coords.lat, coords.lon], {icon: papernestIcon}).addTo(maCarte)
+                    .bindPopup(`<b style="color:${couleursDPE[donnees.dpe] || 'var(--text-dark)'}; font-size:16px;">DPE ${donnees.dpe}</b>`).openPopup();
+                
+                // On fait "voler" la caméra vers la maison
+                maCarte.flyTo([coords.lat, coords.lon], 16, { duration: 1.5 });
             }
         }, 100);
     }
