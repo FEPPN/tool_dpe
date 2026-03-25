@@ -302,18 +302,23 @@
         function trouverLogementStrict(results, adresseSaisie) {
             if (!results || results.length === 0) return null;
             
-            // On sépare la rue du code postal/ville pour notre recherche locale
             const matchCp = adresseSaisie.match(/\b\d{5}\b/);
             const rueSeule = matchCp ? adresseSaisie.substring(0, matchCp.index) : adresseSaisie;
 
             const cible = normaliserTexte(rueSeule);
             const matchNumero = cible.match(/^(\d+)/); 
             
-            const motsAIgnorer = ['rue', 'avenue', 'boulevard', 'allee', 'chemin', 'place', 'impasse', 'bis', 'ter', 'de', 'la', 'des', 'du', 'le', 'les'];
-            const motsCible = cible.replace(/^\d+\s*/, '').split(/\s+/).filter(mot => mot.length > 2 && !motsAIgnorer.includes(mot));
+            // J'ai rajouté 'l' et 'd' pour gérer les apostrophes (l'arc, d'aix)
+            const motsAIgnorer = ['rue', 'avenue', 'boulevard', 'allee', 'chemin', 'place', 'impasse', 'bis', 'ter', 'de', 'la', 'des', 'du', 'le', 'les', 'l', 'd'];
+            
+            // CORRECTION : J'ai enlevé "mot.length > 2" pour ne pas bloquer les petits noms de rue (ex: Ay, If, Eu)
+            const motsCible = cible.replace(/^\d+\s*/, '').split(/\s+/).filter(mot => mot.trim().length > 0 && !motsAIgnorer.includes(mot));
+
+            console.log("🎯 DEBUG - Cible recherchée :", cible, "| Numéro :", matchNumero ? matchNumero[1] : "Aucun", "| Mot clé principal :", motsCible[0]);
 
             for (let res of results) {
-                let adresseBase = normaliserTexte(res.adresse_ban || res.adresse_complete_brut || res.geo_adresse || "");
+                // CORRECTION : J'ajoute "res.adresse" au cas où le nom de la clé a changé dans ta base
+                let adresseBase = normaliserTexte(res.adresse_ban || res.adresse_complete_brut || res.geo_adresse || res.adresse || "");
                 
                 if (matchNumero) {
                     const num = matchNumero[1];
@@ -325,11 +330,15 @@
                     const motPrincipal = motsCible[0];
                     if (!adresseBase.includes(motPrincipal)) continue; 
                 }
+                
+                console.log("✅ DEBUG - Logement trouvé dans la base :", adresseBase);
                 return res; 
             }
+            
+            console.warn("❌ DEBUG - Aucun logement ne correspond à nos filtres dans ce fichier JSON.");
             return null; 
         }
-
+        
         function nettoyerDonnees(logementBrut, versionBase, adresseSaisie) {
             let propre = {
                 adresse: logementBrut.adresse_ban || logementBrut.adresse_complete_brut || logementBrut.geo_adresse || adresseSaisie,
@@ -364,66 +373,63 @@
 
         // --- LA NOUVELLE FONCTION QUI REMPLACE L'APPEL À L'ADEME ---
         async function interrogerBaseStatique(adresse) {
-            // 1. Extraire le code postal
             const matchCp = adresse.match(/\b\d{5}\b/);
             if (!matchCp) return { error: "Code postal introuvable dans l'adresse sélectionnée." };
             
             const cp = matchCp[0];
             const cpNum = parseInt(cp, 10);
 
-            // 2. Déterminer la bonne base de données
             let baseUrl = "";
-            if (cpNum < 50000) {
-                baseUrl = LIEN_BASE_1;
-            } else if (cpNum < 75000) {
-                baseUrl = LIEN_BASE_2;
-            } else {
-                baseUrl = LIEN_BASE_3;
-            }
-            
-            // Sécurité : s'assurer qu'il n'y a pas de slash à la fin de baseUrl
+            if (cpNum < 50000) { baseUrl = LIEN_BASE_1; } 
+            else if (cpNum < 75000) { baseUrl = LIEN_BASE_2; } 
+            else { baseUrl = LIEN_BASE_3; }
             baseUrl = baseUrl.replace(/\/$/, '');
 
-            // 3. Isoler le nom de la rue pour trouver la 1ère lettre
             let rueBrute = adresse.substring(0, matchCp.index);
             const cible = normaliserTexte(rueBrute);
             
-            // Retrait du numéro et des mots inutiles
-            const motsAIgnorer = ['rue', 'avenue', 'boulevard', 'allee', 'chemin', 'place', 'impasse', 'bis', 'ter', 'de', 'la', 'des', 'du', 'le', 'les'];
-            let motsCible = cible.replace(/^\d+\s*/, '').split(/\s+/).filter(mot => mot.length > 2 && !motsAIgnorer.includes(mot));
+            const motsAIgnorer = ['rue', 'avenue', 'boulevard', 'allee', 'chemin', 'place', 'impasse', 'bis', 'ter', 'de', 'la', 'des', 'du', 'le', 'les', 'l', 'd'];
+            let motsCible = cible.replace(/^\d+\s*/, '').split(/\s+/).filter(mot => mot.trim().length > 0 && !motsAIgnorer.includes(mot));
 
-            if (motsCible.length === 0) return { error: "Impossible de déterminer le nom de la rue." };
+            if (motsCible.length === 0) return { error: "Impossible de déterminer le nom de la rue à analyser." };
             
-            // On prend la première lettre du premier mot principal (ex: "c" pour "champs")
+            // On récupère la première lettre. ATTENTION: J'ai mis en minuscule (.toLowerCase()).
+            // Si tes fichiers sur GitHub s'appellent A.json, B.json en MAJUSCULE, change le .toLowerCase() en .toUpperCase() !
             const premiereLettre = motsCible[0].charAt(0).toLowerCase();
 
-            // 4. Construire notre lien statique magique !
             const urlFichier = `${baseUrl}/${cp}/${premiereLettre}.json`;
+            console.log("🔍 DEBUG - URL appelée :", urlFichier);
 
             try {
                 let reponse = await fetch(urlFichier);
                 
                 if (!reponse.ok) {
-                    if(reponse.status === 404) return { error: "Aucun DPE trouvé pour cette rue dans notre base." };
-                    return { error: "Erreur lors de la lecture des données." };
+                    if(reponse.status === 404) return { error: `Erreur 404 : Le fichier ${premiereLettre}.json n'a pas été trouvé pour le CP ${cp} sur GitHub.` };
+                    return { error: `Erreur ${reponse.status} lors du téléchargement du fichier.` };
                 }
                 
                 let dataJSON = await reponse.json();
+                console.log("📦 DEBUG - Fichier JSON reçu ! Nombre d'éléments bruts :", Object.keys(dataJSON).length);
                 
-                // On passe le fichier JSON complet à notre ancien filtre strict pour trouver le bon numéro
-                let logementValide = trouverLogementStrict(dataJSON, adresse);
+                // CORRECTION : S'adapte automatiquement si ton JSON est un Array direct [..] ou un Objet { results: [..] }
+                let tableauLogements = Array.isArray(dataJSON) ? dataJSON : (dataJSON.results || dataJSON.data || Object.values(dataJSON)[0] || []);
+
+                if (tableauLogements.length === 0) {
+                    return { error: "Le fichier a été trouvé, mais il semble vide ou mal formaté." };
+                }
+
+                let logementValide = trouverLogementStrict(tableauLogements, adresse);
                 
                 if (logementValide) {
-                    // On détermine la version selon la présence de l'étiquette DPE nouvelle génération
                     let version = logementValide.etiquette_dpe ? "post-2021" : "pre-2021";
                     return nettoyerDonnees(logementValide, version, adresse);
                 } else {
-                    return { error: "Le logement exact n'a pas été trouvé à cette adresse." };
+                    return { error: `Fichier ${premiereLettre}.json lu avec succès, mais aucun logement avec ce numéro précis n'y figure.` };
                 }
 
             } catch (err) {
-                console.error(err);
-                return { error: "Impossible de contacter la base de données de DPE." };
+                console.error("Erreur technique :", err);
+                return { error: "Impossible de lire la base de données (Erreur technique, voir console)." };
             }
         }
 
