@@ -201,9 +201,9 @@
     let maCarte = L.map('map', {zoomControl: false}).setView([46.603354, 2.201476], 5);
     L.control.zoom({ position: 'bottomright' }).addTo(maCarte);
     let monMarqueur = null;
-   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { 
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
         maxZoom: 20,
-        attribution: '© OpenStreetMap, © CartoDB'
+        attribution: '© OpenStreetMap'
     }).addTo(maCarte);
 
     let minuteurDebounce; 
