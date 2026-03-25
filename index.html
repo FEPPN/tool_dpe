@@ -322,7 +322,7 @@
                 
                 if (matchNumero) {
                     const num = matchNumero[1];
-                    let regexNum = new RegExp("(^|\\s)" + num + "(\\s|[a-z]|$)", "i");
+                    let regexNum = new RegExp("^" + num + "\\b", "i");
                     if (!regexNum.test(adresseBase)) continue; 
                 }
 
@@ -339,14 +339,23 @@
             return null; 
         }
         
-        function nettoyerDonnees(logementBrut, versionBase, adresseSaisie) {
-            let propre = {
-                adresse: logementBrut.adresse_ban || logementBrut.adresse_complete_brut || logementBrut.geo_adresse || adresseSaisie,
-                dpe: "N/A", ges: "N/A", date_dpe: logementBrut.date_etablissement_dpe || "Inconnue",
-                base_source: versionBase === "post-2021" ? "Nouvelle méthode" : "Ancienne méthode",
-                annee_construction: "Non renseignée", type_logement: "Non renseigné",
-                consommation_kwh: "Non renseignée", surface_m2: "Non renseignée", latitude: null, longitude: null
+        function nettoyerDonnees(logementBrut, adresseSaisie) {
+            return {
+                adresse: logementBrut.adresse || adresseSaisie,
+                dpe: logementBrut.dpe || "N/A",
+                ges: logementBrut.ges || "N/A",
+                date_dpe: logementBrut.date || "Inconnue",
+                base_source: "Base validée", 
+                annee_construction: logementBrut.annee || "Non renseignée",
+                type_logement: logementBrut.type || "Non renseigné",
+                consommation_kwh: logementBrut.conso ? Math.round(parseFloat(logementBrut.conso)) : "Non renseignée",
+                surface_m2: logementBrut.surface ? Math.round(parseFloat(logementBrut.surface)) : "Non renseignée",
+                
+                // Note : Tes données actuelles ne semblent pas avoir de latitude/longitude
+                latitude: logementBrut.latitude || null,
+                longitude: logementBrut.longitude || null
             };
+        }
 
             if (versionBase === "post-2021") {
                 propre.dpe = logementBrut.etiquette_dpe || "N/A";
@@ -421,8 +430,8 @@
                 let logementValide = trouverLogementStrict(tableauLogements, adresse);
                 
                 if (logementValide) {
-                    let version = logementValide.etiquette_dpe ? "post-2021" : "pre-2021";
-                    return nettoyerDonnees(logementValide, version, adresse);
+                    // Plus besoin de vérifier la version (pre/post 2021), ta base est déjà unifiée !
+                    return nettoyerDonnees(logementValide, adresse);
                 } else {
                     return { error: `Fichier ${premiereLettre}.json lu avec succès, mais aucun logement avec ce numéro précis n'y figure.` };
                 }
