@@ -179,9 +179,9 @@
             <div id="box-dpe" class="bento-box box-dpe"><span class="bento-title">Note DPE</span><span id="val-dpe" class="bento-huge-value">-</span><div class="separator"></div><span class="bento-subtitle">Énergie Primaire</span></div>
             <div id="box-ges" class="bento-box box-ges"><span class="bento-title">Climat (GES)</span><span id="val-ges" class="bento-huge-value">-</span><div class="separator"></div><span class="bento-subtitle">Émissions CO₂</span></div>
             <div class="bento-box box-map"><div id="map"></div></div>
-            <div class="bento-box box-address"><span class="bento-title">Adresse certifiée</span><div id="val-adresse" class="bento-medium-value" style="margin-top: 8px;">Chargement...</div><div class="separator"></div><div id="val-date" class="bento-subtitle">Validé le --/--/----</div></div>
+            <div class="bento-box box-address"><span class="bento-title">Adresse du logement</span><div id="val-adresse" class="bento-medium-value" style="margin-top: 8px;">Chargement...</div><div class="separator"></div><div id="val-date" class="bento-subtitle">Validé le --/--/----</div></div>
             <div class="bento-box box-details"><span class="bento-title">Superficie</span><div id="val-surface" class="bento-small-value">-- m²</div><div class="separator"></div><div id="val-type" class="bento-subtitle">Type inconnu</div></div>
-            <div class="bento-box box-year"><span class="bento-title">Bâti en</span><div id="val-annee" class="bento-text-value" style="margin-top: 10px;">--</div><div class="separator"></div><div class="bento-subtitle">Conso : <strong id="val-conso">--</strong></div></div>
+            <div class="bento-box box-year"><span class="bento-title">Période de construction du logement</span><div id="val-annee" class="bento-text-value" style="margin-top: 10px;">--</div><div class="separator"></div><div class="bento-subtitle">Consomation du logement : <strong id="val-conso">--</strong></div></div>
             
             <div class="bento-box box-cta">
                 <div class="cta-content">
@@ -491,7 +491,7 @@
         document.getElementById('val-type').innerText = typeBatiment;
 
         document.getElementById('val-annee').innerText = donnees.annee_construction;
-        document.getElementById('val-conso').innerText = donnees.consommation_kwh !== "Non renseignée" ? donnees.consommation_kwh : "-";
+        document.getElementById('val-conso').innerText = donnees.consommation_kwh !== "Non renseignée" ? donnees.consommation_kwh + " kWh/m²/an" : "-";
 
         bentoGrid.classList.add('visible');
         
