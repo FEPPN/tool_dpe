@@ -210,19 +210,17 @@
 
     async function obtenirCoordonnees(adresseTexte) {
         try {
-            // On utilise la MÊME API (geopf.fr) que pour ta barre de recherche !
             let reponse = await fetch(`https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(adresseTexte)}&index=address&limit=1`);
             let donnees = await reponse.json();
             
             if (donnees.features && donnees.features.length > 0) {
-                // L'API renvoie [longitude, latitude], on les remet dans le bon ordre pour Leaflet
                 let coords = donnees.features[0].geometry.coordinates;
                 return { lat: coords[1], lon: coords[0] }; 
             }
         } catch (erreur) {
             console.error("Erreur lors de la recherche des coordonnées :", erreur);
         }
-        return null; // Si on ne trouve rien
+        return null; 
     }
     
     async function chercherSuggestions() {
@@ -318,7 +316,31 @@
         return texte.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, " ").trim();
     }
 
-    // --- FONCTION CORRIGÉE POUR ÉVITER LE BUG DE L'ÉTAGE ---
+    // --- NOUVELLE FONCTION POUR LE FORMATAGE PROPRE DE L'ADRESSE ---
+    function formaterAdressePropre(adresse) {
+        if (!adresse) return "";
+        
+        let texte = adresse.toLowerCase();
+        
+        // Majuscule au début de chaque mot
+        texte = texte.replace(/(^\w|\s\w|-\w|'\w)/g, function(lettre) {
+            return lettre.toUpperCase();
+        });
+        
+        // Remettre les petits mots de liaison en minuscules
+        texte = texte.replace(/\s(de|du|des|la|le|les|et)\s/ig, function(match) {
+            return match.toLowerCase();
+        });
+        
+        // Réparer les espaces collés et ajouter la virgule avant le code postal
+        texte = texte.replace(/\s*(\d{5})\s*/, ", $1 ");
+        
+        // Nettoyer les espaces en double
+        texte = texte.replace(/\s{2,}/g, ' ').trim();
+        
+        return texte;
+    }
+
     function trouverLogementStrict(results, adresseSaisie) {
         if (!results || results.length === 0) return null;
         
@@ -336,7 +358,6 @@
             
             if (matchNumero) {
                 const num = matchNumero[1];
-                // Regex modifiée pour forcer le numéro au début de l'adresse !
                 let regexNum = new RegExp("^" + num + "\\b", "i");
                 if (!regexNum.test(adresseBase)) continue; 
             }
@@ -351,7 +372,6 @@
         return null; 
     }
 
-    // --- FONCTION NETTOYAGE ADAPTÉE À TA BASE PROPRE ---
     function nettoyerDonnees(logementBrut, adresseSaisie) {
         return {
             adresse: logementBrut.adresse || adresseSaisie,
@@ -410,7 +430,6 @@
             let logementValide = trouverLogementStrict(tableauLogements, adresse);
             
             if (logementValide) {
-                // On utilise la nouvelle fonction simplifiée
                 return nettoyerDonnees(logementValide, adresse);
             } else {
                 return { error: `Le logement exact n'a pas été trouvé à cette adresse.` };
@@ -462,7 +481,8 @@
         valGES_element.innerText = donnees.ges;
         valGES_element.style.color = couleursDPE[donnees.ges] || "var(--text-dark)"; 
 
-        document.getElementById('val-adresse').innerText = donnees.adresse;
+        // --- CHANGEMENT ICI : On applique le formatage propre sur l'adresse saisie ---
+        document.getElementById('val-adresse').innerText = formaterAdressePropre(adresseSaisie);
         document.getElementById('val-date').innerText = `Date DPE : ${donnees.date_dpe} (${donnees.base_source})`;
 
         document.getElementById('val-surface').innerText = donnees.surface_m2 !== "Non renseignée" ? `${donnees.surface_m2} m²` : "Inconnue";
@@ -486,8 +506,8 @@
         setTimeout(async () => {
             maCarte.invalidateSize();
             
-            // On demande les coordonnées GPS à partir de l'adresse exacte trouvée dans ta base
-            let coords = await obtenirCoordonnees(donnees.adresse);
+            // On demande les coordonnées GPS à partir de l'adresse tapée (plus fiable)
+            let coords = await obtenirCoordonnees(adresseSaisie);
             
             if (coords) {
                 if (monMarqueur) maCarte.removeLayer(monMarqueur);
