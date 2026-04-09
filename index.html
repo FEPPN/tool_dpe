@@ -202,8 +202,15 @@
             #btn-rechercher { width: 100%; padding: 12px 24px; }
             .dropdown-list { width: 100%; }
 
-            #results-container { margin-top: 15px; padding: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
-            .logements-list { min-height: 350px; max-height: 450px; background: white; }
+            /* Liste des logements mobile : Extensible pour pousser l'iframe */
+            #results-container { 
+                margin-top: 15px; padding: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); 
+            }
+            .logements-list { 
+                /* On force une grande taille minimum pour masquer le reste du site */
+                min-height: 350px; max-height: 450px; 
+                background: white; 
+            }
             .logement-item { padding: 16px 12px; }
             .logement-item:hover { padding-left: 12px; } 
 
@@ -240,7 +247,7 @@
         }
     </style>
 </head>
-<body>
+<body style="background-color: #FFFFFF;">
 
     <div class="widget-wrapper">
         <div class="hero-section" id="hero-block">
@@ -338,6 +345,7 @@
 
     const couleursDPE = { "A": "#009966", "B": "#00D492", "C": "#A4F4CF", "D": "#FEE685", "E": "#FFBA00", "F": "#BB4D00", "G": "#7B3306", "N/A": "var(--text-dark)" };
 
+    // --- INITIALISATION DES CODES POSTAUX DEPUIS LA BASE ---
     document.addEventListener('DOMContentLoaded', async () => {
         try {
             let reponse = await fetch(LIEN_MOYENNES);
@@ -348,20 +356,23 @@
         }
     });
 
+    // --- GESTION INTELLIGENTE DU CHAMP CODE POSTAL ---
     const cpInput = document.getElementById('cp-input');
     const adresseInput = document.getElementById('adresse-input');
     const btnRechercher = document.getElementById('btn-rechercher');
     const cpSuggestions = document.getElementById('cp-suggestions');
     const resultsContainer = document.getElementById('results-container');
 
+    // On affiche tout le catalogue si la case est cliquée et vide
     cpInput.addEventListener('focus', function() {
         if(this.value === "") mettreAJourSuggestionsCP("");
     });
 
     cpInput.addEventListener('input', function() {
-        let val = this.value.replace(/\D/g, ''); 
+        let val = this.value.replace(/\D/g, ''); // Que des chiffres
         this.value = val;
         
+        // Bloquer l'adresse si CP effacé ou incomplet
         if (val.length < 5) {
             codePostalValide = "";
             adresseInput.disabled = true;
@@ -375,16 +386,20 @@
 
     function mettreAJourSuggestionsCP(val) {
         cpSuggestions.innerHTML = '';
+        
+        // Filtre de notre propre base (ultra rapide)
         let matches = codesPostauxDispos.filter(cp => cp.startsWith(val));
         
         if (matches.length > 0) {
             cpSuggestions.style.display = 'block';
+            // On limite à 30 résultats affichés pour ne pas lagger
             matches.slice(0, 30).forEach(cp => {
                 let li = document.createElement('li');
                 li.textContent = cp;
                 li.onclick = () => validerCodePostal(cp);
                 cpSuggestions.appendChild(li);
             });
+            // Si l'utilisateur a tapé exactement un code postal complet et valide
             if(val.length === 5 && matches.includes(val)) {
                 validerCodePostal(val);
             }
@@ -402,9 +417,11 @@
         adresseInput.focus();
     }
 
+    // Cache les listes si on clique ailleurs
     document.addEventListener("click", function(event) {
         if (!event.target.closest('.search-wrapper')) { 
             cpSuggestions.style.display = 'none'; 
+            fermerTiroirMobile();
         }
     });
 
@@ -412,6 +429,7 @@
         document.getElementById('results-container').style.display = 'none';
     }
 
+    // --- ANIMATIONS & FORMATAGE ---
     function animerLettre(element, lettreFinale, couleurs) {
         if (!lettreFinale || lettreFinale === "N/A" || lettreFinale === "-") { element.innerText = lettreFinale || "-"; element.style.color = "var(--text-dark)"; return; }
         const echelle = ['G', 'F', 'E', 'D', 'C', 'B', 'A'];
@@ -443,6 +461,7 @@
         } catch (e) {} return null; 
     }
 
+    // --- LOGIQUE ADRESSE (RECHERCHE TEMPS RÉEL & TRI PROXIMITÉ) ---
     async function telechargerFichierDPE(cp, lettre) {
         if (cacheJSON[cp] && cacheJSON[cp][lettre]) return cacheJSON[cp][lettre]; 
         
@@ -462,6 +481,7 @@
         } catch(e) { return []; }
     }
 
+    // Le tri par proximité du numéro
     function trierParProximite(logements, texteSaisi) {
         let matchNum = texteSaisi.match(/\b\d+\b/);
         let numeroCible = matchNum ? parseInt(matchNum[0], 10) : null;
@@ -481,6 +501,7 @@
 
     adresseInput.addEventListener('input', function() {
         let input = this.value;
+        // On déclenche l'actualisation en temps réel si plus de 5 caractères
         if (input.length >= 6) {
             declencherRecherche(true); 
         } else {
@@ -496,6 +517,7 @@
         let input = adresseInput.value;
         let listContainer = document.getElementById('logements-list');
         let errorMsg = document.getElementById('error-msg');
+        let resultsContainer = document.getElementById('results-container');
 
         if (!isInstant) {
             errorMsg.style.display = 'none';
@@ -561,6 +583,7 @@
         }, 300); 
     }
 
+    // --- ÉTAPE 3 : AFFICHAGE DU BENTO ---
     async function validerLogementFinal(index) {
         let logementChoisi = logementsTrouvesGlobal[index];
         if (!logementChoisi) return;
@@ -573,10 +596,10 @@
         let bentoGrid = document.getElementById('bento-grid');
         bentoGrid.classList.add('visible'); 
 
-        setTimeout(() => { bentoGrid.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+        // ATTENTION : RETRAIT DU SCROLLINTOWIEW ICI POUR L'INTEGRATION IFRAME
 
         document.getElementById('val-dpe').innerText = "-"; document.getElementById('val-ges').innerText = "-";
-        document.getElementById('val-facture').innerText = "-- € / an"; 
+        document.getElementById('val-facture').innerText = "-- € / an"; document.getElementById('val-equiv-carbone').innerText = "Émissions CO₂";
 
         animerLettre(document.getElementById('val-dpe'), logementChoisi.dpe, couleursDPE);
         animerLettre(document.getElementById('val-ges'), logementChoisi.ges, couleursDPE);
@@ -594,13 +617,13 @@
             elementFacture.innerText = "Non estimable"; elementFacture.style.color = "var(--text-dark)";
         }
         
-        let caseEquiv = document.getElementById('val-equiv-carbone');
         const medianesGES = { "A": 3, "B": 8.5, "C": 20, "D": 40, "E": 60, "F": 85, "G": 120 };
+        let caseEquiv = document.getElementById('val-equiv-carbone');
         
         if (!isNaN(surfaceVal) && medianesGES[logementChoisi.ges]) {
             let totalCO2 = surfaceVal * medianesGES[logementChoisi.ges];
             let kmVoiture = Math.round(totalCO2 / 0.2); 
-            caseEquiv.innerHTML = `~ ${kmVoiture.toLocaleString('fr-FR')} km en voiture <span class="tooltip">ⓘ<span class="tooltip-text">Équivalence estimée (0,2 kg CO₂/km). Basée sur la moyenne des émissions de la classe multipliée par la surface.</span></span>`;
+            caseEquiv.innerHTML = `~ ${kmVoiture.toLocaleString('fr-FR')} km en voiture <span class="tooltip">ⓘ<span class="tooltip-text">Équivalence estimée (0,2 kg CO₂/km). Basée sur la moyenne des émissions de la classe ${logementChoisi.ges} multipliée par la surface.</span></span>`;
             caseEquiv.style.color = "var(--papernest-blue)";
         } else {
             caseEquiv.innerHTML = `Émissions CO₂ <span class="tooltip">ⓘ<span class="tooltip-text">Équivalence estimée (0,2 kg CO₂/km). Basée sur la moyenne des émissions de la classe multipliée par la surface.</span></span>`;
@@ -646,6 +669,7 @@
         }, 100);
     }
 
+    // Le script de redimensionnement de l'Iframe
     function envoyerHauteurIframe() {
         const hauteur = document.documentElement.scrollHeight + 15; 
         window.parent.postMessage({ type: 'resize-dpe-widget', height: hauteur }, '*');
