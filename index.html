@@ -54,28 +54,65 @@
         .suggestions-list li { padding: 12px 20px; font-size: 14px; cursor: pointer; border-bottom: 1px solid var(--gray-light); color: var(--text-dark);}
         .suggestions-list li:hover { background-color: var(--gray-light); color: var(--text-dark); font-weight: 600;}
 
-        /* Messages dynamiques UX */
-        #narrative-msg { color: var(--text-dark); font-size: 14px; margin-top: 15px; font-weight: 600; display: none; }
         #error-msg { color: #DC2626; font-size: 14px; margin-top: 15px; font-weight: 600; display: none; }
 
-        /* --- SKELETON ANIMATION --- */
-        @keyframes shimmer { 0% { background-position: -800px 0; } 100% { background-position: 800px 0; } }
-        .skeleton {
-            background: var(--gray-medium); background-image: linear-gradient(to right, var(--gray-medium) 0%, #F4F6F8 20%, var(--gray-medium) 40%, var(--gray-medium) 100%);
-            background-repeat: no-repeat; background-size: 1000px 100%; animation: shimmer 1.5s linear infinite;
-            border-radius: 6px; display: inline-block;
+        /* --- NOUVEAU : ÉTAPE 2 (Liste Mobile-Friendly) --- */
+        #step2-container {
+            display: none; max-width: 600px; margin: 20px auto 0 auto; background: white;
+            padding: 20px; border-radius: var(--radius-box); border: 1px solid var(--gray-medium);
+            text-align: left; animation: fadeIn 0.4s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.02);
         }
-        .bento-grid.mode-skeleton .bento-box { background-color: white !important; border-top: 5px solid rgba(0, 0, 0, 0.03) !important; }
-        .bento-grid.mode-skeleton .box-cta { display: none !important; }
-        .bento-grid.mode-skeleton .bento-title, .bento-grid.mode-skeleton .bento-subtitle { color: var(--text-light) !important; }
-        .bento-grid.mode-skeleton .separator { background-color: rgba(0,0,0,0.05) !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        #step2-container label { display: block; font-size: 15px; color: var(--text-dark); margin-bottom: 16px; font-weight: 800; text-align: center;}
+        
+        .logements-list {
+            max-height: 300px; overflow-y: auto; border: 1px solid var(--gray-medium);
+            border-radius: 12px; background: var(--gray-light);
+            scrollbar-width: thin; scrollbar-color: #CBD5E1 transparent;
+        }
+        .logements-list::-webkit-scrollbar { width: 6px; }
+        .logements-list::-webkit-scrollbar-thumb { background-color: #CBD5E1; border-radius: 10px; }
+        
+        .logement-item {
+            padding: 14px 16px; border-bottom: 1px solid #E2E8F0;
+            cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+            font-size: 14px; color: var(--text-dark); text-align: left;
+            transition: background 0.2s, padding-left 0.2s;
+        }
+        .logement-item:hover { background: white; padding-left: 20px; }
+        .logement-item:last-child { border-bottom: none; }
+        
+        .logement-item-text { flex-grow: 1; padding-right: 15px; line-height: 1.4; }
+        .logement-item-type { font-size: 12px; color: var(--text-light); margin-top: 4px; display: block; }
+        
+        .badge-dpe-liste {
+            font-weight: 900; padding: 6px 12px; border-radius: 8px; font-size: 14px;
+            min-width: 32px; text-align: center; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* --- TOOLTIPS --- */
+        .tooltip { position: relative; cursor: help; margin-left: 4px; font-weight: normal; opacity: 1; transition: opacity 0.2s; font-size: 1.2em; display: inline-block;}
+        .tooltip:hover { opacity: 1; z-index: 9999; }
+        .tooltip .tooltip-text {
+            visibility: hidden; width: max-content; max-width: 240px; background-color: var(--text-dark); color: #fff;
+            text-align: center; border-radius: 8px; padding: 10px 14px; position: absolute; z-index: 10000;
+            bottom: 150%; left: 50%; transform: translateX(-50%) translateY(5px); opacity: 0; transition: opacity 0.3s, transform 0.3s;
+            font-size: 12px; text-transform: none; letter-spacing: normal; font-weight: 600; line-height: 1.4;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25); pointer-events: none;
+        }
+        .tooltip .tooltip-text::after {
+            content: ""; position: absolute; top: 100%; left: 50%; margin-left: -6px;
+            border-width: 6px; border-style: solid; border-color: var(--text-dark) transparent transparent transparent;
+        }
+        .tooltip:hover .tooltip-text { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
 
         /* --- GRILLE BENTO --- */
         .bento-grid {
             display: none; grid-template-columns: repeat(4, 1fr); 
-            grid-template-rows: 200px 140px auto; 
+            grid-template-rows: 200px 115px auto; 
             background-color: rgba(0, 0, 0, 0.08); gap: 1px; border: 1px solid rgba(0, 0, 0, 0.08);
-            border-radius: var(--radius-box); overflow: hidden; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04); 
+            border-radius: var(--radius-box); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04); 
             opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease;
         }
         .bento-grid.visible { display: grid; opacity: 1; transform: translateY(0); }
@@ -83,21 +120,31 @@
         .bento-box {
             background: white; padding: 20px 24px; display: flex; flex-direction: column;
             justify-content: space-between; position: relative; border-radius: 0; color: var(--text-dark);
-            transition: background-color 0.4s ease;
+            transition: background-color 0.4s ease; z-index: 1; 
         }
+        .bento-box:hover { z-index: 10; }
         .separator { height: 1px; background-color: rgba(0, 0, 0, 0.1); width: 100%; margin: auto 0 8px 0; }
 
-        /* Positions et Bandeaux Gris */
-        .box-dpe { grid-column: span 1; border-top: 5px solid rgba(0, 0, 0, 0.05); } 
+        /* Positions */
+        .box-dpe { grid-column: span 1; border-top: 5px solid rgba(0, 0, 0, 0.05); border-top-left-radius: var(--radius-box); } 
         .box-ges { grid-column: span 1; border-top: 5px solid rgba(0, 0, 0, 0.05); } 
-        .box-map { grid-column: span 2; padding: 0; } 
-        .box-address { grid-column: span 2; background-color: white; border-top: 5px solid rgba(0, 0, 0, 0.05); }
-        .box-details { grid-column: span 1; background-color: white; } 
+        .box-map { grid-column: span 2; padding: 0; border-top-right-radius: var(--radius-box); } 
+        
+        .box-address { grid-column: span 2; background-color: white; border-top: 5px solid rgba(0, 0, 0, 0.05); position: relative; justify-content: center; gap: 6px; }
+        .box-details { grid-column: span 1; background-color: white; justify-content: center; gap: 6px; } 
+        
+        .box-address .bento-medium-value, .box-details .bento-large-value { margin-top: 0; }
+
+        @media (min-width: 801px) {
+            .box-address::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 1px; background-color: rgba(0, 0, 0, 0.1); z-index: 10; }
+        }
+
         .box-year { grid-column: span 1; background-color: white; } 
 
         .box-cta {
             grid-column: span 4; background-color: var(--violet-ppn); border-top: 1px solid rgba(0,0,0,0.05);
             flex-direction: row; align-items: center; padding: 24px 32px;
+            border-bottom-left-radius: var(--radius-box); border-bottom-right-radius: var(--radius-box);
         }
         .cta-content h3 { margin: 0 0 4px 0; font-size: 18px; color: white; font-weight: 800;}
         .cta-content p { margin: 0; font-size: 14px; color: #F9FAFB; }
@@ -110,15 +157,18 @@
         .cta-button:hover { background-color: #F9FAFB; transform: scale(1.03); }
 
         /* Typographie */
-        .bento-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; opacity: 0.7; color: var(--text-dark); transition: color 0.4s ease;}
+        .bento-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; opacity: 0.7; color: var(--text-dark); transition: color 0.4s ease; display: flex; align-items: center;}
         
-        .bento-huge-value { font-size: 70px; font-weight: 900; line-height: 0.9; margin-top: 15px; letter-spacing: -2px; } 
-        .bento-medium-value { font-size: 24px; font-weight: 800; line-height: 1.2; margin-top: auto; letter-spacing: -0.5px; color: var(--text-dark); } 
-        .bento-small-value { font-size: 22px; font-weight: 800; line-height: 1.2; margin-top: 10px; letter-spacing: -0.5px; color: var(--text-dark); } 
-        .bento-text-value { font-size: 22px; font-weight: 800; line-height: 1.1; margin-top: auto; color: var(--text-dark); } 
+        .bento-huge-value { font-size: 70px; font-weight: 900; line-height: 0.9; margin-top: 15px; letter-spacing: -2px; transition: color 0.1s ease;} 
+        .bento-large-value { font-size: 45px; font-weight: 900; line-height: 1; margin-top: auto; letter-spacing: -1px; color: var(--text-dark); }
+        .bento-medium-value { font-size: 24px; font-weight: 800; line-height: 1.2; letter-spacing: -0.5px; margin-top: auto; color: var(--text-dark); } 
+        
+        .bento-text-value { font-size: 18px; font-weight: 800; line-height: 1.1; margin-top: auto; color: var(--text-dark); } 
         .bento-subtitle { font-size: 13px; opacity: 0.8; font-weight: 600; color: var(--text-dark); transition: color 0.4s ease;} 
-        
-        #map { width: 100%; height: 100%; z-index: 1; }
+        .conso-text { font-size: 11px; opacity: 0.8; font-weight: 600; color: var(--text-dark); }
+        .conso-text strong { font-size: 12px; font-weight: 800; }
+
+        #map { width: 100%; height: 100%; z-index: 1; border-top-right-radius: var(--radius-box); }
 
         /* --- OPTIMISATION MOBILE --- */
         @media (max-width: 800px) {
@@ -131,14 +181,28 @@
             .search-container input { padding: 8px 15px; font-size: 14px; margin-bottom: 0; border: none; border-radius: 0; background: transparent; width: 100%;}
             .search-container button { padding: 8px 16px; font-size: 14px; white-space: nowrap;}
 
+            #step2-container { padding: 15px; margin-top: 15px; }
+            #step2-container label { font-size: 13px; margin-bottom: 12px; }
+            .logement-item { padding: 12px; }
+            .logement-item:hover { padding-left: 12px; } 
+
             .bento-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: 130px 120px auto 90px auto; }
             .bento-box { padding: 16px; } 
 
+            .box-map { border-top-right-radius: 0; }
+            .box-ges { border-top-right-radius: var(--radius-box); }
+            #map { border-top-right-radius: 0; }
+
             .bento-title { font-size: 10px; }
             .bento-huge-value { font-size: 42px; margin-top: 5px; } 
-            .bento-medium-value { font-size: 16px; margin-top: 8px; margin-bottom: 8px; line-height: 1.3; } 
-            .bento-small-value, .bento-text-value { font-size: 16px; margin-top: 4px; line-height: 1.2; }
+            .bento-large-value { font-size: 32px; }
+            .bento-medium-value { font-size: 16px; line-height: 1.3; } 
+            
+            .bento-text-value { font-size: 14px; margin-top: 4px; line-height: 1.2; }
+            
             .bento-subtitle { font-size: 11px; }
+            .conso-text { font-size: 10px; }
+            .conso-text strong { font-size: 11px; }
             
             .separator { margin: auto 0 8px 0; }
             .box-address .separator { margin: 8px 0; }
@@ -148,17 +212,21 @@
             .leaflet-popup { display: none !important; }
             .leaflet-interactive { cursor: default; } 
 
-            .box-address { grid-column: span 2; height: auto; justify-content: center; } 
-            .box-details, .box-year { grid-column: span 1; height: auto; }
+            .box-address { grid-column: span 2; height: auto; justify-content: center; gap: 4px; } 
+            .box-details, .box-year { grid-column: span 1; height: auto; justify-content: center; gap: 4px; }
             
             .box-cta { grid-column: span 2; padding: 15px; flex-direction: column; text-align: center; gap: 10px; }
             .cta-content h3 { font-size: 15px; }
             .cta-content p { font-size: 12px; line-height: 1.2; }
             .cta-button { padding: 10px 20px; font-size: 13px; width: 100%; box-sizing: border-box; }
+            
+            .tooltip .tooltip-text { width: 180px; font-size: 11px; padding: 8px 10px; opacity: 1;}
         }
     </style>
 </head>
 <body>
+
+    
 
     <div class="widget-wrapper">
         <div class="hero-section" id="hero-block">
@@ -166,22 +234,55 @@
             <p>Découvrez l'étiquette énergie et les caractéristiques d'un logement.</p>
             
             <div class="search-container">
-                <input type="text" id="adresse-input" placeholder="Ex: 3 Rue de Milan, Paris..." oninput="chercherSuggestions()" onkeypress="gererToucheEntree(event)" autocomplete="off">
-                <button onclick="lancerRecherche()">Analyser le bien</button>
+                <input type="text" id="adresse-input" placeholder="Ex: Rue de Milan, Paris..." oninput="chercherSuggestions()" onkeypress="gererToucheEntree(event)" autocomplete="off">
+                <button onclick="lancerRechercheInitiale()">Chercher la rue</button>
                 <ul id="suggestions-list" class="suggestions-list"></ul>
             </div>
             
-            <div id="narrative-msg"></div>
             <div id="error-msg"></div>
+
+            <div id="step2-container">
+                <label>✅ Cette rue est dans notre base. Sélectionnez le logement :</label>
+                <div id="logements-list" class="logements-list"></div>
+            </div>
         </div>
 
         <div id="bento-grid" class="bento-grid">
-            <div id="box-dpe" class="bento-box box-dpe"><span class="bento-title">Note DPE</span><span id="val-dpe" class="bento-huge-value">-</span><div class="separator"></div><span class="bento-subtitle">Énergie Primaire</span></div>
-            <div id="box-ges" class="bento-box box-ges"><span class="bento-title">Climat (GES)</span><span id="val-ges" class="bento-huge-value">-</span><div class="separator"></div><span class="bento-subtitle">Émissions CO₂</span></div>
+            <div id="box-dpe" class="bento-box box-dpe">
+                <span class="bento-title">Note DPE <span class="tooltip">ⓘ<span class="tooltip-text">Indicateur de la performance énergétique globale du logement.</span></span></span>
+                <span id="val-dpe" class="bento-huge-value">-</span>
+                <div class="separator"></div>
+                <span class="bento-subtitle" style="line-height: 1.4;">
+                    Facture est. <span class="tooltip">ⓘ<span class="tooltip-text">Estimation calculée ainsi : Surface × Consommation × Prix moyen unitaire estimé (0,11 €/kWh en tenant compte du mix énergétique).</span></span><br>
+                    <strong id="val-facture" style="font-size: 15px; color: var(--papernest-blue);">-- € / an</strong>
+                </span>
+            </div>
+            
+            <div id="box-ges" class="bento-box box-ges">
+                <span class="bento-title">Climat (GES) <span class="tooltip">ⓘ<span class="tooltip-text">Quantité de Gaz à Effet de Serre émise (en kg CO₂/m²/an).</span></span></span>
+                <span id="val-ges" class="bento-huge-value">-</span>
+                <div class="separator"></div>
+                <span id="val-equiv-carbone" class="bento-subtitle">Émissions CO₂</span>
+            </div>
+            
             <div class="bento-box box-map"><div id="map"></div></div>
-            <div class="bento-box box-address"><span class="bento-title">Adresse du logement</span><div id="val-adresse" class="bento-medium-value" style="margin-top: 8px;">Chargement...</div><div class="separator"></div><div id="val-date" class="bento-subtitle">Validé le --/--/----</div></div>
-            <div class="bento-box box-details"><span class="bento-title">Superficie</span><div id="val-surface" class="bento-small-value">-- m²</div><div class="separator"></div><div id="val-type" class="bento-subtitle">Type inconnu</div></div>
-            <div class="bento-box box-year"><span class="bento-title">Période de construction</span><div id="val-annee" class="bento-text-value" style="margin-top: 10px;">--</div><div class="separator"></div><div class="bento-subtitle">Conso : <strong id="val-conso">--</strong></div></div>
+            
+            <div class="bento-box box-address">
+                <span class="bento-title">Adresse du logement</span>
+                <div id="val-adresse" class="bento-medium-value">-</div>
+            </div>
+            
+            <div class="bento-box box-details">
+                <span class="bento-title">Moyenne DPE Communale <span class="tooltip">ⓘ<span class="tooltip-text">Note DPE moyenne calculée sur l'ensemble des logements de ce code postal.</span></span></span>
+                <div id="val-moyenne-ville" class="bento-large-value">-</div>
+            </div>
+            
+            <div class="bento-box box-year">
+                <span class="bento-title">Bati en :</span>
+                <div id="val-annee" class="bento-text-value" style="margin-top: 10px;">--</div>
+                <div class="separator"></div>
+                <div class="conso-text">Conso : <strong id="val-conso">--</strong></div>
+            </div>
             
             <div class="bento-box box-cta">
                 <div class="cta-content">
@@ -192,34 +293,69 @@
             </div>
         </div>
     </div>
+    
     <script>
     // --- TES LIENS GITHUB PAGES ICI ---
     const LIEN_BASE_1 = "https://feppn.github.io/api-dpe-part1/"; 
     const LIEN_BASE_2 = "https://feppn.github.io/api-dpe-part2/";
     const LIEN_BASE_3 = "https://feppn.github.io/api-dpe-part3/";
+    const LIEN_MOYENNES = "https://feppn.github.io/tool_dpe/moyennes_villes.json";
 
     let maCarte = L.map('map', {zoomControl: false}).setView([46.603354, 2.201476], 5);
     L.control.zoom({ position: 'bottomright' }).addTo(maCarte);
     let monMarqueur = null;
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
-        maxZoom: 20,
-        attribution: '© OpenStreetMap'
-    }).addTo(maCarte);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 20, attribution: '© OpenStreetMap' }).addTo(maCarte);
 
     let minuteurDebounce; 
+    let logementsTrouvesGlobal = [];
+    let cacheMoyennes = null; 
+
+    const couleursDPE = {
+        "A": "#009966", "B": "#00D492", "C": "#A4F4CF", "D": "#FEE685", "E": "#FFBA00", "F": "#BB4D00", "G": "#7B3306", "N/A": "var(--text-dark)"
+    };
+
+    function texteContrasteDPE(lettre) {
+        return (lettre === 'A' || lettre === 'F' || lettre === 'G') ? '#FFFFFF' : '#111111';
+    }
+
+    function animerLettre(element, lettreFinale, couleurs) {
+        if (!lettreFinale || lettreFinale === "N/A" || lettreFinale === "-") {
+            element.innerText = lettreFinale || "-"; element.style.color = "var(--text-dark)"; return;
+        }
+        const echelle = ['G', 'F', 'E', 'D', 'C', 'B', 'A'];
+        let indexCible = echelle.indexOf(lettreFinale);
+        if (indexCible === -1) {
+            element.innerText = lettreFinale; element.style.color = couleurs[lettreFinale] || "var(--text-dark)"; return;
+        }
+        let indexActuel = 0; const intervalleTemps = 600 / (indexCible + 1); 
+        let interval = setInterval(() => {
+            let lettreEnCours = echelle[indexActuel];
+            element.innerText = lettreEnCours; element.style.color = couleurs[lettreEnCours] || "var(--text-dark)";
+            if (indexActuel >= indexCible) {
+                clearInterval(interval); element.innerText = lettreFinale; element.style.color = couleurs[lettreFinale] || "var(--text-dark)";
+            } else { indexActuel++; }
+        }, intervalleTemps);
+    }
+
+    function normaliserTexte(texte) { return texte.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, " ").trim(); }
+    
+    function formaterAdressePropre(adresse) {
+        if (!adresse) return "";
+        let texte = adresse.toLowerCase();
+        texte = texte.replace(/(^\w|\s\w|-\w|'\w)/g, l => l.toUpperCase());
+        texte = texte.replace(/\s(de|du|des|la|le|les|et)\s/ig, m => m.toLowerCase());
+        texte = texte.replace(/\s*(\d{5})\s*/, ", $1 ");
+        return texte.replace(/\s{2,}/g, ' ').trim();
+    }
 
     async function obtenirCoordonnees(adresseTexte) {
         try {
             let reponse = await fetch(`https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(adresseTexte)}&index=address&limit=1`);
             let donnees = await reponse.json();
-            
             if (donnees.features && donnees.features.length > 0) {
-                let coords = donnees.features[0].geometry.coordinates;
-                return { lat: coords[1], lon: coords[0] }; 
+                return { lat: donnees.features[0].geometry.coordinates[1], lon: donnees.features[0].geometry.coordinates[0] }; 
             }
-        } catch (erreur) {
-            console.error("Erreur lors de la recherche des coordonnées :", erreur);
-        }
+        } catch (e) { console.error(e); }
         return null; 
     }
     
@@ -242,12 +378,12 @@
                         li.onclick = () => {
                             document.getElementById('adresse-input').value = feature.properties.label;
                             liste.style.display = 'none'; 
-                            lancerRecherche();
+                            preparerChoixNumero(feature);
                         };
                         liste.appendChild(li);
                     });
                 } else { liste.style.display = 'none'; }
-            } catch (erreur) { console.error(erreur); }
+            } catch (e) { console.error(e); }
         }, 150); 
     }
 
@@ -255,274 +391,222 @@
         if (!event.target.closest('.search-container')) { document.getElementById('suggestions-list').style.display = 'none'; }
     });
 
-    let narratifInterval;
-    function demarrerNarratif() {
-        const messages = [
-            "Connexion à notre base de données... ⚡",
-            "Recherche du code postal... 🌍",
-            "Recherche de la correspondance exacte... 🔍",
-            "Génération de votre tableau de bord... 📊"
-        ];
-        let index = 0;
-        let msgBox = document.getElementById('narrative-msg');
-        msgBox.style.display = 'block';
-        msgBox.innerText = messages[0];
-        
-        narratifInterval = setInterval(() => {
-            index++;
-            if(index < messages.length) { msgBox.innerText = messages[index]; }
-        }, 1000); 
+    function gererToucheEntree(event) {
+        if (event.key === "Enter") { document.getElementById('suggestions-list').style.display = 'none'; lancerRechercheInitiale(); }
     }
 
-    function stopperNarratif() {
-        clearInterval(narratifInterval);
-        document.getElementById('narrative-msg').style.display = 'none';
-    }
-
-    function activerSkeleton() {
-        let bentoGrid = document.getElementById('bento-grid');
-        bentoGrid.classList.add('mode-skeleton');
-        bentoGrid.classList.add('visible'); 
-        
-        document.getElementById('val-dpe').innerHTML = '<div class="skeleton" style="width: 50px; height: 50px; margin-top: 20px;"></div>';
-        document.getElementById('val-ges').innerHTML = '<div class="skeleton" style="width: 50px; height: 50px; margin-top: 20px;"></div>';
-        document.getElementById('val-adresse').innerHTML = '<div class="skeleton" style="width: 100%; height: 24px; margin-top: 8px;"></div><div class="skeleton" style="width: 60%; height: 24px; margin-top: 6px;"></div>';
-        document.getElementById('val-date').innerHTML = '<div class="skeleton" style="width: 120px; height: 14px;"></div>';
-        document.getElementById('val-surface').innerHTML = '<div class="skeleton" style="width: 70px; height: 22px;"></div>';
-        document.getElementById('val-type').innerHTML = '<div class="skeleton" style="width: 90px; height: 14px;"></div>';
-        document.getElementById('val-annee').innerHTML = '<div class="skeleton" style="width: 80px; height: 22px; margin-top: 10px;"></div>';
-        document.getElementById('val-conso').innerHTML = '<span class="skeleton" style="width: 40px; height: 14px; display: inline-block; vertical-align: middle;"></span>';
-
-        document.getElementById('map').style.display = 'none';
-        let skelMapDiv = document.getElementById('skeleton-map');
-        if(!skelMapDiv) {
-            skelMapDiv = document.createElement('div');
-            skelMapDiv.id = 'skeleton-map'; skelMapDiv.className = 'skeleton';
-            skelMapDiv.style.width = '100%'; skelMapDiv.style.height = '100%';
-            document.querySelector('.box-map').appendChild(skelMapDiv);
-        }
-        skelMapDiv.style.display = 'block';
-    }
-
-    function desactiverSkeleton() {
-        let bentoGrid = document.getElementById('bento-grid');
-        bentoGrid.classList.remove('mode-skeleton');
-        document.getElementById('map').style.display = 'block';
-        let skelMapDiv = document.getElementById('skeleton-map');
-        if(skelMapDiv) skelMapDiv.style.display = 'none';
-    }
-
-    function normaliserTexte(texte) {
-        return texte.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, " ").trim();
-    }
-
-    // --- NOUVELLE FONCTION POUR LE FORMATAGE PROPRE DE L'ADRESSE ---
-    function formaterAdressePropre(adresse) {
-        if (!adresse) return "";
-        
-        let texte = adresse.toLowerCase();
-        
-        // Majuscule au début de chaque mot
-        texte = texte.replace(/(^\w|\s\w|-\w|'\w)/g, function(lettre) {
-            return lettre.toUpperCase();
-        });
-        
-        // Remettre les petits mots de liaison en minuscules
-        texte = texte.replace(/\s(de|du|des|la|le|les|et)\s/ig, function(match) {
-            return match.toLowerCase();
-        });
-        
-        // Réparer les espaces collés et ajouter la virgule avant le code postal
-        texte = texte.replace(/\s*(\d{5})\s*/, ", $1 ");
-        
-        // Nettoyer les espaces en double
-        texte = texte.replace(/\s{2,}/g, ' ').trim();
-        
-        return texte;
-    }
-
-    function trouverLogementStrict(results, adresseSaisie) {
-        if (!results || results.length === 0) return null;
-        
-        const matchCp = adresseSaisie.match(/\b\d{5}\b/);
-        const rueSeule = matchCp ? adresseSaisie.substring(0, matchCp.index) : adresseSaisie;
-
-        const cible = normaliserTexte(rueSeule);
-        const matchNumero = cible.match(/^(\d+)/); 
-        
-        const motsAIgnorer = ['rue', 'avenue', 'boulevard', 'allee', 'chemin', 'place', 'impasse', 'bis', 'ter', 'de', 'la', 'des', 'du', 'le', 'les', 'l', 'd'];
-        const motsCible = cible.replace(/^\d+\s*/, '').split(/\s+/).filter(mot => mot.trim().length > 0 && !motsAIgnorer.includes(mot));
-
-        for (let res of results) {
-            let adresseBase = normaliserTexte(res.adresse_ban || res.adresse_complete_brut || res.geo_adresse || res.adresse || "");
-            
-            if (matchNumero) {
-                const num = matchNumero[1];
-                let regexNum = new RegExp("^" + num + "\\b", "i");
-                if (!regexNum.test(adresseBase)) continue; 
+    async function lancerRechercheInitiale() {
+        let input = document.getElementById('adresse-input').value;
+        if (!input) return;
+        let errorMsg = document.getElementById('error-msg');
+        errorMsg.style.display = 'none';
+        try {
+            let reponse = await fetch(`https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(input)}&index=address&limit=1`);
+            let donnees = await reponse.json();
+            if (donnees.features && donnees.features.length > 0) {
+                preparerChoixNumero(donnees.features[0]);
+            } else {
+                errorMsg.innerText = "⚠️ Adresse introuvable."; errorMsg.style.display = 'block';
             }
-
-            if (motsCible.length > 0) {
-                const motPrincipal = motsCible[0];
-                if (!adresseBase.includes(motPrincipal)) continue; 
-            }
-            
-            return res; 
+        } catch(e) {
+            errorMsg.innerText = "⚠️ Erreur de connexion."; errorMsg.style.display = 'block';
         }
-        return null; 
     }
 
-    function nettoyerDonnees(logementBrut, adresseSaisie) {
-        return {
-            adresse: logementBrut.adresse || adresseSaisie,
-            dpe: logementBrut.dpe || "N/A",
-            ges: logementBrut.ges || "N/A",
-            date_dpe: logementBrut.date || "Inconnue",
-            base_source: "Base certifiée",
-            annee_construction: logementBrut.annee || "Non renseignée",
-            type_logement: logementBrut.type || "Non renseigné",
-            consommation_kwh: logementBrut.conso ? Math.round(parseFloat(logementBrut.conso)) : "Non renseignée",
-            surface_m2: logementBrut.surface ? Math.round(parseFloat(logementBrut.surface)) : "Non renseignée",
-            latitude: logementBrut.latitude || null,
-            longitude: logementBrut.longitude || null
-        };
-    }
-
-    async function interrogerBaseStatique(adresse) {
-        const matchCp = adresse.match(/\b\d{5}\b/);
-        if (!matchCp) return { error: "Code postal introuvable dans l'adresse sélectionnée." };
+    async function preparerChoixNumero(feature) {
+        let errorMsg = document.getElementById('error-msg');
+        let step2 = document.getElementById('step2-container');
+        let bentoGrid = document.getElementById('bento-grid');
         
-        const cp = matchCp[0];
-        const cpNum = parseInt(cp, 10);
+        errorMsg.style.display = 'none';
+        step2.style.display = 'none';
+        bentoGrid.classList.remove('visible');
 
-        let baseUrl = "";
-        if (cpNum < 50000) { baseUrl = LIEN_BASE_1; } 
-        else if (cpNum < 75000) { baseUrl = LIEN_BASE_2; } 
-        else { baseUrl = LIEN_BASE_3; }
-        baseUrl = baseUrl.replace(/\/$/, '');
-
-        let rueBrute = adresse.substring(0, matchCp.index);
-        const cible = normaliserTexte(rueBrute);
+        let prop = feature.properties;
+        let cp = prop.postcode;
+        let rue = prop.street || prop.name;
         
+        if (!rue) {
+            let matchCp = prop.label.match(/\b\d{5}\b/);
+            let rueSeule = matchCp ? prop.label.substring(0, matchCp.index) : prop.label;
+            rue = rueSeule.replace(/^\d+.*?(bis|ter|quater)?\s+/i, '');
+        }
+
+        if (!cp || !rue) {
+            errorMsg.innerText = "⚠️ L'adresse est trop imprécise (Code postal manquant)."; errorMsg.style.display = 'block'; return;
+        }
+
+        const cible = normaliserTexte(rue);
         const motsAIgnorer = ['rue', 'avenue', 'boulevard', 'allee', 'chemin', 'place', 'impasse', 'bis', 'ter', 'de', 'la', 'des', 'du', 'le', 'les', 'l', 'd'];
-        let motsCible = cible.replace(/^\d+\s*/, '').split(/\s+/).filter(mot => mot.trim().length > 0 && !motsAIgnorer.includes(mot));
+        let motsCible = cible.split(/\s+/).filter(mot => mot.trim().length > 0 && !motsAIgnorer.includes(mot));
 
-        if (motsCible.length === 0) return { error: "Impossible de déterminer le nom de la rue à analyser." };
-        
+        if (motsCible.length === 0) {
+            errorMsg.innerText = "⚠️ Nom de rue inexploitable."; errorMsg.style.display = 'block'; return;
+        }
+
         const premiereLettre = motsCible[0].charAt(0).toLowerCase();
+        let cpNum = parseInt(cp, 10);
+        let baseUrl = cpNum < 50000 ? LIEN_BASE_1 : (cpNum < 75000 ? LIEN_BASE_2 : LIEN_BASE_3);
+        baseUrl = baseUrl.replace(/\/$/, '');
         const urlFichier = `${baseUrl}/${cp}/${premiereLettre}.json`;
 
         try {
             let reponse = await fetch(urlFichier);
-            
             if (!reponse.ok) {
-                if(reponse.status === 404) return { error: "Aucun DPE trouvé pour cette rue dans notre base." };
-                return { error: `Erreur ${reponse.status} lors du téléchargement.` };
+                errorMsg.innerText = "⚠️ Aucun DPE recensé dans notre base pour cette zone."; errorMsg.style.display = 'block'; return;
             }
             
             let dataJSON = await reponse.json();
             let tableauLogements = Array.isArray(dataJSON) ? dataJSON : (dataJSON.results || dataJSON.data || Object.values(dataJSON)[0] || []);
 
-            if (tableauLogements.length === 0) {
-                return { error: "Le fichier a été trouvé, mais il est vide." };
+            let logementsFiltres = [];
+            for (let res of tableauLogements) {
+                let adrBase = normaliserTexte(res.adresse_ban || res.adresse_complete_brut || res.geo_adresse || res.adresse || "");
+                let match = true;
+                for (let m of motsCible) {
+                    if (!adrBase.includes(m)) { match = false; break; }
+                }
+                if (match) {
+                    res.cp_extract = cp; 
+                    logementsFiltres.push(res);
+                }
             }
 
-            let logementValide = trouverLogementStrict(tableauLogements, adresse);
-            
-            if (logementValide) {
-                return nettoyerDonnees(logementValide, adresse);
-            } else {
-                return { error: `Le logement exact n'a pas été trouvé à cette adresse.` };
+            if (logementsFiltres.length === 0) {
+                errorMsg.innerText = "⚠️ Aucun DPE recensé spécifiquement dans cette rue."; errorMsg.style.display = 'block'; return;
             }
+
+            logementsTrouvesGlobal = logementsFiltres;
+            logementsTrouvesGlobal.sort((a, b) => {
+                let adrA = normaliserTexte(a.adresse_ban || a.adresse || "");
+                let adrB = normaliserTexte(b.adresse_ban || b.adresse || "");
+                let numA = parseInt(adrA.match(/^(\d+)/)?.[1] || 0);
+                let numB = parseInt(adrB.match(/^(\d+)/)?.[1] || 0);
+                return numA - numB;
+            });
+
+            let listContainer = document.getElementById('logements-list');
+            listContainer.innerHTML = '';
+            
+            logementsTrouvesGlobal.forEach((logement, index) => {
+                let adrCourte = formaterAdressePropre(logement.adresse_ban || logement.adresse || "").replace(/,\s*\d{5}.*/, '');
+                let typeBat = logement.type ? (logement.type.charAt(0).toUpperCase() + logement.type.slice(1)) : "Logement";
+                
+                // Ajout de la surface si elle existe
+                let surfaceText = (logement.surface && !isNaN(parseFloat(logement.surface))) ? `, ${Math.round(parseFloat(logement.surface))} m²` : "";
+                let dpeVal = logement.dpe || '?';
+                
+                let bgColor = couleursDPE[dpeVal] || 'var(--gray-medium)';
+                let txtColor = texteContrasteDPE(dpeVal);
+
+                let div = document.createElement('div');
+                div.className = 'logement-item';
+                div.innerHTML = `
+                    <div class="logement-item-text">
+                        <strong>${adrCourte}</strong>
+                        <span class="logement-item-type">${typeBat}${surfaceText}</span>
+                    </div>
+                    <div class="badge-dpe-liste" style="background-color: ${bgColor}; color: ${txtColor};">
+                        ${dpeVal}
+                    </div>
+                `;
+                div.onclick = () => validerLogement(index);
+                listContainer.appendChild(div);
+            });
+
+            document.getElementById('hero-block').style.padding = "16px 32px"; 
+            step2.style.display = 'block';
 
         } catch (err) {
-            console.error("Erreur technique :", err);
-            return { error: "Impossible de lire la base de données." };
+            errorMsg.innerText = "⚠️ Impossible de se connecter à la base de données."; errorMsg.style.display = 'block';
         }
     }
 
-    async function lancerRecherche() {
-        let adresseSaisie = document.getElementById('adresse-input').value;
-        let errorMsg = document.getElementById('error-msg');
+    async function validerLogement(index) {
+        let logementChoisi = logementsTrouvesGlobal[index];
+        if (!logementChoisi) return;
+
+        // Rétractation de la liste
+        document.getElementById('step2-container').style.display = 'none';
+
+        // Mise à jour de la barre de recherche
+        let adresseFinale = formaterAdressePropre(logementChoisi.adresse_ban || logementChoisi.adresse || "");
+        document.getElementById('adresse-input').value = adresseFinale;
+
         let bentoGrid = document.getElementById('bento-grid');
-        let heroBlock = document.getElementById('hero-block');
+        bentoGrid.classList.add('visible'); 
+
+        setTimeout(() => { bentoGrid.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+
+        document.getElementById('val-dpe').innerText = "-"; document.getElementById('val-ges').innerText = "-";
+        document.getElementById('val-facture').innerText = "-- € / an"; document.getElementById('val-equiv-carbone').innerText = "Émissions CO₂";
+
+        animerLettre(document.getElementById('val-dpe'), logementChoisi.dpe, couleursDPE);
+        animerLettre(document.getElementById('val-ges'), logementChoisi.ges, couleursDPE);
+
+        document.getElementById('val-adresse').innerText = adresseFinale;
+
+        let surfaceVal = parseFloat(logementChoisi.surface);
+        let consoVal = parseFloat(logementChoisi.conso);
+        let elementFacture = document.getElementById('val-facture');
+
+        if (!isNaN(surfaceVal) && !isNaN(consoVal)) {
+            let factureEstimee = Math.round(surfaceVal * consoVal * 0.11);
+            elementFacture.innerText = factureEstimee.toLocaleString('fr-FR') + " € / an";
+        } else {
+            elementFacture.innerText = "Non estimable"; elementFacture.style.color = "var(--text-dark)";
+        }
         
-        document.getElementById('suggestions-list').style.display = 'none';
-        if (!adresseSaisie) return;
-
-        errorMsg.style.display = 'none'; 
-        heroBlock.style.padding = "16px 32px"; 
-
-        activerSkeleton();
-        demarrerNarratif();
-
-        let donnees = await interrogerBaseStatique(adresseSaisie);
-
-        stopperNarratif();
-        desactiverSkeleton();
-
-        if (donnees.error) {
-            bentoGrid.classList.remove('visible');
-            errorMsg.style.display = 'block'; 
-            errorMsg.innerHTML = `⚠️ ${donnees.error}`;
-            return;
+        const medianesGES = { "A": 3, "B": 8.5, "C": 20, "D": 40, "E": 60, "F": 85, "G": 120 };
+        let caseEquiv = document.getElementById('val-equiv-carbone');
+        
+        if (!isNaN(surfaceVal) && medianesGES[logementChoisi.ges]) {
+            let totalCO2 = surfaceVal * medianesGES[logementChoisi.ges];
+            let kmVoiture = Math.round(totalCO2 / 0.2); 
+            caseEquiv.innerHTML = `~ ${kmVoiture.toLocaleString('fr-FR')} km en voiture <span class="tooltip">ⓘ<span class="tooltip-text">Équivalence estimée (0,2 kg CO₂/km). Basée sur la moyenne des émissions de la classe ${logementChoisi.ges} multipliée par la surface.</span></span>`;
+            caseEquiv.style.color = "var(--papernest-blue)";
+        } else {
+            caseEquiv.innerText = "Émissions CO₂"; caseEquiv.style.color = "var(--text-dark)";
         }
 
-        const couleursDPE = {
-            "A": "#009966", "B": "#00D492", "C": "#A4F4CF", 
-            "D": "#FEE685", "E": "#FFBA00", "F": "#BB4D00", "G": "#7B3306", "N/A": "var(--text-dark)"
-        };
+        document.getElementById('val-annee').innerText = logementChoisi.annee || "Non renseignée";
+        document.getElementById('val-conso').innerText = !isNaN(consoVal) ? Math.round(consoVal) + " kWh/m²/an" : "-";
+
+        const caseMoyenne = document.getElementById('val-moyenne-ville');
+        let cpVille = logementChoisi.cp_extract;
         
-        const valDPE_element = document.getElementById('val-dpe');
-        valDPE_element.innerText = donnees.dpe;
-        valDPE_element.style.color = couleursDPE[donnees.dpe] || "var(--text-dark)"; 
+        if (cpVille) {
+            if (!cacheMoyennes) {
+                try { let reponse = await fetch(LIEN_MOYENNES); cacheMoyennes = await reponse.json(); } catch (e) {}
+            }
+            let moyenne = cacheMoyennes ? cacheMoyennes[cpVille] : null;
+            
+            if (moyenne) {
+                caseMoyenne.innerText = moyenne;
+                let premiereLettre = moyenne.charAt(0);
+                caseMoyenne.style.color = couleursDPE[premiereLettre] || "var(--text-dark)";
+            } else { caseMoyenne.innerText = "N/A"; caseMoyenne.style.color = "var(--text-dark)"; }
+        } else { caseMoyenne.innerText = "-"; }
 
-        const valGES_element = document.getElementById('val-ges');
-        valGES_element.innerText = donnees.ges;
-        valGES_element.style.color = couleursDPE[donnees.ges] || "var(--text-dark)"; 
-
-        // --- CHANGEMENT ICI : On applique le formatage propre sur l'adresse saisie ---
-        document.getElementById('val-adresse').innerText = formaterAdressePropre(adresseSaisie);
-        document.getElementById('val-date').innerText = `Date DPE : ${donnees.date_dpe} (${donnees.base_source})`;
-
-        document.getElementById('val-surface').innerText = donnees.surface_m2 !== "Non renseignée" ? `${donnees.surface_m2} m²` : "Inconnue";
-        let typeBrut = donnees.type_logement || "Inconnu";
-        let typeBatiment = (typeBrut !== "Non renseigné" && typeBrut !== "Inconnu") ? String(typeBrut).charAt(0).toUpperCase() + String(typeBrut).slice(1) : "Inconnu";
-        document.getElementById('val-type').innerText = typeBatiment;
-
-        document.getElementById('val-annee').innerText = donnees.annee_construction;
-        document.getElementById('val-conso').innerText = donnees.consommation_kwh !== "Non renseignée" ? donnees.consommation_kwh + " kWh/m²/an" : "-";
-
-        bentoGrid.classList.add('visible');
-        
         const papernestIcon = L.divIcon({
             html: `<svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg"><path d="M16 0c-8.837 0-16 7.163-16 16 0 11.5 16 24 16 24s16-12.5 16-24c0-8.837-7.163-16-16-16zm0 24c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8z" fill="#7B4EFC"/></svg>`,
-            className: "",
-            iconSize: [32, 40],
-            iconAnchor: [16, 40],
-            popupAnchor: [0, -40]
+            className: "", iconSize: [32, 40], iconAnchor: [16, 40], popupAnchor: [0, -40]
         });
 
         setTimeout(async () => {
             maCarte.invalidateSize();
-            
-            // On demande les coordonnées GPS à partir de l'adresse tapée (plus fiable)
-            let coords = await obtenirCoordonnees(adresseSaisie);
+            let coords = await obtenirCoordonnees(adresseFinale);
+            if (!coords && logementChoisi.latitude && logementChoisi.longitude) {
+                coords = { lat: logementChoisi.latitude, lon: logementChoisi.longitude };
+            }
             
             if (coords) {
                 if (monMarqueur) maCarte.removeLayer(monMarqueur);
-                
                 monMarqueur = L.marker([coords.lat, coords.lon], {icon: papernestIcon}).addTo(maCarte)
-                    .bindPopup(`<b style="color:${couleursDPE[donnees.dpe] || 'var(--text-dark)'}; font-size:16px;">DPE ${donnees.dpe}</b>`).openPopup();
-                
-                // On fait "voler" la caméra vers la maison
+                    .bindPopup(`<b style="color:${couleursDPE[logementChoisi.dpe] || 'var(--text-dark)'}; font-size:16px;">DPE ${logementChoisi.dpe || '?'}</b>`).openPopup();
                 maCarte.flyTo([coords.lat, coords.lon], 16, { duration: 1.5 });
             }
         }, 100);
-    }
-
-    function gererToucheEntree(event) {
-        if (event.key === "Enter") { document.getElementById('suggestions-list').style.display = 'none'; lancerRecherche(); }
     }
 
     const observerTaille = new ResizeObserver(entries => {
@@ -534,7 +618,6 @@
     
     const widgetWrapper = document.querySelector('.widget-wrapper');
     if (widgetWrapper) { observerTaille.observe(widgetWrapper); }
-</script>
-    
+    </script>
 </body>
 </html>
