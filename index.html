@@ -9,14 +9,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
-        /* --- LE BODY --- */
-        body { background-color: #F4F6F8; padding: 40px 15px; margin: 0; display: flex; justify-content: center; }
-
-        /* --- CONTENEUR GLOBAL --- */
-        .widget-wrapper { width: 100%; max-width: 950px; font-family: 'Avenir', sans-serif; box-sizing: border-box; position: relative; }
-        .widget-wrapper * { box-sizing: border-box; }
-
-        /* Charte Couleurs */
+        /* --- VARIABLES & ANIMATIONS GLOBALES --- */
         :root {
             --papernest-blue: #5A52FF; --papernest-blue-hover: #003BE0;
             --text-dark: #111111; --text-light: #737373;
@@ -24,6 +17,23 @@
             --radius-box: 20px;
             --violet-ppn: #7B4EFC;
         }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(-5px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        @keyframes slideUp { 
+            from { transform: translateY(100%); } 
+            to { transform: translateY(0); } 
+        }
+
+        /* --- LE BODY --- */
+        body { background-color: #F4F6F8; padding: 40px 15px; margin: 0; display: flex; justify-content: center; }
+
+        /* --- CONTENEUR GLOBAL --- */
+        .widget-wrapper { width: 100%; max-width: 950px; font-family: 'Avenir', sans-serif; box-sizing: border-box; position: relative; }
+        .widget-wrapper * { box-sizing: border-box; }
 
         /* --- HERO SECTION --- */
         .hero-section {
@@ -37,7 +47,6 @@
 
         /* --- CHAMPS SÉPARÉS AVEC BOUTON --- */
         .search-wrapper { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; text-align: left; }
-        
         .search-inputs-row { display: flex; gap: 10px; width: 100%; position: relative; align-items: center;}
         
         .cp-wrapper { position: relative; width: 140px; flex-shrink: 0; }
@@ -52,10 +61,8 @@
         .modern-input:disabled { opacity: 0.5; cursor: not-allowed; }
         .modern-input::placeholder { color: #9CA3AF; font-weight: 500; }
 
-        /* Le champ Code Postal */
         #cp-input { text-align: center; font-weight: 800; color: var(--papernest-blue); cursor: text; }
         
-        /* Le bouton Chercher */
         #btn-rechercher {
             background: var(--papernest-blue); color: white; border: none; border-radius: 100px;
             padding: 12px 24px; font-weight: 600; font-size: 15px; font-family: 'Avenir', sans-serif;
@@ -76,10 +83,11 @@
         .dropdown-list li:last-child { border-bottom: none; }
         .dropdown-list li:hover { background-color: var(--gray-light); color: var(--papernest-blue); }
 
-        /* --- LISTE DES LOGEMENTS --- */
+        /* --- LISTE DES LOGEMENTS (BASE DESKTOP) --- */
         #results-container {
             display: none; background: white; border: 1px solid var(--gray-medium); border-radius: var(--radius-box);
-            text-align: left; margin: 12px auto 0 auto; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); max-width: 600px;
+            text-align: left; margin: 12px auto 0 auto; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
+            max-width: 600px; position: relative; animation: fadeIn 0.3s ease; z-index: 1050;
         }
         
         #results-container label { display: block; font-size: 14px; color: var(--text-dark); margin-bottom: 12px; font-weight: 800; text-align: center;}
@@ -103,37 +111,8 @@
         
         .logement-item-text { flex-grow: 1; padding-right: 15px; line-height: 1.4; }
         .logement-item-type { font-size: 12px; color: var(--text-light); margin-top: 4px; display: block; }
-        
         .btn-voir-dpe { font-size: 13px; color: var(--papernest-blue); font-weight: 700; transition: transform 0.2s ease, color 0.2s ease; white-space: nowrap; }
 
-        /* Configuration Desktop */
-        @media (min-width: 801px) {
-            /* On enlève la position absolute pour que la liste pousse le fond blanc vers le bas et s'ajuste avec l'iframe */
-            #results-container { position: relative; animation: fadeIn 0.3s ease; z-index: 1050;}
-            @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-            .logements-list { max-height: 350px; }
-        }
-
-        /* Configuration Mobile : Tiroir sans overlay noir */
-        @media (max-width: 800px) {
-            .search-inputs-row { flex-direction: column; gap: 8px; align-items: stretch;}
-            .cp-wrapper { width: 100%; }
-            #btn-rechercher { width: 100%; padding: 12px 24px; }
-            .dropdown-list { width: 100%; }
-
-            #results-container { 
-                position: fixed; bottom: 0; left: 0; right: 0; width: 100%; max-width: 100%; margin: 0;
-                border-radius: 20px 20px 0 0; padding: 25px 20px 20px 20px; box-shadow: 0 -10px 40px rgba(0,0,0,0.15); 
-                border: none; z-index: 2000; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
-            }
-            @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-            
-            .mobile-drag-handle { display: block; width: 40px; height: 5px; background-color: #E2E8F0; border-radius: 10px; margin: -15px auto 15px auto; }
-            .logements-list { max-height: 40vh; border: none; border-radius: 0; background: transparent; }
-            .logement-item { padding: 16px 5px; }
-            .logement-item:hover { padding-left: 5px; } 
-        }
-        
         .mobile-drag-handle { display: none; }
 
         /* --- TOOLTIPS --- */
@@ -168,8 +147,6 @@
         .box-details { grid-column: span 1; background-color: white; justify-content: center; gap: 6px; } 
         .box-address .bento-medium-value, .box-details .bento-large-value { margin-top: 0; }
 
-        @media (min-width: 801px) { .box-address::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 1px; background-color: rgba(0, 0, 0, 0.1); z-index: 10; } }
-
         .box-year { grid-column: span 1; background-color: white; } 
         .box-cta { grid-column: span 4; background-color: var(--violet-ppn); border-top: 1px solid rgba(0,0,0,0.05); flex-direction: row; align-items: center; padding: 24px 32px; border-bottom-left-radius: var(--radius-box); border-bottom-right-radius: var(--radius-box); }
         .cta-content h3 { margin: 0 0 4px 0; font-size: 18px; color: white; font-weight: 800;}
@@ -187,13 +164,35 @@
         .conso-text strong { font-size: 12px; font-weight: 800; }
         #map { width: 100%; height: 100%; z-index: 1; border-top-right-radius: var(--radius-box); }
 
-        /* --- OPTIMISATION MOBILE BENTO --- */
+        /* --- RÉGLES SPÉCIFIQUES --- */
+        @media (min-width: 801px) { 
+            .box-address::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 1px; background-color: rgba(0, 0, 0, 0.1); z-index: 10; } 
+        }
+
+        /* --- SURCHARGES MOBILE (Placées à la toute fin) --- */
         @media (max-width: 800px) {
             body { padding: 10px; }
             .hero-section { padding: 15px; margin-bottom: 12px; }
             .hero-section h1 { font-size: 22px; margin-bottom: 8px; }
             .hero-section p { display: none; } 
             
+            .search-inputs-row { flex-direction: column; gap: 8px; align-items: stretch;}
+            .cp-wrapper { width: 100%; }
+            #btn-rechercher { width: 100%; padding: 12px 24px; }
+            .dropdown-list { width: 100%; }
+
+            /* Liste des logements mobile : Extensible pour pousser l'iframe */
+            #results-container { 
+                margin-top: 15px; padding: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); 
+            }
+            .logements-list { 
+                /* On force une grande taille minimum pour masquer le reste du site */
+                min-height: 350px; max-height: 450px; 
+                background: white; 
+            }
+            .logement-item { padding: 16px 12px; }
+            .logement-item:hover { padding-left: 12px; } 
+
             .bento-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: 130px 120px auto 90px auto; }
             .bento-box { padding: 16px; } 
             .box-map { border-top-right-radius: 0; }
@@ -319,11 +318,10 @@
     let cacheJSON = {}; 
     let logementsTrouvesGlobal = [];
     let cacheMoyennes = null; 
-    let codesPostauxDispos = []; // Notre base complète de codes postaux
+    let codesPostauxDispos = []; 
 
     const couleursDPE = { "A": "#009966", "B": "#00D492", "C": "#A4F4CF", "D": "#FEE685", "E": "#FFBA00", "F": "#BB4D00", "G": "#7B3306", "N/A": "var(--text-dark)" };
 
-    // --- INITIALISATION DES CODES POSTAUX DEPUIS LA BASE ---
     document.addEventListener('DOMContentLoaded', async () => {
         try {
             let reponse = await fetch(LIEN_MOYENNES);
@@ -334,23 +332,20 @@
         }
     });
 
-    // --- GESTION INTELLIGENTE DU CHAMP CODE POSTAL ---
     const cpInput = document.getElementById('cp-input');
     const adresseInput = document.getElementById('adresse-input');
     const btnRechercher = document.getElementById('btn-rechercher');
     const cpSuggestions = document.getElementById('cp-suggestions');
     const resultsContainer = document.getElementById('results-container');
 
-    // On affiche tout le catalogue si la case est cliquée et vide
     cpInput.addEventListener('focus', function() {
         if(this.value === "") mettreAJourSuggestionsCP("");
     });
 
     cpInput.addEventListener('input', function() {
-        let val = this.value.replace(/\D/g, ''); // Que des chiffres
+        let val = this.value.replace(/\D/g, ''); 
         this.value = val;
         
-        // Bloquer l'adresse si CP effacé ou incomplet
         if (val.length < 5) {
             codePostalValide = "";
             adresseInput.disabled = true;
@@ -364,20 +359,16 @@
 
     function mettreAJourSuggestionsCP(val) {
         cpSuggestions.innerHTML = '';
-        
-        // Filtre de notre propre base (ultra rapide)
         let matches = codesPostauxDispos.filter(cp => cp.startsWith(val));
         
         if (matches.length > 0) {
             cpSuggestions.style.display = 'block';
-            // On limite à 30 résultats affichés pour ne pas lagger
             matches.slice(0, 30).forEach(cp => {
                 let li = document.createElement('li');
                 li.textContent = cp;
                 li.onclick = () => validerCodePostal(cp);
                 cpSuggestions.appendChild(li);
             });
-            // Si l'utilisateur a tapé exactement un code postal complet et valide
             if(val.length === 5 && matches.includes(val)) {
                 validerCodePostal(val);
             }
@@ -395,11 +386,9 @@
         adresseInput.focus();
     }
 
-    // Cache les listes si on clique ailleurs
     document.addEventListener("click", function(event) {
         if (!event.target.closest('.search-wrapper')) { 
             cpSuggestions.style.display = 'none'; 
-            fermerTiroirMobile();
         }
     });
 
@@ -407,7 +396,6 @@
         document.getElementById('results-container').style.display = 'none';
     }
 
-    // --- ANIMATIONS & FORMATAGE ---
     function animerLettre(element, lettreFinale, couleurs) {
         if (!lettreFinale || lettreFinale === "N/A" || lettreFinale === "-") { element.innerText = lettreFinale || "-"; element.style.color = "var(--text-dark)"; return; }
         const echelle = ['G', 'F', 'E', 'D', 'C', 'B', 'A'];
@@ -439,7 +427,6 @@
         } catch (e) {} return null; 
     }
 
-    // --- LOGIQUE ADRESSE (RECHERCHE TEMPS RÉEL & TRI PROXIMITÉ) ---
     async function telechargerFichierDPE(cp, lettre) {
         if (cacheJSON[cp] && cacheJSON[cp][lettre]) return cacheJSON[cp][lettre]; 
         
@@ -459,7 +446,6 @@
         } catch(e) { return []; }
     }
 
-    // Le tri par proximité du numéro
     function trierParProximite(logements, texteSaisi) {
         let matchNum = texteSaisi.match(/\b\d+\b/);
         let numeroCible = matchNum ? parseInt(matchNum[0], 10) : null;
@@ -479,11 +465,10 @@
 
     adresseInput.addEventListener('input', function() {
         let input = this.value;
-        // On déclenche l'actualisation en temps réel si plus de 5 caractères
         if (input.length >= 6) {
             declencherRecherche(true); 
         } else {
-            fermerTiroirMobile();
+            resultsContainer.style.display = 'none';
         }
     });
 
@@ -495,7 +480,6 @@
         let input = adresseInput.value;
         let listContainer = document.getElementById('logements-list');
         let errorMsg = document.getElementById('error-msg');
-        let resultsContainer = document.getElementById('results-container');
 
         if (!isInstant) {
             errorMsg.style.display = 'none';
@@ -561,12 +545,11 @@
         }, 300); 
     }
 
-    // --- ÉTAPE 3 : AFFICHAGE DU BENTO ---
     async function validerLogementFinal(index) {
         let logementChoisi = logementsTrouvesGlobal[index];
         if (!logementChoisi) return;
 
-        fermerTiroirMobile();
+        resultsContainer.style.display = 'none';
 
         let adresseFinale = formaterAdressePropre(logementChoisi.adresse_ban || logementChoisi.adresse || "").replace(/,\s*\d{5}.*/, '');
         adresseInput.value = adresseFinale;
@@ -646,14 +629,12 @@
         }, 100);
     }
 
-    // --- LE SCRIPT DE REDIMENSIONNEMENT DE L'IFRAME ---
+    // Le script de redimensionnement de l'Iframe
     function envoyerHauteurIframe() {
-        // Calcule la hauteur totale réelle du contenu (body)
-        const hauteur = document.documentElement.scrollHeight + 15; // +15px de marge pour la sécurité
+        const hauteur = document.documentElement.scrollHeight + 15; 
         window.parent.postMessage({ type: 'resize-dpe-widget', height: hauteur }, '*');
     }
 
-    // On observe les changements structurels du body (ajout de la liste, affichage de la grille)
     const observerTaille = new ResizeObserver(() => {
         envoyerHauteurIframe();
     });
