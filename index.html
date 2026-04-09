@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Widget DPE </title>
+    <title>Widget DPE</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -13,7 +13,7 @@
         body { background-color: #F4F6F8; padding: 40px 15px; margin: 0; display: flex; justify-content: center; }
 
         /* --- CONTENEUR GLOBAL --- */
-        .widget-wrapper { width: 100%; max-width: 950px; font-family: 'Avenir', sans-serif; box-sizing: border-box; }
+        .widget-wrapper { width: 100%; max-width: 950px; font-family: 'Avenir', sans-serif; box-sizing: border-box; position: relative; }
         .widget-wrapper * { box-sizing: border-box; }
 
         /* Charte Couleurs */
@@ -25,49 +25,67 @@
             --violet-ppn: #7B4EFC;
         }
 
-        /* --- HERO SECTION & RECHERCHE --- */
+        /* --- HERO SECTION --- */
         .hero-section {
             background: white; border-radius: var(--radius-box); padding: 32px; text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid var(--gray-medium);
             border-top: 6px solid var(--papernest-blue); margin-bottom: 24px; 
-            transition: padding 0.5s ease; position: relative;
+            transition: padding 0.5s ease; position: relative; z-index: 10;
         }
         .hero-section h1 { font-size: 28px; font-weight: 800; color: var(--text-dark); margin: 0 0 8px 0; letter-spacing: -0.5px; }
         .hero-section p { color: var(--text-light); font-size: 15px; margin: 0 0 24px 0; }
 
-        .search-container {
-            max-width: 600px; margin: 0 auto; background: var(--gray-light); border: 2px solid var(--gray-medium);
-            padding: 6px; border-radius: 100px; display: flex; position: relative; z-index: 1000;
-            transition: border-color 0.3s;
-        }
-        .search-container:focus-within { border-color: var(--papernest-blue); background: white; }
-        .search-container input { flex-grow: 1; border: none; outline: none; background: transparent; padding: 10px 20px; font-size: 15px; color: var(--text-dark); font-family: 'Avenir', sans-serif; }
-        .search-container input::placeholder { color: #9CA3AF; }
-        .search-container button { background: var(--papernest-blue); color: white; border: none; border-radius: 100px; padding: 10px 28px; font-size: 15px; font-weight: 600; font-family: 'Avenir', sans-serif; cursor: pointer; transition: transform 0.2s; }
-        .search-container button:hover { background: var(--papernest-blue-hover); transform: scale(1.02); }
-
-        .suggestions-list {
-            position: absolute; top: calc(100% + 10px); left: 0; width: 100%; background: white;
-            border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); border: 1px solid var(--gray-medium);
-            list-style: none; padding: 8px 0; margin: 0; max-height: 220px; overflow-y: auto; display: none; text-align: left;
-        }
-        .suggestions-list li { padding: 12px 20px; font-size: 14px; cursor: pointer; border-bottom: 1px solid var(--gray-light); color: var(--text-dark);}
-        .suggestions-list li:hover { background-color: var(--gray-light); color: var(--text-dark); font-weight: 600;}
-
-        #error-msg { color: #DC2626; font-size: 14px; margin-top: 15px; font-weight: 600; display: none; }
-
-        /* --- NOUVEAU : ÉTAPE 2 (Liste Mobile-Friendly) --- */
-        #step2-container {
-            display: none; max-width: 600px; margin: 20px auto 0 auto; background: white;
-            padding: 20px; border-radius: var(--radius-box); border: 1px solid var(--gray-medium);
-            text-align: left; animation: fadeIn 0.4s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.02);
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        /* --- CHAMPS SÉPARÉS AVEC BOUTON --- */
+        .search-wrapper { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; text-align: left; }
         
-        #step2-container label { display: block; font-size: 15px; color: var(--text-dark); margin-bottom: 16px; font-weight: 800; text-align: center;}
+        .search-inputs-row { display: flex; gap: 10px; width: 100%; position: relative; align-items: center;}
+        
+        .cp-wrapper { position: relative; width: 140px; flex-shrink: 0; }
+        .adresse-wrapper { position: relative; flex-grow: 1; }
+
+        .modern-input {
+            width: 100%; padding: 12px 18px; border-radius: 100px; border: 2px solid var(--gray-medium);
+            background: var(--gray-light); font-size: 15px; color: var(--text-dark); font-family: 'Avenir', sans-serif;
+            transition: all 0.3s; outline: none; box-sizing: border-box;
+        }
+        .modern-input:focus { border-color: var(--papernest-blue); background: white; }
+        .modern-input:disabled { opacity: 0.5; cursor: not-allowed; }
+        .modern-input::placeholder { color: #9CA3AF; font-weight: 500; }
+
+        /* Le champ Code Postal */
+        #cp-input { text-align: center; font-weight: 800; color: var(--papernest-blue); cursor: text; }
+        
+        /* Le bouton Chercher */
+        #btn-rechercher {
+            background: var(--papernest-blue); color: white; border: none; border-radius: 100px;
+            padding: 12px 24px; font-weight: 600; font-size: 15px; font-family: 'Avenir', sans-serif;
+            cursor: pointer; transition: transform 0.2s, background-color 0.2s; white-space: nowrap; height: 100%;
+        }
+        #btn-rechercher:hover:not(:disabled) { transform: scale(1.02); background: var(--papernest-blue-hover); }
+        #btn-rechercher:disabled { background: var(--gray-medium); cursor: not-allowed; color: var(--text-light); }
+
+        #error-msg { color: #DC2626; font-size: 14px; margin-top: 15px; font-weight: 600; display: none; text-align: center;}
+
+        /* --- AUTO-COMPLÉTION CP INTERNE --- */
+        .dropdown-list {
+            position: absolute; top: calc(100% + 5px); left: 0; width: 100%; background: white;
+            border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--gray-medium);
+            list-style: none; padding: 8px 0; margin: 0; max-height: 200px; overflow-y: auto; display: none; z-index: 2000;
+        }
+        .dropdown-list li { padding: 12px 20px; font-size: 15px; cursor: pointer; border-bottom: 1px solid var(--gray-light); color: var(--text-dark); font-weight: 600; text-align: center;}
+        .dropdown-list li:last-child { border-bottom: none; }
+        .dropdown-list li:hover { background-color: var(--gray-light); color: var(--papernest-blue); }
+
+        /* --- LISTE DES LOGEMENTS --- */
+        #results-container {
+            display: none; background: white; border: 1px solid var(--gray-medium); border-radius: var(--radius-box);
+            text-align: left; margin: 12px auto 0 auto; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); max-width: 600px;
+        }
+        
+        #results-container label { display: block; font-size: 14px; color: var(--text-dark); margin-bottom: 12px; font-weight: 800; text-align: center;}
         
         .logements-list {
-            max-height: 300px; overflow-y: auto; border: 1px solid var(--gray-medium);
+            max-height: 280px; overflow-y: auto; border: 1px solid var(--gray-medium);
             border-radius: 12px; background: var(--gray-light);
             scrollbar-width: thin; scrollbar-color: #CBD5E1 transparent;
         }
@@ -75,21 +93,47 @@
         .logements-list::-webkit-scrollbar-thumb { background-color: #CBD5E1; border-radius: 10px; }
         
         .logement-item {
-            padding: 14px 16px; border-bottom: 1px solid #E2E8F0;
-            cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-            font-size: 14px; color: var(--text-dark); text-align: left;
+            padding: 14px 16px; border-bottom: 1px solid #E2E8F0; cursor: pointer; display: flex; 
+            justify-content: space-between; align-items: center; font-size: 14px; color: var(--text-dark); 
             transition: background 0.2s, padding-left 0.2s;
         }
         .logement-item:hover { background: white; padding-left: 20px; }
+        .logement-item:hover .btn-voir-dpe { color: var(--papernest-blue-hover); font-weight: 800; transform: translateX(3px);}
         .logement-item:last-child { border-bottom: none; }
         
         .logement-item-text { flex-grow: 1; padding-right: 15px; line-height: 1.4; }
         .logement-item-type { font-size: 12px; color: var(--text-light); margin-top: 4px; display: block; }
         
-        .badge-dpe-liste {
-            font-weight: 900; padding: 6px 12px; border-radius: 8px; font-size: 14px;
-            min-width: 32px; text-align: center; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        .btn-voir-dpe { font-size: 13px; color: var(--papernest-blue); font-weight: 700; transition: transform 0.2s ease, color 0.2s ease; white-space: nowrap; }
+
+        /* Configuration Desktop */
+        @media (min-width: 801px) {
+            #results-container { position: absolute; top: calc(100% + 10px); left: 0; right: 0; animation: fadeIn 0.3s ease; z-index: 1050;}
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+            .logements-list { max-height: 280px; }
         }
+
+        /* Configuration Mobile : Tiroir sans overlay noir */
+        @media (max-width: 800px) {
+            .search-inputs-row { flex-direction: column; gap: 8px; align-items: stretch;}
+            .cp-wrapper { width: 100%; }
+            #btn-rechercher { width: 100%; padding: 12px 24px; }
+            .dropdown-list { width: 100%; }
+
+            #results-container { 
+                position: fixed; bottom: 0; left: 0; right: 0; width: 100%; max-width: 100%; margin: 0;
+                border-radius: 20px 20px 0 0; padding: 25px 20px 20px 20px; box-shadow: 0 -10px 40px rgba(0,0,0,0.15); 
+                border: none; z-index: 2000; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+            }
+            @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+            
+            .mobile-drag-handle { display: block; width: 40px; height: 5px; background-color: #E2E8F0; border-radius: 10px; margin: -15px auto 15px auto; }
+            .logements-list { max-height: 40vh; border: none; border-radius: 0; background: transparent; }
+            .logement-item { padding: 16px 5px; }
+            .logement-item:hover { padding-left: 5px; } 
+        }
+        
+        .mobile-drag-handle { display: none; }
 
         /* --- TOOLTIPS --- */
         .tooltip { position: relative; cursor: help; margin-left: 4px; font-weight: normal; opacity: 1; transition: opacity 0.2s; font-size: 1.2em; display: inline-block;}
@@ -101,94 +145,56 @@
             font-size: 12px; text-transform: none; letter-spacing: normal; font-weight: 600; line-height: 1.4;
             box-shadow: 0 4px 15px rgba(0,0,0,0.25); pointer-events: none;
         }
-        .tooltip .tooltip-text::after {
-            content: ""; position: absolute; top: 100%; left: 50%; margin-left: -6px;
-            border-width: 6px; border-style: solid; border-color: var(--text-dark) transparent transparent transparent;
-        }
+        .tooltip .tooltip-text::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -6px; border-width: 6px; border-style: solid; border-color: var(--text-dark) transparent transparent transparent; }
         .tooltip:hover .tooltip-text { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
 
         /* --- GRILLE BENTO --- */
         .bento-grid {
-            display: none; grid-template-columns: repeat(4, 1fr); 
-            grid-template-rows: 200px 115px auto; 
+            display: none; grid-template-columns: repeat(4, 1fr); grid-template-rows: 200px 115px auto; 
             background-color: rgba(0, 0, 0, 0.08); gap: 1px; border: 1px solid rgba(0, 0, 0, 0.08);
             border-radius: var(--radius-box); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04); 
             opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease;
         }
         .bento-grid.visible { display: grid; opacity: 1; transform: translateY(0); }
-
-        .bento-box {
-            background: white; padding: 20px 24px; display: flex; flex-direction: column;
-            justify-content: space-between; position: relative; border-radius: 0; color: var(--text-dark);
-            transition: background-color 0.4s ease; z-index: 1; 
-        }
+        .bento-box { background: white; padding: 20px 24px; display: flex; flex-direction: column; justify-content: space-between; position: relative; border-radius: 0; color: var(--text-dark); transition: background-color 0.4s ease; z-index: 1; }
         .bento-box:hover { z-index: 10; }
         .separator { height: 1px; background-color: rgba(0, 0, 0, 0.1); width: 100%; margin: auto 0 8px 0; }
 
-        /* Positions */
         .box-dpe { grid-column: span 1; border-top: 5px solid rgba(0, 0, 0, 0.05); border-top-left-radius: var(--radius-box); } 
         .box-ges { grid-column: span 1; border-top: 5px solid rgba(0, 0, 0, 0.05); } 
         .box-map { grid-column: span 2; padding: 0; border-top-right-radius: var(--radius-box); } 
-        
         .box-address { grid-column: span 2; background-color: white; border-top: 5px solid rgba(0, 0, 0, 0.05); position: relative; justify-content: center; gap: 6px; }
         .box-details { grid-column: span 1; background-color: white; justify-content: center; gap: 6px; } 
-        
         .box-address .bento-medium-value, .box-details .bento-large-value { margin-top: 0; }
 
-        @media (min-width: 801px) {
-            .box-address::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 1px; background-color: rgba(0, 0, 0, 0.1); z-index: 10; }
-        }
+        @media (min-width: 801px) { .box-address::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 1px; background-color: rgba(0, 0, 0, 0.1); z-index: 10; } }
 
         .box-year { grid-column: span 1; background-color: white; } 
-
-        .box-cta {
-            grid-column: span 4; background-color: var(--violet-ppn); border-top: 1px solid rgba(0,0,0,0.05);
-            flex-direction: row; align-items: center; padding: 24px 32px;
-            border-bottom-left-radius: var(--radius-box); border-bottom-right-radius: var(--radius-box);
-        }
+        .box-cta { grid-column: span 4; background-color: var(--violet-ppn); border-top: 1px solid rgba(0,0,0,0.05); flex-direction: row; align-items: center; padding: 24px 32px; border-bottom-left-radius: var(--radius-box); border-bottom-right-radius: var(--radius-box); }
         .cta-content h3 { margin: 0 0 4px 0; font-size: 18px; color: white; font-weight: 800;}
         .cta-content p { margin: 0; font-size: 14px; color: #F9FAFB; }
-        
-        .cta-button {
-            background-color: white; color: var(--violet-ppn); text-decoration: none;
-            padding: 12px 24px; border-radius: 100px; font-weight: 600; font-size: 15px;
-            transition: background-color 0.2s, transform 0.2s;
-        }
+        .cta-button { background-color: white; color: var(--violet-ppn); text-decoration: none; padding: 12px 24px; border-radius: 100px; font-weight: 600; font-size: 15px; transition: background-color 0.2s, transform 0.2s; }
         .cta-button:hover { background-color: #F9FAFB; transform: scale(1.03); }
 
-        /* Typographie */
         .bento-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; opacity: 0.7; color: var(--text-dark); transition: color 0.4s ease; display: flex; align-items: center;}
-        
         .bento-huge-value { font-size: 70px; font-weight: 900; line-height: 0.9; margin-top: 15px; letter-spacing: -2px; transition: color 0.1s ease;} 
         .bento-large-value { font-size: 45px; font-weight: 900; line-height: 1; margin-top: auto; letter-spacing: -1px; color: var(--text-dark); }
         .bento-medium-value { font-size: 24px; font-weight: 800; line-height: 1.2; letter-spacing: -0.5px; margin-top: auto; color: var(--text-dark); } 
-        
         .bento-text-value { font-size: 18px; font-weight: 800; line-height: 1.1; margin-top: auto; color: var(--text-dark); } 
         .bento-subtitle { font-size: 13px; opacity: 0.8; font-weight: 600; color: var(--text-dark); transition: color 0.4s ease;} 
         .conso-text { font-size: 11px; opacity: 0.8; font-weight: 600; color: var(--text-dark); }
         .conso-text strong { font-size: 12px; font-weight: 800; }
-
         #map { width: 100%; height: 100%; z-index: 1; border-top-right-radius: var(--radius-box); }
 
-        /* --- OPTIMISATION MOBILE --- */
+        /* --- OPTIMISATION MOBILE BENTO --- */
         @media (max-width: 800px) {
             body { padding: 10px; }
             .hero-section { padding: 15px; margin-bottom: 12px; }
             .hero-section h1 { font-size: 22px; margin-bottom: 8px; }
             .hero-section p { display: none; } 
             
-            .search-container { flex-direction: row; border-radius: 100px; padding: 4px; background: var(--gray-light); border: 1px solid var(--gray-medium);}
-            .search-container input { padding: 8px 15px; font-size: 14px; margin-bottom: 0; border: none; border-radius: 0; background: transparent; width: 100%;}
-            .search-container button { padding: 8px 16px; font-size: 14px; white-space: nowrap;}
-
-            #step2-container { padding: 15px; margin-top: 15px; }
-            #step2-container label { font-size: 13px; margin-bottom: 12px; }
-            .logement-item { padding: 12px; }
-            .logement-item:hover { padding-left: 12px; } 
-
             .bento-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: 130px 120px auto 90px auto; }
             .bento-box { padding: 16px; } 
-
             .box-map { border-top-right-radius: 0; }
             .box-ges { border-top-right-radius: var(--radius-box); }
             #map { border-top-right-radius: 0; }
@@ -197,54 +203,56 @@
             .bento-huge-value { font-size: 42px; margin-top: 5px; } 
             .bento-large-value { font-size: 32px; }
             .bento-medium-value { font-size: 16px; line-height: 1.3; } 
-            
             .bento-text-value { font-size: 14px; margin-top: 4px; line-height: 1.2; }
-            
             .bento-subtitle { font-size: 11px; }
             .conso-text { font-size: 10px; }
             .conso-text strong { font-size: 11px; }
             
             .separator { margin: auto 0 8px 0; }
             .box-address .separator { margin: 8px 0; }
-
             .box-dpe, .box-ges { grid-column: span 1; height: auto; }
             .box-map { display: block !important; grid-column: span 2; padding: 0; height: auto; } 
             .leaflet-popup { display: none !important; }
             .leaflet-interactive { cursor: default; } 
-
             .box-address { grid-column: span 2; height: auto; justify-content: center; gap: 4px; } 
             .box-details, .box-year { grid-column: span 1; height: auto; justify-content: center; gap: 4px; }
-            
             .box-cta { grid-column: span 2; padding: 15px; flex-direction: column; text-align: center; gap: 10px; }
             .cta-content h3 { font-size: 15px; }
             .cta-content p { font-size: 12px; line-height: 1.2; }
             .cta-button { padding: 10px 20px; font-size: 13px; width: 100%; box-sizing: border-box; }
-            
             .tooltip .tooltip-text { width: 180px; font-size: 11px; padding: 8px 10px; opacity: 1;}
         }
     </style>
 </head>
 <body>
 
-    
-
     <div class="widget-wrapper">
         <div class="hero-section" id="hero-block">
             <h1>Trouvez votre DPE !</h1>
             <p>Découvrez l'étiquette énergie et les caractéristiques d'un logement.</p>
             
-            <div class="search-container">
-                <input type="text" id="adresse-input" placeholder="Ex: Rue de Milan, Paris..." oninput="chercherSuggestions()" onkeypress="gererToucheEntree(event)" autocomplete="off">
-                <button onclick="lancerRechercheInitiale()">Chercher la rue</button>
-                <ul id="suggestions-list" class="suggestions-list"></ul>
+            <div class="search-wrapper">
+                <div class="search-inputs-row">
+                    <div class="cp-wrapper">
+                        <input type="text" id="cp-input" class="modern-input" placeholder="CP (ex: 75009)" maxlength="5" autocomplete="off">
+                        <ul id="cp-suggestions" class="dropdown-list"></ul>
+                    </div>
+                    
+                    <div class="adresse-wrapper">
+                        <input type="text" id="adresse-input" class="modern-input" placeholder="N° et rue (ex: 3 rue de Milan)" disabled autocomplete="off">
+                    </div>
+                    
+                    <button id="btn-rechercher" onclick="declencherRecherche(false)" disabled>Chercher</button>
+                </div>
+                
+                <div id="results-container">
+                    <div class="mobile-drag-handle" onclick="fermerTiroirMobile()"></div>
+                    <label>✅ Logements trouvés dans notre base :</label>
+                    <div id="logements-list" class="logements-list"></div>
+                </div>
             </div>
             
             <div id="error-msg"></div>
-
-            <div id="step2-container">
-                <label>✅ Cette rue est dans notre base. Sélectionnez le logement :</label>
-                <div id="logements-list" class="logements-list"></div>
-            </div>
         </div>
 
         <div id="bento-grid" class="bento-grid">
@@ -295,7 +303,6 @@
     </div>
     
     <script>
-    // --- TES LIENS GITHUB PAGES ICI ---
     const LIEN_BASE_1 = "https://feppn.github.io/api-dpe-part1/"; 
     const LIEN_BASE_2 = "https://feppn.github.io/api-dpe-part2/";
     const LIEN_BASE_3 = "https://feppn.github.io/api-dpe-part3/";
@@ -307,33 +314,108 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 20, attribution: '© OpenStreetMap' }).addTo(maCarte);
 
     let minuteurDebounce; 
+    let codePostalValide = "";
+    let cacheJSON = {}; 
     let logementsTrouvesGlobal = [];
     let cacheMoyennes = null; 
+    let codesPostauxDispos = []; // Notre base complète de codes postaux
 
-    const couleursDPE = {
-        "A": "#009966", "B": "#00D492", "C": "#A4F4CF", "D": "#FEE685", "E": "#FFBA00", "F": "#BB4D00", "G": "#7B3306", "N/A": "var(--text-dark)"
-    };
+    const couleursDPE = { "A": "#009966", "B": "#00D492", "C": "#A4F4CF", "D": "#FEE685", "E": "#FFBA00", "F": "#BB4D00", "G": "#7B3306", "N/A": "var(--text-dark)" };
 
-    function texteContrasteDPE(lettre) {
-        return (lettre === 'A' || lettre === 'F' || lettre === 'G') ? '#FFFFFF' : '#111111';
+    // --- INITIALISATION DES CODES POSTAUX DEPUIS LA BASE ---
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            let reponse = await fetch(LIEN_MOYENNES);
+            cacheMoyennes = await reponse.json();
+            codesPostauxDispos = Object.keys(cacheMoyennes).sort();
+        } catch (e) {
+            console.error("Erreur lors du chargement des codes postaux", e);
+        }
+    });
+
+    // --- GESTION INTELLIGENTE DU CHAMP CODE POSTAL ---
+    const cpInput = document.getElementById('cp-input');
+    const adresseInput = document.getElementById('adresse-input');
+    const btnRechercher = document.getElementById('btn-rechercher');
+    const cpSuggestions = document.getElementById('cp-suggestions');
+    const resultsContainer = document.getElementById('results-container');
+
+    // On affiche tout le catalogue si la case est cliquée et vide
+    cpInput.addEventListener('focus', function() {
+        if(this.value === "") mettreAJourSuggestionsCP("");
+    });
+
+    cpInput.addEventListener('input', function() {
+        let val = this.value.replace(/\D/g, ''); // Que des chiffres
+        this.value = val;
+        
+        // Bloquer l'adresse si CP effacé ou incomplet
+        if (val.length < 5) {
+            codePostalValide = "";
+            adresseInput.disabled = true;
+            btnRechercher.disabled = true;
+            adresseInput.value = "";
+            fermerTiroirMobile();
+        }
+
+        mettreAJourSuggestionsCP(val);
+    });
+
+    function mettreAJourSuggestionsCP(val) {
+        cpSuggestions.innerHTML = '';
+        
+        // Filtre de notre propre base (ultra rapide)
+        let matches = codesPostauxDispos.filter(cp => cp.startsWith(val));
+        
+        if (matches.length > 0) {
+            cpSuggestions.style.display = 'block';
+            // On limite à 30 résultats affichés pour ne pas lagger
+            matches.slice(0, 30).forEach(cp => {
+                let li = document.createElement('li');
+                li.textContent = cp;
+                li.onclick = () => validerCodePostal(cp);
+                cpSuggestions.appendChild(li);
+            });
+            // Si l'utilisateur a tapé exactement un code postal complet et valide
+            if(val.length === 5 && matches.includes(val)) {
+                validerCodePostal(val);
+            }
+        } else {
+            cpSuggestions.style.display = 'none';
+        }
     }
 
-    function animerLettre(element, lettreFinale, couleurs) {
-        if (!lettreFinale || lettreFinale === "N/A" || lettreFinale === "-") {
-            element.innerText = lettreFinale || "-"; element.style.color = "var(--text-dark)"; return;
+    function validerCodePostal(cp) {
+        codePostalValide = cp;
+        cpInput.value = cp;
+        cpSuggestions.style.display = 'none';
+        adresseInput.disabled = false;
+        btnRechercher.disabled = false;
+        adresseInput.focus();
+    }
+
+    // Cache les listes si on clique ailleurs
+    document.addEventListener("click", function(event) {
+        if (!event.target.closest('.search-wrapper')) { 
+            cpSuggestions.style.display = 'none'; 
+            fermerTiroirMobile();
         }
+    });
+
+    function fermerTiroirMobile() {
+        document.getElementById('results-container').style.display = 'none';
+    }
+
+    // --- ANIMATIONS & FORMATAGE ---
+    function animerLettre(element, lettreFinale, couleurs) {
+        if (!lettreFinale || lettreFinale === "N/A" || lettreFinale === "-") { element.innerText = lettreFinale || "-"; element.style.color = "var(--text-dark)"; return; }
         const echelle = ['G', 'F', 'E', 'D', 'C', 'B', 'A'];
         let indexCible = echelle.indexOf(lettreFinale);
-        if (indexCible === -1) {
-            element.innerText = lettreFinale; element.style.color = couleurs[lettreFinale] || "var(--text-dark)"; return;
-        }
+        if (indexCible === -1) { element.innerText = lettreFinale; element.style.color = couleurs[lettreFinale] || "var(--text-dark)"; return; }
         let indexActuel = 0; const intervalleTemps = 600 / (indexCible + 1); 
         let interval = setInterval(() => {
-            let lettreEnCours = echelle[indexActuel];
-            element.innerText = lettreEnCours; element.style.color = couleurs[lettreEnCours] || "var(--text-dark)";
-            if (indexActuel >= indexCible) {
-                clearInterval(interval); element.innerText = lettreFinale; element.style.color = couleurs[lettreFinale] || "var(--text-dark)";
-            } else { indexActuel++; }
+            let lettreEnCours = echelle[indexActuel]; element.innerText = lettreEnCours; element.style.color = couleurs[lettreEnCours] || "var(--text-dark)";
+            if (indexActuel >= indexCible) { clearInterval(interval); element.innerText = lettreFinale; element.style.color = couleurs[lettreFinale] || "var(--text-dark)"; } else { indexActuel++; }
         }, intervalleTemps);
     }
 
@@ -352,152 +434,113 @@
         try {
             let reponse = await fetch(`https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(adresseTexte)}&index=address&limit=1`);
             let donnees = await reponse.json();
-            if (donnees.features && donnees.features.length > 0) {
-                return { lat: donnees.features[0].geometry.coordinates[1], lon: donnees.features[0].geometry.coordinates[0] }; 
-            }
-        } catch (e) { console.error(e); }
-        return null; 
-    }
-    
-    async function chercherSuggestions() {
-        const input = document.getElementById('adresse-input').value;
-        const liste = document.getElementById('suggestions-list');
-        if (input.length < 3) { liste.style.display = 'none'; return; }
-        clearTimeout(minuteurDebounce);
-
-        minuteurDebounce = setTimeout(async () => {
-            try {
-                let reponse = await fetch(`https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(input)}&index=address&limit=5&autocomplete=1`);
-                let donnees = await reponse.json();
-                liste.innerHTML = ''; 
-                if (donnees.features && donnees.features.length > 0) {
-                    liste.style.display = 'block';
-                    donnees.features.forEach(feature => {
-                        let li = document.createElement('li');
-                        li.textContent = feature.properties.label;
-                        li.onclick = () => {
-                            document.getElementById('adresse-input').value = feature.properties.label;
-                            liste.style.display = 'none'; 
-                            preparerChoixNumero(feature);
-                        };
-                        liste.appendChild(li);
-                    });
-                } else { liste.style.display = 'none'; }
-            } catch (e) { console.error(e); }
-        }, 150); 
+            if (donnees.features && donnees.features.length > 0) return { lat: donnees.features[0].geometry.coordinates[1], lon: donnees.features[0].geometry.coordinates[0] }; 
+        } catch (e) {} return null; 
     }
 
-    document.addEventListener("click", function(event) {
-        if (!event.target.closest('.search-container')) { document.getElementById('suggestions-list').style.display = 'none'; }
-    });
-
-    function gererToucheEntree(event) {
-        if (event.key === "Enter") { document.getElementById('suggestions-list').style.display = 'none'; lancerRechercheInitiale(); }
-    }
-
-    async function lancerRechercheInitiale() {
-        let input = document.getElementById('adresse-input').value;
-        if (!input) return;
-        let errorMsg = document.getElementById('error-msg');
-        errorMsg.style.display = 'none';
-        try {
-            let reponse = await fetch(`https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(input)}&index=address&limit=1`);
-            let donnees = await reponse.json();
-            if (donnees.features && donnees.features.length > 0) {
-                preparerChoixNumero(donnees.features[0]);
-            } else {
-                errorMsg.innerText = "⚠️ Adresse introuvable."; errorMsg.style.display = 'block';
-            }
-        } catch(e) {
-            errorMsg.innerText = "⚠️ Erreur de connexion."; errorMsg.style.display = 'block';
-        }
-    }
-
-    async function preparerChoixNumero(feature) {
-        let errorMsg = document.getElementById('error-msg');
-        let step2 = document.getElementById('step2-container');
-        let bentoGrid = document.getElementById('bento-grid');
+    // --- LOGIQUE ADRESSE (RECHERCHE TEMPS RÉEL & TRI PROXIMITÉ) ---
+    async function telechargerFichierDPE(cp, lettre) {
+        if (cacheJSON[cp] && cacheJSON[cp][lettre]) return cacheJSON[cp][lettre]; 
         
-        errorMsg.style.display = 'none';
-        step2.style.display = 'none';
-        bentoGrid.classList.remove('visible');
-
-        let prop = feature.properties;
-        let cp = prop.postcode;
-        let rue = prop.street || prop.name;
-        
-        if (!rue) {
-            let matchCp = prop.label.match(/\b\d{5}\b/);
-            let rueSeule = matchCp ? prop.label.substring(0, matchCp.index) : prop.label;
-            rue = rueSeule.replace(/^\d+.*?(bis|ter|quater)?\s+/i, '');
-        }
-
-        if (!cp || !rue) {
-            errorMsg.innerText = "⚠️ L'adresse est trop imprécise (Code postal manquant)."; errorMsg.style.display = 'block'; return;
-        }
-
-        const cible = normaliserTexte(rue);
-        const motsAIgnorer = ['rue', 'avenue', 'boulevard', 'allee', 'chemin', 'place', 'impasse', 'bis', 'ter', 'de', 'la', 'des', 'du', 'le', 'les', 'l', 'd'];
-        let motsCible = cible.split(/\s+/).filter(mot => mot.trim().length > 0 && !motsAIgnorer.includes(mot));
-
-        if (motsCible.length === 0) {
-            errorMsg.innerText = "⚠️ Nom de rue inexploitable."; errorMsg.style.display = 'block'; return;
-        }
-
-        const premiereLettre = motsCible[0].charAt(0).toLowerCase();
         let cpNum = parseInt(cp, 10);
         let baseUrl = cpNum < 50000 ? LIEN_BASE_1 : (cpNum < 75000 ? LIEN_BASE_2 : LIEN_BASE_3);
         baseUrl = baseUrl.replace(/\/$/, '');
-        const urlFichier = `${baseUrl}/${cp}/${premiereLettre}.json`;
-
+        
         try {
-            let reponse = await fetch(urlFichier);
-            if (!reponse.ok) {
-                errorMsg.innerText = "⚠️ Aucun DPE recensé dans notre base pour cette zone."; errorMsg.style.display = 'block'; return;
-            }
+            let reponse = await fetch(`${baseUrl}/${cp}/${lettre}.json`);
+            if (!reponse.ok) return [];
+            let data = await reponse.json();
+            let arrayData = Array.isArray(data) ? data : (data.results || data.data || Object.values(data)[0] || []);
             
-            let dataJSON = await reponse.json();
-            let tableauLogements = Array.isArray(dataJSON) ? dataJSON : (dataJSON.results || dataJSON.data || Object.values(dataJSON)[0] || []);
+            if(!cacheJSON[cp]) cacheJSON[cp] = {};
+            cacheJSON[cp][lettre] = arrayData;
+            return arrayData;
+        } catch(e) { return []; }
+    }
 
-            let logementsFiltres = [];
-            for (let res of tableauLogements) {
-                let adrBase = normaliserTexte(res.adresse_ban || res.adresse_complete_brut || res.geo_adresse || res.adresse || "");
-                let match = true;
-                for (let m of motsCible) {
-                    if (!adrBase.includes(m)) { match = false; break; }
-                }
-                if (match) {
-                    res.cp_extract = cp; 
-                    logementsFiltres.push(res);
-                }
+    // Le tri par proximité du numéro
+    function trierParProximite(logements, texteSaisi) {
+        let matchNum = texteSaisi.match(/\b\d+\b/);
+        let numeroCible = matchNum ? parseInt(matchNum[0], 10) : null;
+
+        return logements.sort((a, b) => {
+            let numA = parseInt((a.adresse_ban || a.adresse || "").match(/^(\d+)/)?.[1] || 0);
+            let numB = parseInt((b.adresse_ban || b.adresse || "").match(/^(\d+)/)?.[1] || 0);
+            
+            if (numeroCible !== null) {
+                let distA = Math.abs(numeroCible - numA);
+                let distB = Math.abs(numeroCible - numB);
+                if (distA !== distB) return distA - distB; 
+            }
+            return numA - numB; 
+        });
+    }
+
+    adresseInput.addEventListener('input', function() {
+        let input = this.value;
+        // On déclenche l'actualisation en temps réel si plus de 5 caractères
+        if (input.length >= 6) {
+            declencherRecherche(true); 
+        } else {
+            fermerTiroirMobile();
+        }
+    });
+
+    adresseInput.addEventListener('keypress', (e) => {
+        if (e.key === "Enter") declencherRecherche(false);
+    });
+
+    async function declencherRecherche(isInstant = false) {
+        let input = adresseInput.value;
+        let listContainer = document.getElementById('logements-list');
+        let errorMsg = document.getElementById('error-msg');
+        let resultsContainer = document.getElementById('results-container');
+
+        if (!isInstant) {
+            errorMsg.style.display = 'none';
+            document.getElementById('bento-grid').classList.remove('visible');
+        }
+
+        if (input.length < 3) return;
+
+        clearTimeout(minuteurDebounce);
+        minuteurDebounce = setTimeout(async () => {
+            let searchRaw = normaliserTexte(input);
+            let mots = searchRaw.split(/\s+/).filter(w => w.length > 0);
+            
+            let motsAIgnorer = ['rue', 'avenue', 'boulevard', 'allee', 'chemin', 'place', 'impasse', 'bis', 'ter', 'de', 'la', 'des', 'du', 'le', 'les', 'l', 'd'];
+            let motsClefsRue = mots.filter(mot => !mot.match(/^\d+$/) && !motsAIgnorer.includes(mot));
+
+            if (motsClefsRue.length === 0) {
+                if (!isInstant) { errorMsg.innerText = "⚠️ Veuillez préciser le nom de la rue."; errorMsg.style.display = 'block'; }
+                return; 
             }
 
-            if (logementsFiltres.length === 0) {
-                errorMsg.innerText = "⚠️ Aucun DPE recensé spécifiquement dans cette rue."; errorMsg.style.display = 'block'; return;
+            let premiereLettre = motsClefsRue[0].charAt(0).toLowerCase();
+            let donneesJson = await telechargerFichierDPE(codePostalValide, premiereLettre);
+
+            if (donneesJson.length === 0) {
+                listContainer.innerHTML = '<div style="padding: 15px; text-align: center; color: var(--text-light);">Aucun DPE trouvé pour cette rue dans la base.</div>';
+                resultsContainer.style.display = 'block'; return;
             }
 
-            logementsTrouvesGlobal = logementsFiltres;
-            logementsTrouvesGlobal.sort((a, b) => {
-                let adrA = normaliserTexte(a.adresse_ban || a.adresse || "");
-                let adrB = normaliserTexte(b.adresse_ban || b.adresse || "");
-                let numA = parseInt(adrA.match(/^(\d+)/)?.[1] || 0);
-                let numB = parseInt(adrB.match(/^(\d+)/)?.[1] || 0);
-                return numA - numB;
+            let resultatsFiltres = donneesJson.filter(item => {
+                let adrItem = normaliserTexte(item.adresse_ban || item.adresse_complete_brut || item.adresse || "");
+                return motsClefsRue.every(mot => adrItem.includes(mot));
             });
 
-            let listContainer = document.getElementById('logements-list');
-            listContainer.innerHTML = '';
+            if (resultatsFiltres.length === 0) {
+                listContainer.innerHTML = '<div style="padding: 15px; text-align: center; color: var(--text-light);">La rue a été trouvée, mais aucun logement exact.</div>';
+                resultsContainer.style.display = 'block'; return;
+            }
+
+            logementsTrouvesGlobal = trierParProximite(resultatsFiltres, input).slice(0, 30);
             
+            listContainer.innerHTML = '';
             logementsTrouvesGlobal.forEach((logement, index) => {
                 let adrCourte = formaterAdressePropre(logement.adresse_ban || logement.adresse || "").replace(/,\s*\d{5}.*/, '');
                 let typeBat = logement.type ? (logement.type.charAt(0).toUpperCase() + logement.type.slice(1)) : "Logement";
-                
-                // Ajout de la surface si elle existe
                 let surfaceText = (logement.surface && !isNaN(parseFloat(logement.surface))) ? `, ${Math.round(parseFloat(logement.surface))} m²` : "";
-                let dpeVal = logement.dpe || '?';
-                
-                let bgColor = couleursDPE[dpeVal] || 'var(--gray-medium)';
-                let txtColor = texteContrasteDPE(dpeVal);
 
                 let div = document.createElement('div');
                 div.className = 'logement-item';
@@ -506,32 +549,26 @@
                         <strong>${adrCourte}</strong>
                         <span class="logement-item-type">${typeBat}${surfaceText}</span>
                     </div>
-                    <div class="badge-dpe-liste" style="background-color: ${bgColor}; color: ${txtColor};">
-                        ${dpeVal}
-                    </div>
+                    <div class="btn-voir-dpe">Voir le DPE ➔</div>
                 `;
-                div.onclick = () => validerLogement(index);
+                div.onclick = () => validerLogementFinal(index);
                 listContainer.appendChild(div);
             });
 
-            document.getElementById('hero-block').style.padding = "16px 32px"; 
-            step2.style.display = 'block';
+            resultsContainer.style.display = 'block';
 
-        } catch (err) {
-            errorMsg.innerText = "⚠️ Impossible de se connecter à la base de données."; errorMsg.style.display = 'block';
-        }
+        }, 300); 
     }
 
-    async function validerLogement(index) {
+    // --- ÉTAPE 3 : AFFICHAGE DU BENTO ---
+    async function validerLogementFinal(index) {
         let logementChoisi = logementsTrouvesGlobal[index];
         if (!logementChoisi) return;
 
-        // Rétractation de la liste
-        document.getElementById('step2-container').style.display = 'none';
+        fermerTiroirMobile();
 
-        // Mise à jour de la barre de recherche
-        let adresseFinale = formaterAdressePropre(logementChoisi.adresse_ban || logementChoisi.adresse || "");
-        document.getElementById('adresse-input').value = adresseFinale;
+        let adresseFinale = formaterAdressePropre(logementChoisi.adresse_ban || logementChoisi.adresse || "").replace(/,\s*\d{5}.*/, '');
+        adresseInput.value = adresseFinale;
 
         let bentoGrid = document.getElementById('bento-grid');
         bentoGrid.classList.add('visible'); 
@@ -544,7 +581,7 @@
         animerLettre(document.getElementById('val-dpe'), logementChoisi.dpe, couleursDPE);
         animerLettre(document.getElementById('val-ges'), logementChoisi.ges, couleursDPE);
 
-        document.getElementById('val-adresse').innerText = adresseFinale;
+        document.getElementById('val-adresse').innerText = adresseFinale + ", " + codePostalValide;
 
         let surfaceVal = parseFloat(logementChoisi.surface);
         let consoVal = parseFloat(logementChoisi.conso);
@@ -573,13 +610,12 @@
         document.getElementById('val-conso').innerText = !isNaN(consoVal) ? Math.round(consoVal) + " kWh/m²/an" : "-";
 
         const caseMoyenne = document.getElementById('val-moyenne-ville');
-        let cpVille = logementChoisi.cp_extract;
         
-        if (cpVille) {
+        if (codePostalValide) {
             if (!cacheMoyennes) {
                 try { let reponse = await fetch(LIEN_MOYENNES); cacheMoyennes = await reponse.json(); } catch (e) {}
             }
-            let moyenne = cacheMoyennes ? cacheMoyennes[cpVille] : null;
+            let moyenne = cacheMoyennes ? cacheMoyennes[codePostalValide] : null;
             
             if (moyenne) {
                 caseMoyenne.innerText = moyenne;
@@ -595,7 +631,7 @@
 
         setTimeout(async () => {
             maCarte.invalidateSize();
-            let coords = await obtenirCoordonnees(adresseFinale);
+            let coords = await obtenirCoordonnees(adresseFinale + " " + codePostalValide);
             if (!coords && logementChoisi.latitude && logementChoisi.longitude) {
                 coords = { lat: logementChoisi.latitude, lon: logementChoisi.longitude };
             }
@@ -615,7 +651,6 @@
             window.parent.postMessage({ type: 'resize-dpe-widget', height: hauteur }, '*');
         }
     });
-    
     const widgetWrapper = document.querySelector('.widget-wrapper');
     if (widgetWrapper) { observerTaille.observe(widgetWrapper); }
     </script>
