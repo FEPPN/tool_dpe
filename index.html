@@ -108,9 +108,10 @@
 
         /* Configuration Desktop */
         @media (min-width: 801px) {
-            #results-container { position: absolute; top: calc(100% + 10px); left: 0; right: 0; animation: fadeIn 0.3s ease; z-index: 1050;}
+            /* On enlève la position absolute pour que la liste pousse le fond blanc vers le bas et s'ajuste avec l'iframe */
+            #results-container { position: relative; animation: fadeIn 0.3s ease; z-index: 1050;}
             @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-            .logements-list { max-height: 280px; }
+            .logements-list { max-height: 350px; }
         }
 
         /* Configuration Mobile : Tiroir sans overlay noir */
@@ -224,7 +225,7 @@
         }
     </style>
 </head>
-<body>
+<body style="background-color: #FFFFFF;">
 
     <div class="widget-wrapper">
         <div class="hero-section" id="hero-block">
@@ -645,14 +646,18 @@
         }, 100);
     }
 
-    const observerTaille = new ResizeObserver(entries => {
-        for (let entry of entries) {
-            const hauteur = entry.target.offsetHeight + 80; 
-            window.parent.postMessage({ type: 'resize-dpe-widget', height: hauteur }, '*');
-        }
+    // --- LE SCRIPT DE REDIMENSIONNEMENT DE L'IFRAME ---
+    function envoyerHauteurIframe() {
+        // Calcule la hauteur totale réelle du contenu (body)
+        const hauteur = document.documentElement.scrollHeight + 15; // +15px de marge pour la sécurité
+        window.parent.postMessage({ type: 'resize-dpe-widget', height: hauteur }, '*');
+    }
+
+    // On observe les changements structurels du body (ajout de la liste, affichage de la grille)
+    const observerTaille = new ResizeObserver(() => {
+        envoyerHauteurIframe();
     });
-    const widgetWrapper = document.querySelector('.widget-wrapper');
-    if (widgetWrapper) { observerTaille.observe(widgetWrapper); }
+    observerTaille.observe(document.body);
     </script>
 </body>
 </html>
