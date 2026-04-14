@@ -23,11 +23,6 @@
             to { opacity: 1; transform: translateY(0); } 
         }
 
-        @keyframes slideUp { 
-            from { transform: translateY(100%); } 
-            to { transform: translateY(0); } 
-        }
-
         /* --- LE BODY --- */
         body { background-color: #F4F6F8; padding: 40px 15px; margin: 0; display: flex; justify-content: center; }
 
@@ -45,13 +40,45 @@
         .hero-section h1 { font-size: 28px; font-weight: 800; color: var(--text-dark); margin: 0 0 8px 0; letter-spacing: -0.5px; }
         .hero-section p { color: var(--text-light); font-size: 15px; margin: 0 0 24px 0; }
 
-        /* --- CHAMPS SÉPARÉS AVEC BOUTON --- */
-        .search-wrapper { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; text-align: left; }
-        .search-inputs-row { display: flex; gap: 10px; width: 100%; position: relative; align-items: center;}
+        /* --- GESTION DES ÉTAPES DE RECHERCHE --- */
+        .search-wrapper { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; text-align: left; }
         
-        .cp-wrapper { position: relative; width: 140px; flex-shrink: 0; }
-        .adresse-wrapper { position: relative; flex-grow: 1; }
+        .search-inputs-row { 
+            display: flex; width: 100%; position: relative; align-items: center; justify-content: center;
+            transition: gap 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Titre explicatif avec animation de transition */
+        #cp-instruction {
+            font-size: 16px; font-weight: 700; color: var(--papernest-blue); text-align: center;
+            transition: opacity 0.2s ease, transform 0.2s ease; 
+            margin-bottom: 15px; opacity: 1; transform: translateY(0);
+        }
+        /* Classe ajoutée en JS pour faire "sauter" le texte pendant le changement */
+        #cp-instruction.text-changing {
+            opacity: 0; transform: translateY(-8px);
+        }
 
+        /* Boîtes extensibles */
+        .cp-wrapper { position: relative; flex-shrink: 0; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .adresse-wrapper { position: relative; flex-grow: 1; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; }
+        .btn-wrapper { position: relative; flex-shrink: 0; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; }
+
+        #adresse-input { min-width: 250px; }
+
+        /* ÉTAT 1 : CP SEUL */
+        .state-cp-only .search-inputs-row { gap: 0; }
+        .state-cp-only .cp-wrapper { width: 280px; }
+        .state-cp-only .adresse-wrapper { max-width: 0; opacity: 0; }
+        .state-cp-only .btn-wrapper { max-width: 0; opacity: 0; }
+        
+        /* ÉTAT 2 : COMPLET */
+        .state-full .search-inputs-row { gap: 10px; }
+        .state-full .cp-wrapper { width: 120px; }
+        .state-full .adresse-wrapper { max-width: 500px; opacity: 1; }
+        .state-full .btn-wrapper { max-width: 150px; opacity: 1; }
+
+        /* --- CHAMPS DE SAISIE --- */
         .modern-input {
             width: 100%; padding: 12px 18px; border-radius: 100px; border: 2px solid var(--gray-medium);
             background: var(--gray-light); font-size: 15px; color: var(--text-dark); font-family: 'Avenir', sans-serif;
@@ -64,7 +91,7 @@
         #cp-input { text-align: center; font-weight: 800; color: var(--papernest-blue); cursor: text; }
         
         #btn-rechercher {
-            background: var(--papernest-blue); color: white; border: none; border-radius: 100px;
+            background: var(--papernest-blue); color: white; border: none; border-radius: 100px; width: 100%;
             padding: 12px 24px; font-weight: 600; font-size: 15px; font-family: 'Avenir', sans-serif;
             cursor: pointer; transition: transform 0.2s, background-color 0.2s; white-space: nowrap; height: 100%;
         }
@@ -83,7 +110,7 @@
         .dropdown-list li:last-child { border-bottom: none; }
         .dropdown-list li:hover { background-color: var(--gray-light); color: var(--papernest-blue); }
 
-        /* --- LISTE DES LOGEMENTS (BASE DESKTOP) --- */
+        /* --- LISTE DES LOGEMENTS --- */
         #results-container {
             display: none; background: white; border: 1px solid var(--gray-medium); border-radius: var(--radius-box);
             text-align: left; margin: 12px auto 0 auto; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
@@ -115,11 +142,10 @@
 
         .mobile-drag-handle { display: none; }
 
-        /* --- TOOLTIPS INTELLIGENTS ET INFAILLIBLES --- */
+        /* --- TOOLTIPS INTELLIGENTS --- */
         .tooltip { position: relative; cursor: help; margin-left: 4px; font-weight: normal; opacity: 1; transition: opacity 0.2s; font-size: 1.2em; display: inline-block;}
         .tooltip:hover { opacity: 1; z-index: 999999; }
         
-        /* Correction Fond Noir Pur + Z-index très élevé */
         .tooltip .tooltip-text {
             visibility: hidden; width: max-content; max-width: 240px; background-color: #000000; color: #ffffff;
             text-align: center; border-radius: 8px; padding: 10px 14px; position: absolute; z-index: 999999;
@@ -130,12 +156,10 @@
         .tooltip .tooltip-text::after { content: ""; position: absolute; top: 100%; border-width: 6px; border-style: solid; border-color: #000000 transparent transparent transparent; }
         .tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
 
-        /* Alignement intelligent pour les boîtes de gauche (DPE) -> Ne dépasse pas à gauche */
         #box-dpe .tooltip .tooltip-text { left: -15px; transform: translateY(5px); }
         #box-dpe .tooltip:hover .tooltip-text { transform: translateY(0); }
         #box-dpe .tooltip .tooltip-text::after { left: 20px; margin-left: 0; }
 
-        /* Alignement intelligent pour les boîtes de droite (GES, Détails) -> Ne dépasse pas à droite */
         #box-ges .tooltip .tooltip-text, .box-details .tooltip .tooltip-text { left: auto; right: -15px; transform: translateY(5px); }
         #box-ges .tooltip:hover .tooltip-text, .box-details .tooltip:hover .tooltip-text { transform: translateY(0); }
         #box-ges .tooltip .tooltip-text::after, .box-details .tooltip .tooltip-text::after { left: auto; right: 20px; margin-left: 0; }
@@ -146,13 +170,11 @@
             background-color: rgba(0, 0, 0, 0.08); gap: 1px; border: 1px solid rgba(0, 0, 0, 0.08);
             border-radius: var(--radius-box); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04); 
             opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease;
-            position: relative; z-index: 50; /* Priorité sur la zone de recherche pour ne jamais passer en dessous */
+            position: relative; z-index: 50; 
         }
         .bento-grid.visible { display: grid; opacity: 1; transform: translateY(0); }
         
         .bento-box { background: white; padding: 20px 24px; display: flex; flex-direction: column; justify-content: space-between; position: relative; border-radius: 0; color: var(--text-dark); transition: background-color 0.4s ease; z-index: 1; }
-        
-        /* Met la box entière + ses tooltips 100% devant la carte Leaflet et la zone de recherche */
         .bento-box:hover { z-index: 99999; }
         
         .separator { height: 1px; background-color: rgba(0, 0, 0, 0.1); width: 100%; margin: auto 0 8px 0; }
@@ -171,46 +193,39 @@
         .cta-button { background-color: white; color: var(--violet-ppn); text-decoration: none; padding: 12px 24px; border-radius: 100px; font-weight: 600; font-size: 15px; transition: background-color 0.2s, transform 0.2s; }
         .cta-button:hover { background-color: #F9FAFB; transform: scale(1.03); }
 
-        /* Correction Transparence : On enlève l'opacité et on utilise une couleur solide (#666666) */
         .bento-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: #666666; transition: color 0.4s ease; display: flex; align-items: center;}
         .bento-huge-value { font-size: 70px; font-weight: 900; line-height: 0.9; margin-top: 15px; letter-spacing: -2px; transition: color 0.1s ease;} 
         .bento-large-value { font-size: 45px; font-weight: 900; line-height: 1; margin-top: auto; letter-spacing: -1px; color: var(--text-dark); }
         .bento-medium-value { font-size: 24px; font-weight: 800; line-height: 1.2; letter-spacing: -0.5px; margin-top: auto; color: var(--text-dark); } 
         .bento-text-value { font-size: 18px; font-weight: 800; line-height: 1.1; margin-top: auto; color: var(--text-dark); } 
-        
-        /* Correction Transparence sous-titre (#555555) */
         .bento-subtitle { font-size: 13px; font-weight: 600; color: #555555; transition: color 0.4s ease;} 
-        
         .conso-text { font-size: 11px; color: #555555; font-weight: 600; }
         .conso-text strong { font-size: 12px; font-weight: 800; color: var(--text-dark);}
         #map { width: 100%; height: 100%; z-index: 1; border-top-right-radius: var(--radius-box); }
 
-        /* --- RÉGLES SPÉCIFIQUES --- */
         @media (min-width: 801px) { 
             .box-address::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 1px; background-color: rgba(0, 0, 0, 0.1); z-index: 10; } 
         }
 
-        /* --- SURCHARGES MOBILE (Placées à la toute fin) --- */
+        /* --- SURCHARGES MOBILE ANIMÉES --- */
         @media (max-width: 800px) {
             body { padding: 10px; }
             .hero-section { padding: 15px; margin-bottom: 12px; }
             .hero-section h1 { font-size: 22px; margin-bottom: 8px; }
             .hero-section p { display: none; } 
             
-            .search-inputs-row { flex-direction: column; gap: 8px; align-items: stretch;}
-            .cp-wrapper { width: 100%; }
+            .search-inputs-row { flex-direction: column; align-items: stretch; }
+            .cp-wrapper { width: 100% !important; }
+            #adresse-input { min-width: 0; } 
+            
+            .state-cp-only .adresse-wrapper, .state-cp-only .btn-wrapper { max-height: 0; opacity: 0; margin: 0; }
+            .state-full .adresse-wrapper, .state-full .btn-wrapper { max-height: 80px; opacity: 1; margin: 0; overflow: visible; }
+
             #btn-rechercher { width: 100%; padding: 12px 24px; }
             .dropdown-list { width: 100%; }
 
-            /* Liste des logements mobile : Extensible pour pousser l'iframe */
-            #results-container { 
-                margin-top: 15px; padding: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); 
-            }
-            .logements-list { 
-                /* On force une grande taille minimum pour masquer le reste du site */
-                min-height: 350px; max-height: 450px; 
-                background: white; 
-            }
+            #results-container { margin-top: 15px; padding: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+            .logements-list { min-height: 350px; max-height: 450px; background: white; }
             .logement-item { padding: 16px 12px; }
             .logement-item:hover { padding-left: 12px; } 
 
@@ -242,22 +257,24 @@
             .cta-content p { font-size: 12px; line-height: 1.2; }
             .cta-button { padding: 10px 20px; font-size: 13px; width: 100%; box-sizing: border-box; }
             
-            /* Ajustement Tooltip Mobile */
             .tooltip .tooltip-text { width: 180px; font-size: 11px; padding: 8px 10px; white-space: normal;}
         }
     </style>
 </head>
-<body style="background-color: #FFFFFF;">
+<body>
 
     <div class="widget-wrapper">
         <div class="hero-section" id="hero-block">
             <h1>Trouvez votre DPE !</h1>
             <p>Découvrez l'étiquette énergie et les caractéristiques d'un logement.</p>
             
-            <div class="search-wrapper">
+            <div id="search-container-state" class="search-wrapper state-cp-only">
+                
+                <div id="cp-instruction">📍 Renseignez votre code postal pour commencer :</div>
+                
                 <div class="search-inputs-row">
                     <div class="cp-wrapper">
-                        <input type="text" id="cp-input" class="modern-input" placeholder="CP (ex: 75009)" maxlength="5" autocomplete="off">
+                        <input type="text" id="cp-input" class="modern-input" placeholder="Ex: 75009" maxlength="5" autocomplete="off">
                         <ul id="cp-suggestions" class="dropdown-list"></ul>
                     </div>
                     
@@ -265,7 +282,9 @@
                         <input type="text" id="adresse-input" class="modern-input" placeholder="N° et rue (ex: 3 rue de Milan)" disabled autocomplete="off">
                     </div>
                     
-                    <button id="btn-rechercher" onclick="declencherRecherche(false)" disabled>Chercher</button>
+                    <div class="btn-wrapper">
+                        <button id="btn-rechercher" onclick="declencherRecherche(false)" disabled>Chercher</button>
+                    </div>
                 </div>
                 
                 <div id="results-container">
@@ -345,7 +364,6 @@
 
     const couleursDPE = { "A": "#009966", "B": "#00D492", "C": "#A4F4CF", "D": "#FEE685", "E": "#FFBA00", "F": "#BB4D00", "G": "#7B3306", "N/A": "var(--text-dark)" };
 
-    // --- INITIALISATION DES CODES POSTAUX DEPUIS LA BASE ---
     document.addEventListener('DOMContentLoaded', async () => {
         try {
             let reponse = await fetch(LIEN_MOYENNES);
@@ -356,29 +374,54 @@
         }
     });
 
-    // --- GESTION INTELLIGENTE DU CHAMP CODE POSTAL ---
     const cpInput = document.getElementById('cp-input');
     const adresseInput = document.getElementById('adresse-input');
     const btnRechercher = document.getElementById('btn-rechercher');
     const cpSuggestions = document.getElementById('cp-suggestions');
     const resultsContainer = document.getElementById('results-container');
+    const searchContainerState = document.getElementById('search-container-state');
+    const cpInstruction = document.getElementById('cp-instruction');
 
-    // On affiche tout le catalogue si la case est cliquée et vide
+    function setUIState(state) {
+        if(state === 'cp') {
+            searchContainerState.classList.remove('state-full');
+            searchContainerState.classList.add('state-cp-only');
+            adresseInput.value = "";
+            adresseInput.disabled = true;
+            btnRechercher.disabled = true;
+            fermerTiroirMobile();
+
+            // Animation du texte retour à la normale
+            cpInstruction.classList.add('text-changing');
+            setTimeout(() => {
+                cpInstruction.innerText = "📍 Renseignez votre code postal pour commencer :";
+                cpInstruction.classList.remove('text-changing');
+            }, 200);
+
+        } else {
+            searchContainerState.classList.remove('state-cp-only');
+            searchContainerState.classList.add('state-full');
+
+            // Animation du texte de succès
+            cpInstruction.classList.add('text-changing');
+            setTimeout(() => {
+                cpInstruction.innerText = "🏠 Parfait ! Renseignez maintenant votre adresse :";
+                cpInstruction.classList.remove('text-changing');
+            }, 200);
+        }
+    }
+
     cpInput.addEventListener('focus', function() {
         if(this.value === "") mettreAJourSuggestionsCP("");
     });
 
     cpInput.addEventListener('input', function() {
-        let val = this.value.replace(/\D/g, ''); // Que des chiffres
+        let val = this.value.replace(/\D/g, ''); 
         this.value = val;
         
-        // Bloquer l'adresse si CP effacé ou incomplet
         if (val.length < 5) {
             codePostalValide = "";
-            adresseInput.disabled = true;
-            btnRechercher.disabled = true;
-            adresseInput.value = "";
-            fermerTiroirMobile();
+            setUIState('cp');
         }
 
         mettreAJourSuggestionsCP(val);
@@ -386,20 +429,16 @@
 
     function mettreAJourSuggestionsCP(val) {
         cpSuggestions.innerHTML = '';
-        
-        // Filtre de notre propre base (ultra rapide)
         let matches = codesPostauxDispos.filter(cp => cp.startsWith(val));
         
         if (matches.length > 0) {
             cpSuggestions.style.display = 'block';
-            // On limite à 30 résultats affichés pour ne pas lagger
             matches.slice(0, 30).forEach(cp => {
                 let li = document.createElement('li');
                 li.textContent = cp;
                 li.onclick = () => validerCodePostal(cp);
                 cpSuggestions.appendChild(li);
             });
-            // Si l'utilisateur a tapé exactement un code postal complet et valide
             if(val.length === 5 && matches.includes(val)) {
                 validerCodePostal(val);
             }
@@ -412,16 +451,19 @@
         codePostalValide = cp;
         cpInput.value = cp;
         cpSuggestions.style.display = 'none';
-        adresseInput.disabled = false;
-        btnRechercher.disabled = false;
-        adresseInput.focus();
+        
+        setUIState('full');
+        
+        setTimeout(() => {
+            adresseInput.disabled = false;
+            btnRechercher.disabled = false;
+            adresseInput.focus();
+        }, 400);
     }
 
-    // Cache les listes si on clique ailleurs
     document.addEventListener("click", function(event) {
         if (!event.target.closest('.search-wrapper')) { 
             cpSuggestions.style.display = 'none'; 
-            fermerTiroirMobile();
         }
     });
 
@@ -429,7 +471,6 @@
         document.getElementById('results-container').style.display = 'none';
     }
 
-    // --- ANIMATIONS & FORMATAGE ---
     function animerLettre(element, lettreFinale, couleurs) {
         if (!lettreFinale || lettreFinale === "N/A" || lettreFinale === "-") { element.innerText = lettreFinale || "-"; element.style.color = "var(--text-dark)"; return; }
         const echelle = ['G', 'F', 'E', 'D', 'C', 'B', 'A'];
@@ -461,7 +502,6 @@
         } catch (e) {} return null; 
     }
 
-    // --- LOGIQUE ADRESSE (RECHERCHE TEMPS RÉEL & TRI PROXIMITÉ) ---
     async function telechargerFichierDPE(cp, lettre) {
         if (cacheJSON[cp] && cacheJSON[cp][lettre]) return cacheJSON[cp][lettre]; 
         
@@ -481,7 +521,6 @@
         } catch(e) { return []; }
     }
 
-    // Le tri par proximité du numéro
     function trierParProximite(logements, texteSaisi) {
         let matchNum = texteSaisi.match(/\b\d+\b/);
         let numeroCible = matchNum ? parseInt(matchNum[0], 10) : null;
@@ -501,7 +540,6 @@
 
     adresseInput.addEventListener('input', function() {
         let input = this.value;
-        // On déclenche l'actualisation en temps réel si plus de 5 caractères
         if (input.length >= 6) {
             declencherRecherche(true); 
         } else {
@@ -517,7 +555,6 @@
         let input = adresseInput.value;
         let listContainer = document.getElementById('logements-list');
         let errorMsg = document.getElementById('error-msg');
-        let resultsContainer = document.getElementById('results-container');
 
         if (!isInstant) {
             errorMsg.style.display = 'none';
@@ -583,7 +620,6 @@
         }, 300); 
     }
 
-    // --- ÉTAPE 3 : AFFICHAGE DU BENTO ---
     async function validerLogementFinal(index) {
         let logementChoisi = logementsTrouvesGlobal[index];
         if (!logementChoisi) return;
@@ -596,10 +632,8 @@
         let bentoGrid = document.getElementById('bento-grid');
         bentoGrid.classList.add('visible'); 
 
-        // ATTENTION : RETRAIT DU SCROLLINTOWIEW ICI POUR L'INTEGRATION IFRAME
-
         document.getElementById('val-dpe').innerText = "-"; document.getElementById('val-ges').innerText = "-";
-        document.getElementById('val-facture').innerText = "-- € / an"; document.getElementById('val-equiv-carbone').innerText = "Émissions CO₂";
+        document.getElementById('val-facture').innerText = "-- € / an"; 
 
         animerLettre(document.getElementById('val-dpe'), logementChoisi.dpe, couleursDPE);
         animerLettre(document.getElementById('val-ges'), logementChoisi.ges, couleursDPE);
@@ -617,13 +651,13 @@
             elementFacture.innerText = "Non estimable"; elementFacture.style.color = "var(--text-dark)";
         }
         
-        const medianesGES = { "A": 3, "B": 8.5, "C": 20, "D": 40, "E": 60, "F": 85, "G": 120 };
         let caseEquiv = document.getElementById('val-equiv-carbone');
+        const medianesGES = { "A": 3, "B": 8.5, "C": 20, "D": 40, "E": 60, "F": 85, "G": 120 };
         
         if (!isNaN(surfaceVal) && medianesGES[logementChoisi.ges]) {
             let totalCO2 = surfaceVal * medianesGES[logementChoisi.ges];
             let kmVoiture = Math.round(totalCO2 / 0.2); 
-            caseEquiv.innerHTML = `~ ${kmVoiture.toLocaleString('fr-FR')} km en voiture <span class="tooltip">ⓘ<span class="tooltip-text">Équivalence estimée (0,2 kg CO₂/km). Basée sur la moyenne des émissions de la classe ${logementChoisi.ges} multipliée par la surface.</span></span>`;
+            caseEquiv.innerHTML = `~ ${kmVoiture.toLocaleString('fr-FR')} km en voiture <span class="tooltip">ⓘ<span class="tooltip-text">Équivalence estimée (0,2 kg CO₂/km). Basée sur la moyenne des émissions de la classe multipliée par la surface.</span></span>`;
             caseEquiv.style.color = "var(--papernest-blue)";
         } else {
             caseEquiv.innerHTML = `Émissions CO₂ <span class="tooltip">ⓘ<span class="tooltip-text">Équivalence estimée (0,2 kg CO₂/km). Basée sur la moyenne des émissions de la classe multipliée par la surface.</span></span>`;
@@ -669,7 +703,6 @@
         }, 100);
     }
 
-    // Le script de redimensionnement de l'Iframe
     function envoyerHauteurIframe() {
         const hauteur = document.documentElement.scrollHeight + 15; 
         window.parent.postMessage({ type: 'resize-dpe-widget', height: hauteur }, '*');
