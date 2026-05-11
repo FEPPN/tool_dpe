@@ -14,7 +14,7 @@
             --papernest-blue: #5A52FF; --papernest-blue-hover: #003BE0;
             --text-dark: #111111; --text-light: #737373;
             --gray-light: #F9FAFB; --gray-medium: #EAECEF; --gray-dark: #555555;
-            --radius-box: 20px;
+            --radius-box: 20px; 
             --violet-ppn: #7B4EFC;
         }
 
@@ -27,18 +27,18 @@
         body { background-color: #F4F6F8; padding: 40px 15px; margin: 0; display: flex; justify-content: center; }
 
         /* --- CONTENEUR GLOBAL --- */
-        .widget-wrapper { width: 100%; max-width: 950px; font-family: 'Avenir', sans-serif; box-sizing: border-box; position: relative; }
+        .widget-wrapper { width: 100%; max-width: 900px; font-family: 'Avenir', sans-serif; box-sizing: border-box; position: relative; }
         .widget-wrapper * { box-sizing: border-box; }
 
         /* --- HERO SECTION --- */
         .hero-section {
-            background: white; border-radius: var(--radius-box); padding: 32px; text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid var(--gray-medium);
-            border-top: 6px solid var(--papernest-blue); margin-bottom: 24px; 
+            background: white; border-radius: var(--radius-box); padding: 24px 32px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.03);
+            margin-bottom: 20px; /* L'écart avec les infos du bas reste le même */
             transition: padding 0.5s ease; position: relative; z-index: 10;
         }
         .hero-section h1 { font-size: 28px; font-weight: 800; color: var(--text-dark); margin: 0 0 8px 0; letter-spacing: -0.5px; }
-        .hero-section p { color: var(--text-light); font-size: 15px; margin: 0 0 24px 0; }
+        .hero-section > p { color: var(--text-light); font-size: 15px; margin: 0 0 20px 0; }
 
         /* --- GESTION DES ÉTAPES DE RECHERCHE --- */
         .search-wrapper { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; text-align: left; }
@@ -48,43 +48,36 @@
             transition: gap 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        /* Titre explicatif avec animation de transition */
         #cp-instruction {
-            font-size: 16px; font-weight: 700; color: var(--papernest-blue); text-align: center;
+            font-size: 15px; font-weight: 700; color: var(--papernest-blue); text-align: center;
             transition: opacity 0.2s ease, transform 0.2s ease; 
-            margin-bottom: 15px; opacity: 1; transform: translateY(0);
+            margin-bottom: 12px; opacity: 1; transform: translateY(0); display: block;
         }
-        /* Classe ajoutée en JS pour faire "sauter" le texte pendant le changement */
-        #cp-instruction.text-changing {
-            opacity: 0; transform: translateY(-8px);
-        }
+        #cp-instruction.text-changing { opacity: 0; transform: translateY(-8px); }
 
-        /* Boîtes extensibles */
         .cp-wrapper { position: relative; flex-shrink: 0; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
         .adresse-wrapper { position: relative; flex-grow: 1; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; }
         .btn-wrapper { position: relative; flex-shrink: 0; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; }
 
         #adresse-input { min-width: 250px; }
 
-        /* ÉTAT 1 : CP SEUL */
         .state-cp-only .search-inputs-row { gap: 0; }
         .state-cp-only .cp-wrapper { width: 280px; }
         .state-cp-only .adresse-wrapper { max-width: 0; opacity: 0; }
         .state-cp-only .btn-wrapper { max-width: 0; opacity: 0; }
         
-        /* ÉTAT 2 : COMPLET */
         .state-full .search-inputs-row { gap: 10px; }
-        .state-full .cp-wrapper { width: 120px; }
+        .state-full .cp-wrapper { width: 110px; }
         .state-full .adresse-wrapper { max-width: 500px; opacity: 1; }
-        .state-full .btn-wrapper { max-width: 150px; opacity: 1; }
+        .state-full .btn-wrapper { max-width: 140px; opacity: 1; }
 
         /* --- CHAMPS DE SAISIE --- */
         .modern-input {
             width: 100%; padding: 12px 18px; border-radius: 100px; border: 2px solid var(--gray-medium);
             background: var(--gray-light); font-size: 15px; color: var(--text-dark); font-family: 'Avenir', sans-serif;
-            transition: all 0.3s; outline: none; box-sizing: border-box;
+            transition: all 0.3s; outline: none; box-sizing: border-box; font-weight: 500;
         }
-        .modern-input:focus { border-color: var(--papernest-blue); background: white; }
+        .modern-input:focus { border-color: var(--papernest-blue); background: white; box-shadow: 0 0 0 3px rgba(90, 82, 255, 0.1);}
         .modern-input:disabled { opacity: 0.5; cursor: not-allowed; }
         .modern-input::placeholder { color: #9CA3AF; font-weight: 500; }
 
@@ -92,10 +85,10 @@
         
         #btn-rechercher {
             background: var(--papernest-blue); color: white; border: none; border-radius: 100px; width: 100%;
-            padding: 12px 24px; font-weight: 600; font-size: 15px; font-family: 'Avenir', sans-serif;
+            padding: 12px 20px; font-weight: 700; font-size: 14px; font-family: 'Avenir', sans-serif;
             cursor: pointer; transition: transform 0.2s, background-color 0.2s; white-space: nowrap; height: 100%;
         }
-        #btn-rechercher:hover:not(:disabled) { transform: scale(1.02); background: var(--papernest-blue-hover); }
+        #btn-rechercher:hover:not(:disabled) { transform: scale(1.02); background: var(--papernest-blue-hover); box-shadow: 0 4px 12px rgba(90, 82, 255, 0.2); }
         #btn-rechercher:disabled { background: var(--gray-medium); cursor: not-allowed; color: var(--text-light); }
 
         #error-msg { color: #DC2626; font-size: 14px; margin-top: 15px; font-weight: 600; display: none; text-align: center;}
@@ -103,36 +96,36 @@
         /* --- AUTO-COMPLÉTION CP INTERNE --- */
         .dropdown-list {
             position: absolute; top: calc(100% + 5px); left: 0; width: 100%; background: white;
-            border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--gray-medium);
+            border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid var(--gray-medium);
             list-style: none; padding: 8px 0; margin: 0; max-height: 200px; overflow-y: auto; display: none; z-index: 2000;
         }
-        .dropdown-list li { padding: 12px 20px; font-size: 15px; cursor: pointer; border-bottom: 1px solid var(--gray-light); color: var(--text-dark); font-weight: 600; text-align: center;}
+        .dropdown-list li { padding: 10px 15px; font-size: 14px; cursor: pointer; border-bottom: 1px solid var(--gray-light); color: var(--text-dark); font-weight: 600; text-align: center;}
         .dropdown-list li:last-child { border-bottom: none; }
         .dropdown-list li:hover { background-color: var(--gray-light); color: var(--papernest-blue); }
 
         /* --- LISTE DES LOGEMENTS --- */
         #results-container {
-            display: none; background: white; border: 1px solid var(--gray-medium); border-radius: var(--radius-box);
-            text-align: left; margin: 12px auto 0 auto; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
-            max-width: 600px; position: relative; animation: fadeIn 0.3s ease; z-index: 1050;
+            display: none; background: white; border: 1px solid rgba(0,0,0,0.05); border-radius: var(--radius-box);
+            text-align: left; margin: 16px auto 0 auto; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            max-width: 650px; position: relative; animation: fadeIn 0.3s ease; z-index: 1050;
         }
         
         #results-container label { display: block; font-size: 14px; color: var(--text-dark); margin-bottom: 12px; font-weight: 800; text-align: center;}
         
         .logements-list {
-            max-height: 280px; overflow-y: auto; border: 1px solid var(--gray-medium);
-            border-radius: 12px; background: var(--gray-light);
+            max-height: 250px; overflow-y: auto; border: 1px solid var(--gray-medium);
+            border-radius: 12px; background: white;
             scrollbar-width: thin; scrollbar-color: #CBD5E1 transparent;
         }
         .logements-list::-webkit-scrollbar { width: 6px; }
         .logements-list::-webkit-scrollbar-thumb { background-color: #CBD5E1; border-radius: 10px; }
         
         .logement-item {
-            padding: 14px 16px; border-bottom: 1px solid #E2E8F0; cursor: pointer; display: flex; 
+            padding: 12px 16px; border-bottom: 1px solid #EAECEF; cursor: pointer; display: flex; 
             justify-content: space-between; align-items: center; font-size: 14px; color: var(--text-dark); 
             transition: background 0.2s, padding-left 0.2s;
         }
-        .logement-item:hover { background: white; padding-left: 20px; }
+        .logement-item:hover { background: var(--gray-light); padding-left: 20px; }
         .logement-item:hover .btn-voir-dpe { color: var(--papernest-blue-hover); font-weight: 800; transform: translateX(3px);}
         .logement-item:last-child { border-bottom: none; }
         
@@ -142,78 +135,96 @@
 
         .mobile-drag-handle { display: none; }
 
-        /* --- TOOLTIPS INTELLIGENTS --- */
+        /* --- TOOLTIPS --- */
         .tooltip { position: relative; cursor: help; margin-left: 4px; font-weight: normal; opacity: 1; transition: opacity 0.2s; font-size: 1.2em; display: inline-block;}
         .tooltip:hover { opacity: 1; z-index: 999999; }
-        
         .tooltip .tooltip-text {
             visibility: hidden; width: max-content; max-width: 240px; background-color: #000000; color: #ffffff;
             text-align: center; border-radius: 8px; padding: 10px 14px; position: absolute; z-index: 999999;
-            bottom: 150%; opacity: 0; transition: opacity 0.3s, transform 0.3s;
-            font-size: 12px; text-transform: none; letter-spacing: normal; font-weight: 600; line-height: 1.4;
+            bottom: 150%; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s, transform 0.3s;
+            font-size: 11px; text-transform: none; letter-spacing: normal; font-weight: 600; line-height: 1.4;
             box-shadow: 0 8px 20px rgba(0,0,0,0.3); pointer-events: none;
         }
-        .tooltip .tooltip-text::after { content: ""; position: absolute; top: 100%; border-width: 6px; border-style: solid; border-color: #000000 transparent transparent transparent; }
-        .tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
+        .tooltip .tooltip-text::after { content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border-width: 6px; border-style: solid; border-color: #000000 transparent transparent transparent; }
+        .tooltip:hover .tooltip-text { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(-5px); }
 
         #box-dpe .tooltip .tooltip-text { left: -15px; transform: translateY(5px); }
-        #box-dpe .tooltip:hover .tooltip-text { transform: translateY(0); }
-        #box-dpe .tooltip .tooltip-text::after { left: 20px; margin-left: 0; }
+        #box-dpe .tooltip:hover .tooltip-text { transform: translateY(-5px); }
+        #box-dpe .tooltip .tooltip-text::after { left: 20px; transform: none; }
 
         #box-ges .tooltip .tooltip-text, .box-details .tooltip .tooltip-text { left: auto; right: -15px; transform: translateY(5px); }
-        #box-ges .tooltip:hover .tooltip-text, .box-details .tooltip:hover .tooltip-text { transform: translateY(0); }
+        #box-ges .tooltip:hover .tooltip-text, .box-details .tooltip:hover .tooltip-text { transform: translateY(-5px); }
         #box-ges .tooltip .tooltip-text::after, .box-details .tooltip .tooltip-text::after { left: auto; right: 20px; margin-left: 0; }
 
-        /* --- GRILLE BENTO --- */
+        /* --- NOUVEAU DESIGN DE LA GRILLE BENTO --- */
         .bento-grid {
-            display: none; grid-template-columns: repeat(4, 1fr); grid-template-rows: 200px 115px auto; 
-            background-color: rgba(0, 0, 0, 0.08); gap: 1px; border: 1px solid rgba(0, 0, 0, 0.08);
-            border-radius: var(--radius-box); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04); 
+            display: none; 
+            grid-template-columns: repeat(4, 1fr); 
+            grid-template-rows: auto auto auto; 
+            gap: 6px; /* Écart réduit entre les bulles (au lieu de 12px) */
             opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease;
             position: relative; z-index: 50; 
         }
         .bento-grid.visible { display: grid; opacity: 1; transform: translateY(0); }
         
-        .bento-box { background: white; padding: 20px 24px; display: flex; flex-direction: column; justify-content: space-between; position: relative; border-radius: 0; color: var(--text-dark); transition: background-color 0.4s ease; z-index: 1; }
-        .bento-box:hover { z-index: 99999; }
-        
-        .separator { height: 1px; background-color: rgba(0, 0, 0, 0.1); width: 100%; margin: auto 0 8px 0; }
-
-        .box-dpe { grid-column: span 1; border-top: 5px solid rgba(0, 0, 0, 0.05); border-top-left-radius: var(--radius-box); } 
-        .box-ges { grid-column: span 1; border-top: 5px solid rgba(0, 0, 0, 0.05); } 
-        .box-map { grid-column: span 2; padding: 0; border-top-right-radius: var(--radius-box); } 
-        .box-address { grid-column: span 2; background-color: white; border-top: 5px solid rgba(0, 0, 0, 0.05); position: relative; justify-content: center; gap: 6px; }
-        .box-details { grid-column: span 1; background-color: white; justify-content: center; gap: 6px; } 
-        .box-address .bento-medium-value, .box-details .bento-large-value { margin-top: 0; }
-
-        .box-year { grid-column: span 1; background-color: white; } 
-        .box-cta { grid-column: span 4; background-color: var(--violet-ppn); border-top: 1px solid rgba(0,0,0,0.05); flex-direction: row; align-items: center; padding: 24px 32px; border-bottom-left-radius: var(--radius-box); border-bottom-right-radius: var(--radius-box); }
-        .cta-content h3 { margin: 0 0 4px 0; font-size: 18px; color: white; font-weight: 800;}
-        .cta-content p { margin: 0; font-size: 14px; color: #F9FAFB; }
-        .cta-button { background-color: white; color: var(--violet-ppn); text-decoration: none; padding: 12px 24px; border-radius: 100px; font-weight: 600; font-size: 15px; transition: background-color 0.2s, transform 0.2s; }
-        .cta-button:hover { background-color: #F9FAFB; transform: scale(1.03); }
-
-        .bento-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: #666666; transition: color 0.4s ease; display: flex; align-items: center;}
-        .bento-huge-value { font-size: 70px; font-weight: 900; line-height: 0.9; margin-top: 15px; letter-spacing: -2px; transition: color 0.1s ease;} 
-        .bento-large-value { font-size: 45px; font-weight: 900; line-height: 1; margin-top: auto; letter-spacing: -1px; color: var(--text-dark); }
-        .bento-medium-value { font-size: 24px; font-weight: 800; line-height: 1.2; letter-spacing: -0.5px; margin-top: auto; color: var(--text-dark); } 
-        .bento-text-value { font-size: 18px; font-weight: 800; line-height: 1.1; margin-top: auto; color: var(--text-dark); } 
-        .bento-subtitle { font-size: 13px; font-weight: 600; color: #555555; transition: color 0.4s ease;} 
-        .conso-text { font-size: 11px; color: #555555; font-weight: 600; }
-        .conso-text strong { font-size: 12px; font-weight: 800; color: var(--text-dark);}
-        #map { width: 100%; height: 100%; z-index: 1; border-top-right-radius: var(--radius-box); }
-
-        @media (min-width: 801px) { 
-            .box-address::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 1px; background-color: rgba(0, 0, 0, 0.1); z-index: 10; } 
+        /* Les cartes individuelles */
+        .bento-box { 
+            background: white; padding: 20px; display: flex; flex-direction: column; justify-content: flex-start; 
+            position: relative; border-radius: var(--radius-box); color: var(--text-dark); 
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.03); border: 1px solid rgba(0, 0, 0, 0.04); 
+            transition: transform 0.3s ease, box-shadow 0.3s ease; z-index: 1; 
         }
+        .bento-box:hover { z-index: 99999; transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06); }
+        
+        /* Structure de la grille Premium */
+        .box-address { grid-column: 1 / 3; grid-row: 1; justify-content: center; gap: 4px; }
+        .box-dpe     { grid-column: 1 / 2; grid-row: 2; } 
+        .box-ges     { grid-column: 2 / 3; grid-row: 2; } 
+        .box-details { grid-column: 1 / 3; grid-row: 3; justify-content: center; gap: 4px;} 
+        
+        /* La map prend toute la droite */
+        .box-map     { grid-column: 3 / 5; grid-row: 1 / 4; position: relative; padding: 0; overflow: hidden; } 
+        #map         { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; }
+        
+        /* Bandeau CTA Papernest Bleu */
+        .box-cta     { grid-column: 1 / 5; grid-row: 4; background-color: var(--papernest-blue); flex-direction: row; align-items: center; padding: 24px 32px; justify-content: space-between;}
+        
+        /* --- TYPOGRAPHIE PREMIUM --- */
+        .bento-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; color: #888888; margin-bottom: 4px; display: flex; align-items: center;}
+        
+        .box-address .bento-large-value { font-size: 22px; font-weight: 800; line-height: 1.2; letter-spacing: -0.5px; color: var(--text-dark); margin: 0;}
+        .box-details .bento-huge-value { font-size: 32px; font-weight: 900; margin: 0; color: var(--text-dark);}
+
+        /* Les Lettres géantes */
+        .bento-huge-value { font-size: 65px; font-weight: 900; line-height: 1; margin: 5px 0 10px 0; letter-spacing: -3px; transition: color 0.1s ease;} 
+        
+        /* Textes d'information bas de carte */
+        .bento-subtitle { font-size: 13px; font-weight: 500; color: #555555; transition: color 0.4s ease; margin-top: auto; line-height: 1.4;} 
+        .bento-subtitle strong { font-size: 16px; color: var(--text-dark); display: block; margin-top: 4px; letter-spacing: -0.5px;}
+        
+        /* Le Badge Électrochoc Premium */
+        #facture-electrochoc { 
+            font-size: 11px; color: #C53030; background-color: #FFF5F5; 
+            padding: 6px 10px; border-radius: 6px; margin-top: 10px; 
+            font-weight: 600; display: none; border: 1px solid #FED7D7;
+            line-height: 1.3;
+        }
+
+        /* Call To Action */
+        .cta-content h3 { margin: 0 0 4px 0; font-size: 18px; color: white; font-weight: 800; letter-spacing: -0.5px;}
+        .cta-content p { margin: 0; font-size: 14px; color: #E2E8F0; font-weight: 500;}
+        .cta-button { background-color: white; color: var(--papernest-blue); text-decoration: none; padding: 12px 24px; border-radius: 100px; font-weight: 700; font-size: 14px; transition: background-color 0.2s, transform 0.2s; white-space: nowrap;}
+        .cta-button:hover { background-color: #F9FAFB; transform: scale(1.03); }
 
         /* --- SURCHARGES MOBILE ANIMÉES --- */
         @media (max-width: 800px) {
             body { padding: 10px; }
-            .hero-section { padding: 15px; margin-bottom: 12px; }
-            .hero-section h1 { font-size: 22px; margin-bottom: 8px; }
-            .hero-section p { display: none; } 
+            .hero-section { padding: 20px; margin-bottom: 12px; }
+            .hero-section h1 { font-size: 24px; margin-bottom: 8px; }
+            .hero-section > p { display: none; } 
             
+            #cp-instruction { font-size: 14px; margin-bottom: 12px; display: block !important; }
+
             .search-inputs-row { flex-direction: column; align-items: stretch; }
             .cp-wrapper { width: 100% !important; }
             #adresse-input { min-width: 0; } 
@@ -221,47 +232,46 @@
             .state-cp-only .adresse-wrapper, .state-cp-only .btn-wrapper { max-height: 0; opacity: 0; margin: 0; }
             .state-full .adresse-wrapper, .state-full .btn-wrapper { max-height: 80px; opacity: 1; margin: 0; overflow: visible; }
 
-            #btn-rechercher { width: 100%; padding: 12px 24px; }
+            #btn-rechercher { width: 100%; padding: 14px 24px; }
             .dropdown-list { width: 100%; }
 
             #results-container { margin-top: 15px; padding: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
             .logements-list { min-height: 350px; max-height: 450px; background: white; }
-            .logement-item { padding: 16px 12px; }
-            .logement-item:hover { padding-left: 12px; } 
 
-            .bento-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: 130px 120px auto 90px auto; }
-            .bento-box { padding: 16px; } 
-            .box-map { border-top-right-radius: 0; }
-            .box-ges { border-top-right-radius: var(--radius-box); }
-            #map { border-top-right-radius: 0; }
-
-            .bento-title { font-size: 10px; }
-            .bento-huge-value { font-size: 42px; margin-top: 5px; } 
-            .bento-large-value { font-size: 32px; }
-            .bento-medium-value { font-size: 16px; line-height: 1.3; } 
-            .bento-text-value { font-size: 14px; margin-top: 4px; line-height: 1.2; }
-            .bento-subtitle { font-size: 11px; }
-            .conso-text { font-size: 10px; }
-            .conso-text strong { font-size: 11px; }
+            /* Grille Mobile */
+            .bento-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto auto auto 250px auto; gap: 6px;} /* Écart réduit aussi sur mobile */
             
-            .separator { margin: auto 0 8px 0; }
-            .box-address .separator { margin: 8px 0; }
-            .box-dpe, .box-ges { grid-column: span 1; height: auto; }
-            .box-map { display: block !important; grid-column: span 2; padding: 0; height: auto; } 
+            .bento-box { padding: 16px; } 
+            
+            .box-address { grid-column: 1 / 3; grid-row: 1; }
+            .box-dpe { grid-column: 1 / 2; grid-row: 2; }
+            .box-ges { grid-column: 2 / 3; grid-row: 2; }
+            .box-details { grid-column: 1 / 3; grid-row: 3; }
+            
+            .box-map { grid-column: 1 / 3; grid-row: 4; height: 100%; }
+            #map { position: absolute; }
+            .box-cta { grid-column: 1 / 3; grid-row: 5; padding: 20px; flex-direction: column; text-align: center; gap: 12px; justify-content: center;}
+            
+            .bento-title { font-size: 10px; margin-bottom: 6px;}
+            .bento-huge-value { font-size: 50px; margin: 0 0 10px 0; } 
+            .bento-subtitle { font-size: 12px; }
+            .bento-subtitle strong { font-size: 14px; }
+            #facture-electrochoc { font-size: 10px; padding: 6px 8px;}
+            
+            .box-address .bento-large-value { font-size: 18px; }
+            
             .leaflet-popup { display: none !important; }
             .leaflet-interactive { cursor: default; } 
-            .box-address { grid-column: span 2; height: auto; justify-content: center; gap: 4px; } 
-            .box-details, .box-year { grid-column: span 1; height: auto; justify-content: center; gap: 4px; }
-            .box-cta { grid-column: span 2; padding: 15px; flex-direction: column; text-align: center; gap: 10px; }
-            .cta-content h3 { font-size: 15px; }
-            .cta-content p { font-size: 12px; line-height: 1.2; }
-            .cta-button { padding: 10px 20px; font-size: 13px; width: 100%; box-sizing: border-box; }
+            
+            .cta-content h3 { font-size: 16px; }
+            .cta-content p { font-size: 12px; line-height: 1.3; }
+            .cta-button { padding: 12px 20px; font-size: 14px; width: 100%; box-sizing: border-box; }
             
             .tooltip .tooltip-text { width: 180px; font-size: 11px; padding: 8px 10px; white-space: normal;}
         }
     </style>
 </head>
-<body style="background-color: #FFFFFF;">
+<body>
 
     <div class="widget-wrapper">
         <div class="hero-section" id="hero-block">
@@ -298,48 +308,47 @@
         </div>
 
         <div id="bento-grid" class="bento-grid">
+            
+            <div class="bento-box box-address">
+                <span class="bento-title">Adresse du logement</span>
+                <div id="val-adresse" class="bento-large-value">-</div>
+            </div>
+
             <div id="box-dpe" class="bento-box box-dpe">
-                <span class="bento-title">Note DPE <span class="tooltip">ⓘ<span class="tooltip-text">Indicateur de la performance énergétique globale du logement.</span></span></span>
-                <span id="val-dpe" class="bento-huge-value">-</span>
-                <div class="separator"></div>
-                <span class="bento-subtitle" style="line-height: 1.4;">
-                    Facture est. <span class="tooltip">ⓘ<span class="tooltip-text">Estimation calculée ainsi : Surface × Consommation × Prix moyen unitaire estimé (0,11 €/kWh en tenant compte du mix énergétique).</span></span><br>
-                    <strong id="val-facture" style="font-size: 15px; color: var(--papernest-blue);">-- € / an</strong>
+                <div>
+                    <span class="bento-title">Classe Énergie <span class="tooltip">ⓘ<span class="tooltip-text">Indicateur de la performance énergétique globale. La facture est calculée selon la moyenne légale de cette lettre.</span></span></span>
+                    <span id="val-dpe" class="bento-huge-value">-</span>
+                </div>
+                <span class="bento-subtitle">
+                    Budget estimé <span class="tooltip">ⓘ<span class="tooltip-text">Calcul basé sur la consommation médiane légale de la lettre affichée × la surface × le prix moyen unitaire (0,11 €/kWh).</span></span>
+                    <strong id="val-facture" style="color: var(--papernest-blue);">-- € / an</strong>
+                    <div id="facture-electrochoc"></div>
                 </span>
             </div>
             
             <div id="box-ges" class="bento-box box-ges">
-                <span class="bento-title">Climat (GES) <span class="tooltip">ⓘ<span class="tooltip-text">Quantité de Gaz à Effet de Serre émise (en kg CO₂/m²/an).</span></span></span>
-                <span id="val-ges" class="bento-huge-value">-</span>
-                <div class="separator"></div>
-                <span id="val-equiv-carbone" class="bento-subtitle">Émissions CO₂ <span class="tooltip">ⓘ<span class="tooltip-text">Équivalence estimée (0,2 kg CO₂/km). Basée sur la moyenne des émissions de la classe multipliée par la surface.</span></span></span>
+                <div>
+                    <span class="bento-title">Impact Climat <span class="tooltip">ⓘ<span class="tooltip-text">Quantité de Gaz à Effet de Serre émise (en kg CO₂/m²/an).</span></span></span>
+                    <span id="val-ges" class="bento-huge-value">-</span>
+                </div>
+                <span id="val-equiv-carbone" class="bento-subtitle">
+                    Émet l'équivalent de :
+                </span>
+            </div>
+
+            <div class="bento-box box-details">
+                <span class="bento-title">Moyenne de la commune <span class="tooltip">ⓘ<span class="tooltip-text">Note DPE moyenne calculée sur l'ensemble des logements de ce code postal.</span></span></span>
+                <span id="val-moyenne-ville" class="bento-huge-value">-</span>
             </div>
             
             <div class="bento-box box-map"><div id="map"></div></div>
             
-            <div class="bento-box box-address">
-                <span class="bento-title">Adresse du logement</span>
-                <div id="val-adresse" class="bento-medium-value">-</div>
-            </div>
-            
-            <div class="bento-box box-details">
-                <span class="bento-title">Moyenne DPE Communale <span class="tooltip">ⓘ<span class="tooltip-text">Note DPE moyenne calculée sur l'ensemble des logements de ce code postal.</span></span></span>
-                <div id="val-moyenne-ville" class="bento-large-value">-</div>
-            </div>
-            
-            <div class="bento-box box-year">
-                <span class="bento-title">Bati en :</span>
-                <div id="val-annee" class="bento-text-value" style="margin-top: 10px;">--</div>
-                <div class="separator"></div>
-                <div class="conso-text">Conso : <strong id="val-conso">--</strong></div>
-            </div>
-            
             <div class="bento-box box-cta">
                 <div class="cta-content">
                     <h3>Ce logement consomme de l'énergie ?</h3>
-                    <p>Optimisez vos contrats d'électricité et de gaz en 2 minutes avec Papernest.</p>
+                    <p>Optimisez vos contrats d'électricité et de gaz en 2 minutes.</p>
                 </div>
-                <a href="https://www.papernest.com" target="_blank" class="cta-button">Estimer mes économies</a>
+                <a href="https://www.papernest.com" target="_blank" class="cta-button">Réduire mes factures</a>
             </div>
         </div>
     </div>
@@ -353,7 +362,13 @@
     let maCarte = L.map('map', {zoomControl: false}).setView([46.603354, 2.201476], 5);
     L.control.zoom({ position: 'bottomright' }).addTo(maCarte);
     let monMarqueur = null;
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 20, attribution: '© OpenStreetMap' }).addTo(maCarte);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+    }).addTo(maCarte);
+
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Labels &copy; Esri'
+    }).addTo(maCarte);
 
     let minuteurDebounce; 
     let codePostalValide = "";
@@ -391,7 +406,6 @@
             btnRechercher.disabled = true;
             fermerTiroirMobile();
 
-            // Animation du texte retour à la normale
             cpInstruction.classList.add('text-changing');
             setTimeout(() => {
                 cpInstruction.innerText = "📍 Renseignez votre code postal pour commencer :";
@@ -402,7 +416,6 @@
             searchContainerState.classList.remove('state-cp-only');
             searchContainerState.classList.add('state-full');
 
-            // Animation du texte de succès
             cpInstruction.classList.add('text-changing');
             setTimeout(() => {
                 cpInstruction.innerText = "🏠 Parfait ! Renseignez maintenant votre adresse :";
@@ -641,14 +654,28 @@
         document.getElementById('val-adresse').innerText = adresseFinale + ", " + codePostalValide;
 
         let surfaceVal = parseFloat(logementChoisi.surface);
-        let consoVal = parseFloat(logementChoisi.conso);
+        let dpeLettre = logementChoisi.dpe;
         let elementFacture = document.getElementById('val-facture');
+        let elementElectrochoc = document.getElementById('facture-electrochoc');
 
-        if (!isNaN(surfaceVal) && !isNaN(consoVal)) {
-            let factureEstimee = Math.round(surfaceVal * consoVal * 0.11);
+        const medianesDPE = { "A": 35, "B": 90, "C": 145, "D": 215, "E": 290, "F": 375, "G": 450 };
+
+        if (!isNaN(surfaceVal) && medianesDPE[dpeLettre]) {
+            let consoMediane = medianesDPE[dpeLettre];
+            let factureEstimee = Math.round(surfaceVal * consoMediane * 0.11);
             elementFacture.innerText = factureEstimee.toLocaleString('fr-FR') + " € / an";
+
+            if (["D", "E", "F", "G"].includes(dpeLettre)) {
+                let factureClasseC = Math.round(surfaceVal * medianesDPE["C"] * 0.11);
+                elementElectrochoc.innerHTML = `En classe C, vous paieriez env. <b>${factureClasseC.toLocaleString('fr-FR')} €</b>.`;
+                elementElectrochoc.style.display = "inline-block";
+            } else {
+                elementElectrochoc.style.display = "none";
+            }
         } else {
-            elementFacture.innerText = "Non estimable"; elementFacture.style.color = "var(--text-dark)";
+            elementFacture.innerText = "Non estimable"; 
+            elementFacture.style.color = "var(--text-light)";
+            elementElectrochoc.style.display = "none";
         }
         
         let caseEquiv = document.getElementById('val-equiv-carbone');
@@ -657,15 +684,10 @@
         if (!isNaN(surfaceVal) && medianesGES[logementChoisi.ges]) {
             let totalCO2 = surfaceVal * medianesGES[logementChoisi.ges];
             let kmVoiture = Math.round(totalCO2 / 0.2); 
-            caseEquiv.innerHTML = `~ ${kmVoiture.toLocaleString('fr-FR')} km en voiture <span class="tooltip">ⓘ<span class="tooltip-text">Équivalence estimée (0,2 kg CO₂/km). Basée sur la moyenne des émissions de la classe multipliée par la surface.</span></span>`;
-            caseEquiv.style.color = "var(--papernest-blue)";
+            caseEquiv.innerHTML = `Émet l'équivalent de :<br><strong style="color: var(--text-dark); font-size: 15px; margin-top: 4px; display: block;">~ ${kmVoiture.toLocaleString('fr-FR')} km en voiture <span class="tooltip" style="font-weight:normal; font-size:14px; margin-left: 2px;">ⓘ<span class="tooltip-text">Équivalence estimée (0,2 kg CO₂/km). Basée sur la moyenne des émissions de la classe multipliée par la surface.</span></span></strong>`;
         } else {
-            caseEquiv.innerHTML = `Émissions CO₂ <span class="tooltip">ⓘ<span class="tooltip-text">Équivalence estimée (0,2 kg CO₂/km). Basée sur la moyenne des émissions de la classe multipliée par la surface.</span></span>`;
-            caseEquiv.style.color = "var(--text-dark)";
+            caseEquiv.innerHTML = `Émet l'équivalent de :<br><strong style="color: var(--text-light); font-size: 14px; margin-top: 4px; display: block;">Non estimable <span class="tooltip" style="font-weight:normal; font-size:14px;">ⓘ<span class="tooltip-text">Équivalence estimée (0,2 kg CO₂/km). Basée sur la moyenne des émissions de la classe multipliée par la surface.</span></span></strong>`;
         }
-
-        document.getElementById('val-annee').innerText = logementChoisi.annee || "Non renseignée";
-        document.getElementById('val-conso').innerText = !isNaN(consoVal) ? Math.round(consoVal) + " kWh/m²/an" : "-";
 
         const caseMoyenne = document.getElementById('val-moyenne-ville');
         
@@ -698,7 +720,7 @@
                 if (monMarqueur) maCarte.removeLayer(monMarqueur);
                 monMarqueur = L.marker([coords.lat, coords.lon], {icon: papernestIcon}).addTo(maCarte)
                     .bindPopup(`<b style="color:${couleursDPE[logementChoisi.dpe] || 'var(--text-dark)'}; font-size:16px;">DPE ${logementChoisi.dpe || '?'}</b>`).openPopup();
-                maCarte.flyTo([coords.lat, coords.lon], 16, { duration: 1.5 });
+                maCarte.flyTo([coords.lat, coords.lon], 18, { duration: 1.5 });
             }
         }, 100);
     }
